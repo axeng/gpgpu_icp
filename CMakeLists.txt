@@ -28,17 +28,16 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -march=native -fl
 #################################################
 
 #################### SOURCES ####################
-# Common sources
-set(PARSER_SOURCES
-        src/parser/parser.cc)
-
-set(UTILS_SOURCES
-        src/utils.cc)
-
 # CPU sources
+set(CPU_PARSER_SOURCES
+        src/cpu/parser/parser.cc)
+
+set(CPU_UTILS_SOURCES
+        src/cpu/utils/utils.cc)
+
 set(CPU_SOURCES
-        ${PARSER_SOURCES}
-        ${UTILS_SOURCES}
+        ${CPU_PARSER_SOURCES}
+        ${CPU_UTILS_SOURCES}
         src/cpu/cpu.cc)
 #################################################
 

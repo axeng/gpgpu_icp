@@ -3,6 +3,9 @@ project(gpgpu_icp)
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(CPU_TARGET cpu)
+set(GPU_TARGET gpu)
+
 # Automatic Compilation Flag to Release
 if (NOT CMAKE_BUILD_TYPE)
     message(STATUS "No build type selected, default to Release")
@@ -25,7 +28,20 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -march=native -fl
 #################################################
 
 #################### SOURCES ####################
-# TODO
+# Common sources
+set(PARSER_SOURCES
+        src/parser/parser.cc)
+
+set(UTILS_SOURCES
+        src/utils.cc)
+
+# CPU sources
+set(CPU_SOURCES
+        ${PARSER_SOURCES}
+        ${UTILS_SOURCES}
+        src/cpu/cpu.cc)
 #################################################
 
-# TODO
+# CPU Executable
+add_executable(${CPU_TARGET}
+        ${CPU_SOURCES})

@@ -2,6 +2,11 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
+#include <fstream>
+#include <tuple>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 namespace parser
 {

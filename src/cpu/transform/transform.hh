@@ -39,6 +39,7 @@ namespace transform
     double getDeterminant(const std::vector<std::vector<double>>& setPoint,
         int dimension);
 
-    void SVD(const std::vector<std::vector<double>>& setPoint);
+    void svd(std::vector<std::vector<double>> matrix, std::vector<std::vector<double>>& s,
+	std::vector<std::vector<double>>& u, std::vector<std::vector<double>>& v);
 
 } // namespace transform

@@ -1,108 +1,98 @@
 #include "transform.hh"
 
-
 namespace transform
 {
     // Input : array containing tuple of 3 elements
-    unsigned int getFitTransform(std::vector<std::tuple<double, double, double>>& first, std::vector<std::tuple<double, double, double>>& second)
+    unsigned int get_fit_transform(const points_t& A, const points_t& B)
     {
-/*
-def best_fit_transform(A, B):
-    '''
-    Calculates the least-squares best-fit transform that maps corresponding points A to B in m spatial dimensions
-    Input:
-      A: Nxm numpy array of corresponding points
-      B: Nxm numpy array of corresponding points
-    Returns:
-      T: (m+1)x(m+1) homogeneous transformation matrix that maps A on to B
-      R: mxm rotation matrix
-      t: mx1 translation vector
-    '''
+        /*
+        def best_fit_transform(A, B):
+            '''
+            Calculates the least-squares best-fit transform that maps corresponding points A to B in m spatial
+        dimensions Input: A: Nxm numpy array of corresponding points B: Nxm numpy array of corresponding points Returns:
+              T: (m+1)x(m+1) homogeneous transformation matrix that maps A on to B
+              R: mxm rotation matrix
+              t: mx1 translation vector
+            '''
 
-    assert A.shape == B.shape
+            assert A.shape == B.shape
 
-    # get number of dimensions
-    m = A.shape[1]
+            # get number of dimensions
+            m = A.shape[1]
 
-    # translate points to their centroids
-    centroid_A = np.mean(A, axis=0)
-    centroid_B = np.mean(B, axis=0)
-    AA = A - centroid_A
-    BB = B - centroid_B
+            # translate points to their centroids
+            centroid_A = np.mean(A, axis=0)
+            centroid_B = np.mean(B, axis=0)
+            AA = A - centroid_A
+            BB = B - centroid_B
 
-    # rotation matrix
-    H = np.dot(AA.T, BB)
-    U, S, Vt = np.linalg.svd(H)
-    R = np.dot(Vt.T, U.T)
+            # rotation matrix
+            H = np.dot(AA.T, BB)
+            U, S, Vt = np.linalg.svd(H)
+            R = np.dot(Vt.T, U.T)
 
-    # special reflection case
-    if np.linalg.det(R) < 0:
-       Vt[m-1,:] *= -1
-       R = np.dot(Vt.T, U.T)
+            # special reflection case
+            if np.linalg.det(R) < 0:
+               Vt[m-1,:] *= -1
+               R = np.dot(Vt.T, U.T)
 
-    # translation
-    t = centroid_B.T - np.dot(R,centroid_A.T)
+            # translation
+            t = centroid_B.T - np.dot(R,centroid_A.T)
 
-    # homogeneous transformation
-    T = np.identity(m+1)
-    T[:m, :m] = R
-    T[:m, m] = t
+            # homogeneous transformation
+            T = np.identity(m+1)
+            T[:m, :m] = R
+            T[:m, m] = t
 
-    return T, R, t*/
+            return T, R, t*/
 
         unsigned int result = 0;
 
         // Check shape for each set
-        // FIXME : Missing the dimension check (== 3)
-        if (first.size() != second.size())
+        if (A.empty() || B.empty() || (A[0].size() != B[0].size()))
         {
-            return nullptr;
+            return nullptr; // FIXME
         }
-
-        std::vector<std::vector<double>> A = transformToMarix(first);
-        std::vector<std::vector<double>> B = transformToMarix(second);
-
         // Get the dimension of stored points
         int dim = 3;
 
         // Get the centroids : mean point values
-        std::vector<std::vector<double>> centroidA;
-        std::vector<std::vector<double>> centroidB;
+        points_t centroid_A;
+        points_t centroid_B;
 
-        getCendroid(A, centroidA);
-        getCendroid(B, centroidB);
+        get_centroid(A, centroid_A);
+        get_centroid(B, centroid_B);
 
-        std::vector<std::vector<double>> AA;
-        std::vector<std::vector<double>> BB;
-
+        points_t AA;
+        points_t BB;
 
         // Translate points to their centroids
-        substractByCentroid(A, centroidA, AA);
-        substractByCentroid(B, centroidB, BB);
+        subtract_by_centroid(A, centroid_A, AA);
+        subtract_by_centroid(B, centroid_B, BB);
 
-        std::vector<std::vector<double>> AA_T;
+        points_t AA_T;
         matrix_transpose(AA, AA_T);
 
         // Rotation Matrix
-        std::vector<std::vector<double>> H;
+        points_t H;
         matrix_by_matrix(AA_T, BB, H);
 
-        std::vector<std::vector<double>> s;
-        std::vector<std::vector<double>> u;
-        std::vector<std::vector<double>> Vt;
+        points_t s;
+        points_t u;
+        points_t Vt;
 
         svd(H, s, u, Vt);
 
-        std::vector<std::vector<double>> Vt_T;
-        std::vector<std::vector<double>> u_T;
-        
+        points_t Vt_T;
+        points_t u_T;
+
         matrix_transpose(Vt, Vt_T);
         matrix_transpose(u, u_T);
 
-        std::vector<std::vector<double>> R;
+        points_t R;
         matrix_by_matrix(Vt_T, u_T, R);
 
-        if (getDeterminant(R) < 0)
+        if (get_determinant(R, R.size()) < 0)
         {
             // Setup second dimension to *= -1
             // Vt[m-1,:] *= -1
@@ -119,134 +109,102 @@ def best_fit_transform(A, B):
         // translation
         // t = centroid_B.T - np.dot(R,centroid_A.T);
 
-        std::vector<std::vector<double>> centroidA_T;
-        std::vector<std::vector<double>> centroidB_T;
-        std::vector<std::vector<double>> tmp;
+        points_t centroid_A_T;
+        points_t centroid_B_T;
+        points_t tmp;
 
-        matrix_transpose(centroidA, centroidA_T);
-        matrix_transpose(centroidB, centroidB_T);
-        matrix_by_matrix(R, centroidA_T, tmp);
+        matrix_transpose(centroid_A, centroid_A_T);
+        matrix_transpose(centroid_B, centroid_B_T);
+        matrix_by_matrix(R, centroid_A_T, tmp);
 
-        std::vector<std::vector<double>> t;
-        substract_centroid(first, centroid, result);
+        points_t t;
+        subtract_by_centroid(centroid_B_T, tmp, t);
 
-        // homogeneous transformation
-        T = np.identity(m+1)
-        T[:m, :m] = R
-        T[:m, m] = t
 
-        return T, R, t
-
-            return result;
-        }
-
-    }
-
-    /**
-     * 
-     * Return the given set of points transformed as a matrix
-     */
-    std::vector<std::vector<double>> transformToMarix(const std::vector<std::tuple<double,double,double>>& setPoint)
-    {
-        int numberColumns = 3;
-        size_t nbPoints = setPoint.size();
-        std::vector<std::vector<double>> result(nbPoints, numberColumns); // All values defined 0
-
-        for (size_t i = 0; i < nbPoints; i++)
-        {
-            for (int j = 0; j < numberColumns; j++)
-            {
-                result[i][j] = std::get<j>(setPoint[i]);
-            }
-        }
-
-        return result;
     }
 
     /**
      * Return the mean point of the given setPoint : the centroid
      */
-    void getCentroid(const std::vector<std::vector<double>>& setPoint,
-        std::vector<std::vector<double>>& result)
+    void get_centroid(const points_t& set_point, points_t& result)
     {
         double x = 0;
         double y = 0;
         double z = 0;
 
-        int nbElements = setPoint.size();
+        int nb_elements = set_point.size();
 
-        for (const &std::vector<double> point : setPoint)
+        for (const auto& point : set_point)
         {
             x += point[0];
             y += point[1];
             z += point[2];
         }
 
-        x /= nbElements;
-        y /= nbElements;
-        z /= nbElements;
+        x /= nb_elements;
+        y /= nb_elements;
+        z /= nb_elements;
 
-        result = {{x, y, z}};
+        point_t& points = {x, y, z};
+        result.push_back(points);
     }
 
-
     /**
-     * Return the set obtained by substracting the given point to each 
+     * Return the set obtained by substracting the given point to each
      *      point of the given vector to the given point.
      */
-    void substractByCentroid(const std::vector<std::vector<double>>& setPoint,
-        const std::vector<std::vector<double>>& centroid, 
-        std::vector<std::vector<double>>& result)
+    void subtract_by_centroid(const points_t& set_point, const points_t& centroid, points_t& result)
     {
         // init
-        result = setPoint;
+        result.assign(set_point.begin(), set_point.end());
 
-        int nbColumns = 3;
-        const size_t l = setPoint.size();
+        int nb_columns = 3;
+        const size_t l = set_point.size();
 
-        for (const size_t i = 0; i < l; i++)
+        for (size_t i = 0; i < l; i++)
         {
-            for (int j = 0; j < nbColumns; j++)
+            for (int j = 0; j < nb_columns; j++)
             {
-                result[i][j] = setPoint[i][j] - centroid[0][j]
+                result[i][j] = set_point[i][j] - centroid[0][j]
             }
         }
-
     }
 
     /**
-     * 
+     *
      * Return the determinant of the given set of Points
      */
-    double getDeterminant(const std::vector<std::vector<double>>& setPoint,
-        int dimension)
+    double get_determinant(const points_t& set_point, int dimension)
     {
         double det = 0;
-        double subSet = setPoint;
-        std::fill(subSet.begin(), subSet.end(), 0);
+
+        points_t sub_set;
+        for (auto i = 0; i < set_point.size(); i++)
+        {
+            sub_set.assign(set_point[i].size(), 0);
+        }
 
         if (dimension == 2)
         {
-            return ((setPoint[0][0] * setPoint[1][1]) - (setPoint[1][0] * setPoint[0][1]));
-        }
-        else 
+            return ((set_point[0][0] * set_point[1][1]) - (set_point[1][0] * set_point[0][1]));
+        } else
         {
-            for (int x = 0; x < n; x++) 
+            for (int x = 0; x < dimension; x++)
             {
                 int subi = 0;
-                for (int i = 1; i < n; i++)
+                for (int i = 1; i < dimension; i++)
                 {
                     int subj = 0;
-                    for (int j = 0; j < n; j++) 
+                    for (int j = 0; j < dimension; j++)
                     {
                         if (j == x)
                             continue;
-                        subSet[subi][subj] = setPoint[i][j];
+                        sub_set[subi][subj] = set_point[i][j];
                         subj++;
                     }
                     subi++;
                 }
-                det = det + (pow(-1, x) * setPoint[0][x] * determinant(subSet, n - 1 ));
+                det = det + (pow(-1, x) * set_point[0][x] * get_determinant(sub_set, dimension - 1));
             }
         }
         return det;
@@ -255,8 +213,10 @@ def best_fit_transform(A, B):
     /**
      * Return the SVD computation
      */
-    void svd(std::vector<std::vector<double>> matrix, std::vector<std::vector<double>>& s,
-	std::vector<std::vector<double>>& u, std::vector<std::vector<double>>& v)
+    void svd(std::vector<std::vector<double>> matrix,
+             std::vector<std::vector<double>>& s,
+             std::vector<std::vector<double>>& u,
+             std::vector<std::vector<double>>& v)
     {
         std::vector<std::vector<double>> matrix_t;
         matrix_transpose(matrix, matrix_t);
@@ -290,12 +250,14 @@ def best_fit_transform(A, B):
         matrix_by_matrix(av_matrix, s_inverse, u);
     }
 
-
     void compute_evd(std::vector<std::vector<double>> matrix,
-	std::vector<double>& eigenvalues, std::vector<std::vector<double>>& eigenvectors, std::size_t eig_count)
+                     std::vector<double>& eigenvalues,
+                     std::vector<std::vector<double>>& eigenvectors,
+                     std::size_t eig_count)
     {
         std::size_t m_size = matrix.size();
-        std::vector<double> vec; vec.resize(m_size);
+        std::vector<double> vec;
+        vec.resize(m_size);
         std::fill_n(vec.begin(), m_size, 1);
 
         static std::vector<std::vector<double>> matrix_i;
@@ -307,13 +269,15 @@ def best_fit_transform(A, B):
             matrix_i = matrix;
         }
 
-        std::vector<std::vector<double>> m; m.resize(m_size);
+        std::vector<std::vector<double>> m;
+        m.resize(m_size);
         for (std::uint32_t row = 0; row < m_size; row++)
             m[row].resize(100);
 
         double lambda_old = 0;
 
-        std::uint32_t index = 0; bool is_eval = false;
+        std::uint32_t index = 0;
+        bool is_eval = false;
         while (is_eval == false)
         {
             for (std::uint32_t row = 0; row < m_size && (index % 100) == 0; row++)
@@ -331,12 +295,12 @@ def best_fit_transform(A, B):
 
             if (index > 0)
             {
-                double lambda = (m[0][index - 1] != 0) ? \
-                    (m[0][index] / m[0][index - 1]) : m[0][index];
+                double lambda = (m[0][index - 1] != 0) ? (m[0][index] / m[0][index - 1]) : m[0][index];
                 is_eval = (std::fabs(lambda - lambda_old) < 0.0000000001) ? true : false;
 
                 lambda = (std::fabs(lambda) >= 10e-6) ? lambda : 0;
-                eigenvalues[eig_count] = lambda; lambda_old = lambda;
+                eigenvalues[eig_count] = lambda;
+                lambda_old = lambda;
             }
 
             index++;
@@ -353,8 +317,8 @@ def best_fit_transform(A, B):
             {
                 matrix_tdoubleet[row].resize(m_size);
                 for (std::uint32_t col = 0; col < m_size; col++)
-                    matrix_tdoubleet[row][col] = (row == col) ? \
-                    (matrix[row][col] - eigenvalues[eig_count]) : matrix[row][col];
+                    matrix_tdoubleet[row][col] =
+                        (row == col) ? (matrix[row][col] - eigenvalues[eig_count]) : matrix[row][col];
             }
 
             std::vector<double> eigenvector;
@@ -387,8 +351,7 @@ def best_fit_transform(A, B):
                 {
                     matrix_tdoubleet[row].resize(matrix_i.size());
                     for (std::uint32_t col = 0; col < matrix_i.size(); col++)
-                        matrix_tdoubleet[row][col] = (row == col) ? \
-                        (matrix_i[row][col] - lambda) : matrix_i[row][col];
+                        matrix_tdoubleet[row][col] = (row == col) ? (matrix_i[row][col] - lambda) : matrix_i[row][col];
                 }
 
                 eigenvectors.resize(matrix_i.size());
@@ -412,9 +375,7 @@ def best_fit_transform(A, B):
         return;
     }
 
-
-    void get_hermitian_matrix(std::vector<double> eigenvector,
-	std::vector<std::vector<double>>& h_matrix)
+    void get_hermitian_matrix(std::vector<double> eigenvector, std::vector<std::vector<double>>& h_matrix)
     {
         h_matrix.resize(eigenvector.size());
         for (std::uint32_t row = 0; row < eigenvector.size(); row++)
@@ -428,9 +389,7 @@ def best_fit_transform(A, B):
             h_matrix[row][row] = 1;
     }
 
-
-    void get_hermitian_matrix_inverse(std::vector<double> eigenvector,
-	std::vector<std::vector<double>>& ih_matrix)
+    void get_hermitian_matrix_inverse(std::vector<double> eigenvector, std::vector<std::vector<double>>& ih_matrix)
     {
         ih_matrix.resize(eigenvector.size());
         for (std::uint32_t row = 0; row < eigenvector.size(); row++)
@@ -444,13 +403,14 @@ def best_fit_transform(A, B):
             ih_matrix[row][row] = 1;
     }
 
-    void jordan_gaussian_transform(
-	std::vector<std::vector<double>> matrix, std::vector<double>& eigenvector)
+    void jordan_gaussian_transform(std::vector<std::vector<double>> matrix, std::vector<double>& eigenvector)
     {
-        const double eps = 0.000001; bool eigenv_found = false;
+        const double eps = 0.000001;
+        bool eigenv_found = false;
         for (std::uint32_t s = 0; s < matrix.size() - 1 && !eigenv_found; s++)
         {
-            std::uint32_t col = s; double alpha = matrix[s][s];
+            std::uint32_t col = s;
+            double alpha = matrix[s][s];
             while (col < matrix[s].size() && alpha != 0 && alpha != 1)
                 matrix[s][col++] /= alpha;
 
@@ -465,13 +425,13 @@ def best_fit_transform(A, B):
             }
 
             std::uint32_t row = 0;
-            while (row < matrix.size() &&
-                (s == matrix.size() - 1 || std::fabs(matrix[s + 1][s + 1]) < eps))
+            while (row < matrix.size() && (s == matrix.size() - 1 || std::fabs(matrix[s + 1][s + 1]) < eps))
                 eigenvector.push_back(-matrix[row++][s + 1]);
 
             if (eigenvector.size() == matrix.size())
             {
-                eigenv_found = true; eigenvector[s + 1] = 1;
+                eigenv_found = true;
+                eigenvector[s + 1] = 1;
                 for (std::uint32_t index = s + 1; index < eigenvector.size(); index++)
                     eigenvector[index] = (std::fabs(eigenvector[index]) >= eps) ? eigenvector[index] : 0;
             }
@@ -479,7 +439,7 @@ def best_fit_transform(A, B):
     }
 
     void get_inverse_diagonal_matrix(std::vector<std::vector<double>> matrix,
-	std::vector<std::vector<double>>& inv_matrix)
+                                     std::vector<std::vector<double>>& inv_matrix)
     {
         inv_matrix.resize(matrix.size());
         for (std::uint32_t index = 0; index < matrix.size(); index++)
@@ -490,7 +450,8 @@ def best_fit_transform(A, B):
     }
 
     void get_reduced_matrix(std::vector<std::vector<double>> matrix,
-	std::vector<std::vector<double>>& r_matrix, std::size_t new_size)
+                            std::vector<std::vector<double>>& r_matrix,
+                            std::size_t new_size)
     {
         r_matrix.resize(new_size);
         std::size_t index_d = matrix.size() - new_size;
@@ -502,42 +463,50 @@ def best_fit_transform(A, B):
             while (col < matrix.size())
                 r_matrix[row_n][col_n++] = matrix[row][col++];
 
-            row++; row_n++;
+            row++;
+            row_n++;
         }
     }
 
-    void matrix_by_matrix(std::vector<std::vector<double>> matrix1,
-	std::vector<std::vector<double>>& matrix2, std::vector<std::vector<double>>& matrix3)
+    void matrix_by_matrix(const points_t& matrix1, const points_t& matrix2, points_t& matrix3)
     {
         matrix3.resize(matrix1.size());
-        for (std::uint32_t row = 0; row < matrix1.size(); row++)
+
+        for (auto row = 0; row < matrix1.size(); row++)
         {
             matrix3[row].resize(matrix1[row].size());
-            for (std::uint32_t col = 0; col < matrix1[row].size(); col++)
+
+            for (auto col = 0; col < matrix1[row].size(); col++)
             {
-                matrix3[row][col] = 0.00;
-                for (std::uint32_t k = 0; k < matrix1[row].size(); k++)
+                matrix3[row][col] = 0.0;
+
+                for (auto k = 0; k < matrix1[row].size(); k++)
+                {
                     matrix3[row][col] += matrix1[row][k] * matrix2[k][col];
+                }
             }
         }
     }
 
-    void matrix_transpose(std::vector<std::vector<double>> matrix1,
-	std::vector<std::vector<double>>& matrix2)
+    void matrix_transpose(const points_t& matrix1, points_t& matrix2)
     {
         matrix2.resize(matrix1.size());
-        for (std::uint32_t row = 0; row < matrix1.size(); row++)
+
+        for (auto row = 0; row < matrix1.size(); row++)
         {
             matrix2[row].resize(matrix1[row].size());
-            for (std::uint32_t col = 0; col < matrix1[row].size(); col++)
+
+            for (auto col = 0; col < matrix1[row].size(); col++)
+            {
                 matrix2[row][col] = matrix1[col][row];
+            }
         }
     }
 
-    void generate_matrix(std::vector<std::vector<long double="">>& \
-	matrix, std::size_t rows, std::size_t cols)
+    void generate_matrix(std::vector<std::vector<long double = "">>& matrix, std::size_t rows, std::size_t cols)
     {
-        std::srand((unsigned int)std::time(nullptr)); matrix.resize(rows);
+        std::srand((unsigned int)std::time(nullptr));
+        matrix.resize(rows);
         for (std::size_t row = 0; row < matrix.size(); row++)
         {
             matrix[row].resize(cols);
@@ -546,7 +515,7 @@ def best_fit_transform(A, B):
         }
     }
 
-    void print_matrix(std::vector<std::vector<long double="">>	matrix)
+    void print_matrix(std::vector<std::vector<long double = "">> matrix)
     {
         for (std::size_t row = 0; row < matrix.size(); row++)
         {
@@ -560,8 +529,8 @@ def best_fit_transform(A, B):
     }
 
     void substract_matrix(const std::vector<std::vector<double>>& first,
-        const std::vector<std::vector<double>>& second,
-        std::vector<std::vector<double>>& result)
+                          const std::vector<std::vector<double>>& second,
+                          std::vector<std::vector<double>>& result)
     {
         matrix2.resize(matrix1.size());
         for (std::uint32_t row = 0; row < matrix1.size(); row++)

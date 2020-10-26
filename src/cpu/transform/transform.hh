@@ -1,45 +1,36 @@
 #pragma once
 
+#include <math.h>
 #include <tuple>
 #include <vector>
-#include <math.h>
+
+#include "cpu/parser/parser.hh"
 
 namespace transform
 {
-    unsigned int getFitTransform(std::vector<std::tuple<double, double, double>> A, std::vector<std::tuple<double, double, double>> B);
+    using point_t = parser::point_t;
+    using points_t = parser::points_t;
 
-    std::vector<std::vector<int>> transformToMarix(const std::vector<std::tuple<double,double,double>>& setPoint);
+    unsigned int get_fit_transform(const points_t& A, const points_t& B;
 
+    void get_centroid(const points_t& set_point, points_t& result);
 
-    void getCendroid(const std::vector<std::tuple<double,double,double>>& setPoint,
-        const std::tuple<double,double,double>& result);
+    void subtract_by_centroid(const points_t& set_point,
+                             const points_t& centroid,
+                             points_t& result);
 
-    void getCentroid(const std::vector<std::vector<double>>& setPoint,
-        std::vector<double>& result);
+    void matrix_transpose(const points_t& matrix1, points_t& matrix2);
 
-    
+    void matrix_by_matrix(const points_t& matrix1,
+                          const points_t& matrix2,
+                          points_t& matrix3);
 
-    void substractByCentroid(const std::vector<std::tuple<double,double,double>>& setPoint,
-        const std::tuple<double,double,double>& centroid, 
-        std::vector<std::tuple<double,double,double>>& setPoint result);
+    double get_determinant(const points_t& set_point, int dimension);
 
-    void substractByCentroid(const std::vector<std::vector<double>>& setPoint,
-        const std::vector<double>& centroid, 
-        std::vector<std::vector<double>>& result);
+    // ------------------------------------------
 
-
-    void dotProduct(const std::vector<std::tuple<double,double,double>>& firstSet,
-        const std::vector<std::tuple<double,double,double>>& secondSet,
-        std::vector<std::tuple<double,double,double>>& result);
-
-
-    void transpose(const std::vector<std::tuple<double,double,double>>& firstSet,
-        std::vector<std::tuple<double,double,double>>& result);
-
-    double getDeterminant(const std::vector<std::vector<double>>& setPoint,
-        int dimension);
-
-    void svd(std::vector<std::vector<double>> matrix, std::vector<std::vector<double>>& s,
-	std::vector<std::vector<double>>& u, std::vector<std::vector<double>>& v);
-
+    void svd(std::vector<std::vector<double>> matrix,
+             std::vector<std::vector<double>>& s,
+             std::vector<std::vector<double>>& u,
+             std::vector<std::vector<double>>& v);
 } // namespace transform

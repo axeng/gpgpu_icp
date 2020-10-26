@@ -45,11 +45,15 @@ include_directories(src)
 set(CPU_PARSER_SOURCES
         src/cpu/parser/parser.cc)
 
+set(CPU_TRANSFORM_SOURCES
+        src/cpu/transform/transform.cc)
+
 set(CPU_UTILS_SOURCES
         src/cpu/utils/utils.cc)
 
 set(CPU_SOURCES
         ${CPU_PARSER_SOURCES}
+        ${CPU_TRANSFORM_SOURCES}
         ${CPU_UTILS_SOURCES})
 
 set(CPU_EXEC_SOURCES

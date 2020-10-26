@@ -24,7 +24,14 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -march=native -fl
 #################################################
 
 ############### EXTERNAL LIBRARIES ##############
-# TODO
+# Boost
+find_package(Boost COMPONENTS system REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+
+# Benchmark
+set(BENCHMARK_DOWNLOAD_DEPENDENCIES ON)
+set(BENCHMARK_ENABLE_TESTING OFF)
+add_subdirectory(vendor/google/benchmark EXCLUDE_FROM_ALL)
 #################################################
 
 #################### SOURCES ####################
@@ -37,10 +44,23 @@ set(CPU_UTILS_SOURCES
 
 set(CPU_SOURCES
         ${CPU_PARSER_SOURCES}
-        ${CPU_UTILS_SOURCES}
+        ${CPU_UTILS_SOURCES})
+
+set(CPU_EXEC_SOURCES
+        ${CPU_SOURCES}
         src/cpu/cpu.cc)
+
+# Benchmarking Sources
+set(BENCH_SOURCES
+        bench/main.cc
+        ${CPU_SOURCES})
 #################################################
 
 # CPU Executable
 add_executable(${CPU_TARGET}
-        ${CPU_SOURCES})
+        ${CPU_EXEC_SOURCES})
+
+# Benchmarking Executable
+add_executable(bench EXCLUDE_FROM_ALL ${BENCH_SOURCES})
+target_include_directories(bench PRIVATE bench)
+target_link_libraries(bench PRIVATE benchmark::benchmark ${Boost_LIBRARIES})

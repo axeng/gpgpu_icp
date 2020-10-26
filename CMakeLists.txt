@@ -42,6 +42,9 @@ include_directories(src)
 
 #################### SOURCES ####################
 # CPU sources
+set(CPU_ICP_SOURCES
+        src/cpu/icp/icp.cc)
+
 set(CPU_PARSER_SOURCES
         src/cpu/parser/parser.cc)
 
@@ -52,6 +55,7 @@ set(CPU_UTILS_SOURCES
         src/cpu/utils/utils.cc)
 
 set(CPU_SOURCES
+        ${CPU_ICP_SOURCES}
         ${CPU_PARSER_SOURCES}
         ${CPU_TRANSFORM_SOURCES}
         ${CPU_UTILS_SOURCES})

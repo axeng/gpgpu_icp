@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
         std::cerr << "[ERROR] takes an argument\n";
         return 1;
     }
-    std::vector<std::tuple<double, double, double>> vect_point;
+    parser::points_t vect_point;
     bool ret = parser::parse_file(argv[1], vect_point); 
     if (!ret)
     {

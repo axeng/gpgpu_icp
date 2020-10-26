@@ -1,6 +1,6 @@
 #pragma once
 
-#include <math.h>
+#include <cmath>
 #include <tuple>
 #include <vector>
 
@@ -11,7 +11,7 @@ namespace transform
     using point_t = parser::point_t;
     using points_t = parser::points_t;
 
-    unsigned int get_fit_transform(const points_t& A, const points_t& B;
+    void get_fit_transform(const points_t& A, const points_t& B, points_t& T, points_t& R, points_t& t);
 
     void get_centroid(const points_t& set_point, points_t& result);
 
@@ -27,10 +27,16 @@ namespace transform
 
     double get_determinant(const points_t& set_point, int dimension);
 
-    // ------------------------------------------
+    void svd(const points_t& matrix, points_t& s, points_t& u, points_t& v);
 
-    void svd(std::vector<std::vector<double>> matrix,
-             std::vector<std::vector<double>>& s,
-             std::vector<std::vector<double>>& u,
-             std::vector<std::vector<double>>& v);
+    void compute_evd(const points_t& matrix, point_t& eigenvalues, points_t& eigenvectors, std::size_t eig_count);
+
+    void get_hermitian_matrix(point_t eigenvector, points_t& h_matrix);
+    void get_hermitian_matrix_inverse(point_t eigenvector, points_t& ih_matrix);
+
+    void jordan_gaussian_transform(points_t& matrix, point_t& eigenvector);
+
+    void get_inverse_diagonal_matrix(const points_t& matrix, points_t& inv_matrix);
+
+    void get_reduced_matrix(const points_t& matrix, points_t& r_matrix, std::size_t new_size);
 } // namespace transform

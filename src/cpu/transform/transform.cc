@@ -3,7 +3,7 @@
 namespace transform
 {
     // Input : array containing tuple of 3 elements
-    unsigned int get_fit_transform(const points_t& A, const points_t& B)
+    void get_fit_transform(const points_t& A, const points_t& B, points_t& T, points_t& R, points_t& t)
     {
         /*
         def best_fit_transform(A, B):
@@ -46,15 +46,13 @@ namespace transform
 
             return T, R, t*/
 
-        unsigned int result = 0;
-
         // Check shape for each set
         if (A.empty() || B.empty() || (A[0].size() != B[0].size()))
         {
-            return nullptr; // FIXME
+            return; // FIXME
         }
         // Get the dimension of stored points
-        int dim = 3;
+        std::size_t dim = 3;
 
         // Get the centroids : mean point values
         points_t centroid_A;
@@ -89,7 +87,6 @@ namespace transform
         matrix_transpose(Vt, Vt_T);
         matrix_transpose(u, u_T);
 
-        points_t R;
         matrix_by_matrix(Vt_T, u_T, R);
 
         if (get_determinant(R, R.size()) < 0)
@@ -117,10 +114,41 @@ namespace transform
         matrix_transpose(centroid_B, centroid_B_T);
         matrix_by_matrix(R, centroid_A_T, tmp);
 
-        points_t t;
         subtract_by_centroid(centroid_B_T, tmp, t);
 
+        // T = np.identity(m+1)
+        for (std::size_t i = 0; i < dim + 1; i++)
+        {
+            point_t sub_T;
+            for (std::size_t j = 0; j < dim + 1; j++)
+            {
+                if (i == j)
+                {
+                    sub_T.push_back(1);
+                }
+                else
+                {
+                    sub_T.push_back(0);
+                }
+            }
 
+            T.push_back(sub_T);
+        }
+
+        // T[:m, :m] = R
+        for (std::size_t i = 0; i < dim; i++)
+        {
+            for (std::size_t j = 0; j < dim; j++)
+            {
+                T[i][j] = R[i][j];
+            }
+        }
+
+        // T[:m, m] = t
+        for (std::size_t i = 0; i < dim; i++)
+        {
+            T[i][dim] = t[i][0];
+        }
     }
 
     /**
@@ -145,7 +173,7 @@ namespace transform
         y /= nb_elements;
         z /= nb_elements;
 
-        point_t& points = {x, y, z};
+        point_t points = {x, y, z};
         result.push_back(points);
     }
 
@@ -165,7 +193,7 @@ namespace transform
         {
             for (int j = 0; j < nb_columns; j++)
             {
-                result[i][j] = set_point[i][j] - centroid[0][j]
+                result[i][j] = set_point[i][j] - centroid[0][j];
             }
         }
     }
@@ -179,15 +207,23 @@ namespace transform
         double det = 0;
 
         points_t sub_set;
-        for (auto i = 0; i < set_point.size(); i++)
+
+        for (const auto& e : set_point)
         {
-            sub_set.assign(set_point[i].size(), 0);
+            point_t sub_list;
+            for (std::size_t i = 0; i < e.size(); i++)
+            {
+                sub_list.push_back(0);
+            }
+
+            sub_set.push_back(sub_list);
         }
 
         if (dimension == 2)
         {
             return ((set_point[0][0] * set_point[1][1]) - (set_point[1][0] * set_point[0][1]));
-        } else
+        }
+        else
         {
             for (int x = 0; x < dimension; x++)
             {
@@ -213,24 +249,21 @@ namespace transform
     /**
      * Return the SVD computation
      */
-    void svd(std::vector<std::vector<double>> matrix,
-             std::vector<std::vector<double>>& s,
-             std::vector<std::vector<double>>& u,
-             std::vector<std::vector<double>>& v)
+    void svd(const points_t& matrix, points_t& s, points_t& u, points_t& v)
     {
-        std::vector<std::vector<double>> matrix_t;
+        points_t matrix_t;
         matrix_transpose(matrix, matrix_t);
 
-        std::vector<std::vector<double>> matrix_product1;
+        points_t matrix_product1;
         matrix_by_matrix(matrix, matrix_t, matrix_product1);
 
-        std::vector<std::vector<double>> matrix_product2;
+        points_t matrix_product2;
         matrix_by_matrix(matrix_t, matrix, matrix_product2);
 
-        std::vector<std::vector<double>> u_1;
-        std::vector<std::vector<double>> v_1;
+        points_t u_1;
+        points_t v_1;
 
-        std::vector<double> eigenvalues;
+        point_t eigenvalues;
         compute_evd(matrix_product2, eigenvalues, v_1, 0);
 
         matrix_transpose(v_1, v);
@@ -242,98 +275,112 @@ namespace transform
             s[index][index] = eigenvalues[index];
         }
 
-        std::vector<std::vector<double>> s_inverse;
+        points_t s_inverse;
         get_inverse_diagonal_matrix(s, s_inverse);
 
-        std::vector<std::vector<double>> av_matrix;
+        points_t av_matrix;
         matrix_by_matrix(matrix, v, av_matrix);
         matrix_by_matrix(av_matrix, s_inverse, u);
     }
 
-    void compute_evd(std::vector<std::vector<double>> matrix,
-                     std::vector<double>& eigenvalues,
-                     std::vector<std::vector<double>>& eigenvectors,
-                     std::size_t eig_count)
+    void compute_evd(const points_t& matrix, point_t& eigenvalues, points_t& eigenvectors, std::size_t eig_count)
     {
         std::size_t m_size = matrix.size();
-        std::vector<double> vec;
+
+        point_t vec;
         vec.resize(m_size);
         std::fill_n(vec.begin(), m_size, 1);
 
-        static std::vector<std::vector<double>> matrix_i;
+        // TODO take a look at this -> static std::vector<std::vector<double>> matrix_i;
+        points_t matrix_i;
 
-        if (eigenvalues.size() == 0 && eigenvectors.size() == 0)
+        if (eigenvalues.empty() && eigenvectors.empty())
         {
             eigenvalues.resize(m_size);
             eigenvectors.resize(eigenvalues.size());
             matrix_i = matrix;
         }
 
-        std::vector<std::vector<double>> m;
+        points_t m;
         m.resize(m_size);
+
         for (std::uint32_t row = 0; row < m_size; row++)
+        {
             m[row].resize(100);
+        }
 
         double lambda_old = 0;
 
-        std::uint32_t index = 0;
+        std::uint32_t index_eval = 0;
         bool is_eval = false;
-        while (is_eval == false)
+
+        while (!is_eval)
         {
-            for (std::uint32_t row = 0; row < m_size && (index % 100) == 0; row++)
+            for (std::uint32_t row = 0; row < m_size && (index_eval % 100) == 0; row++)
+            {
                 m[row].resize(m[row].size() + 100);
+            }
 
             for (std::uint32_t row = 0; row < m_size; row++)
             {
-                m[row][index] = 0;
+                m[row][index_eval] = 0;
+
                 for (std::uint32_t col = 0; col < m_size; col++)
-                    m[row][index] += matrix[row][col] * vec[col];
+                {
+                    m[row][index_eval] += matrix[row][col] * vec[col];
+                }
             }
 
             for (std::uint32_t col = 0; col < m_size; col++)
-                vec[col] = m[col][index];
-
-            if (index > 0)
             {
-                double lambda = (m[0][index - 1] != 0) ? (m[0][index] / m[0][index - 1]) : m[0][index];
-                is_eval = (std::fabs(lambda - lambda_old) < 0.0000000001) ? true : false;
+                vec[col] = m[col][index_eval];
+            }
+
+            if (index_eval > 0)
+            {
+                // TODO clean that shit
+                double lambda =
+                    (m[0][index_eval - 1] != 0) ? (m[0][index_eval] / m[0][index_eval - 1]) : m[0][index_eval];
+                is_eval = std::fabs(lambda - lambda_old) < 0.0000000001;
 
                 lambda = (std::fabs(lambda) >= 10e-6) ? lambda : 0;
                 eigenvalues[eig_count] = lambda;
                 lambda_old = lambda;
             }
 
-            index++;
+            index_eval++;
         }
 
-        std::vector<std::vector<double>> matrix_new;
+        points_t matrix_new;
 
         if (m_size > 1)
         {
-            std::vector<std::vector<double>> matrix_tdoubleet;
+            points_t matrix_tdoubleet;
             matrix_tdoubleet.resize(m_size);
 
             for (std::uint32_t row = 0; row < m_size; row++)
             {
                 matrix_tdoubleet[row].resize(m_size);
                 for (std::uint32_t col = 0; col < m_size; col++)
+                {
                     matrix_tdoubleet[row][col] =
                         (row == col) ? (matrix[row][col] - eigenvalues[eig_count]) : matrix[row][col];
+                }
             }
 
-            std::vector<double> eigenvector;
+            point_t eigenvector;
             jordan_gaussian_transform(matrix_tdoubleet, eigenvector);
 
-            std::vector<std::vector<double>> hermitian_matrix;
+            points_t hermitian_matrix;
             get_hermitian_matrix(eigenvector, hermitian_matrix);
 
-            std::vector<std::vector<double>> ha_matrix_product;
+            points_t ha_matrix_product;
             matrix_by_matrix(hermitian_matrix, matrix, ha_matrix_product);
 
-            std::vector<std::vector<double>> inverse_hermitian_matrix;
+            points_t inverse_hermitian_matrix;
             get_hermitian_matrix_inverse(eigenvector, inverse_hermitian_matrix);
 
-            std::vector<std::vector<double>> iha_matrix_product;
+            points_t iha_matrix_product;
             matrix_by_matrix(ha_matrix_product, inverse_hermitian_matrix, iha_matrix_product);
 
             get_reduced_matrix(iha_matrix_product, matrix_new, m_size - 1);
@@ -344,14 +391,17 @@ namespace transform
             for (std::uint32_t index = 0; index < eigenvalues.size(); index++)
             {
                 double lambda = eigenvalues[index];
-                std::vector<std::vector<double>> matrix_tdoubleet;
+                points_t matrix_tdoubleet;
                 matrix_tdoubleet.resize(matrix_i.size());
 
                 for (std::uint32_t row = 0; row < matrix_i.size(); row++)
                 {
                     matrix_tdoubleet[row].resize(matrix_i.size());
+
                     for (std::uint32_t col = 0; col < matrix_i.size(); col++)
+                    {
                         matrix_tdoubleet[row][col] = (row == col) ? (matrix_i[row][col] - lambda) : matrix_i[row][col];
+                    }
                 }
 
                 eigenvectors.resize(matrix_i.size());
@@ -359,10 +409,14 @@ namespace transform
 
                 double eigsum_sq = 0;
                 for (std::uint32_t v = 0; v < eigenvectors[index].size(); v++)
+                {
                     eigsum_sq += std::pow(eigenvectors[index][v], 2.0);
+                }
 
                 for (std::uint32_t v = 0; v < eigenvectors[index].size(); v++)
+                {
                     eigenvectors[index][v] /= sqrt(eigsum_sq);
+                }
 
                 eigenvalues[index] = std::sqrt(eigenvalues[index]);
             }
@@ -371,75 +425,97 @@ namespace transform
         }
 
         compute_evd(matrix_new, eigenvalues, eigenvectors, eig_count + 1);
-
-        return;
     }
 
-    void get_hermitian_matrix(std::vector<double> eigenvector, std::vector<std::vector<double>>& h_matrix)
+    void get_hermitian_matrix(point_t eigenvector, points_t& h_matrix)
     {
         h_matrix.resize(eigenvector.size());
         for (std::uint32_t row = 0; row < eigenvector.size(); row++)
+        {
             h_matrix[row].resize(eigenvector.size());
+        }
 
         h_matrix[0][0] = 1 / eigenvector[0];
         for (std::uint32_t row = 1; row < eigenvector.size(); row++)
+        {
             h_matrix[row][0] = -eigenvector[row] / eigenvector[0];
+        }
 
         for (std::uint32_t row = 1; row < eigenvector.size(); row++)
+        {
             h_matrix[row][row] = 1;
+        }
     }
 
-    void get_hermitian_matrix_inverse(std::vector<double> eigenvector, std::vector<std::vector<double>>& ih_matrix)
+    void get_hermitian_matrix_inverse(point_t eigenvector, points_t& ih_matrix)
     {
         ih_matrix.resize(eigenvector.size());
         for (std::uint32_t row = 0; row < eigenvector.size(); row++)
+        {
             ih_matrix[row].resize(eigenvector.size());
+        }
 
         ih_matrix[0][0] = eigenvector[0];
         for (std::uint32_t row = 1; row < eigenvector.size(); row++)
+        {
             ih_matrix[row][0] = -eigenvector[row];
+        }
 
         for (std::uint32_t row = 1; row < eigenvector.size(); row++)
+        {
             ih_matrix[row][row] = 1;
+        }
     }
 
-    void jordan_gaussian_transform(std::vector<std::vector<double>> matrix, std::vector<double>& eigenvector)
+    void jordan_gaussian_transform(points_t& matrix, point_t& eigenvector)
     {
         const double eps = 0.000001;
         bool eigenv_found = false;
+
         for (std::uint32_t s = 0; s < matrix.size() - 1 && !eigenv_found; s++)
         {
             std::uint32_t col = s;
             double alpha = matrix[s][s];
-            while (col < matrix[s].size() && alpha != 0 && alpha != 1)
-                matrix[s][col++] /= alpha;
 
-            for (std::uint32_t col = s; col < matrix[s].size() && !alpha; col++)
-                std::swap(matrix[s][col], matrix[s + 1][col]);
+            while (col < matrix[s].size() && alpha != 0 && alpha != 1)
+            {
+                matrix[s][col++] /= alpha;
+            }
+
+            for (std::uint32_t col_sec = s; col < matrix[s].size() && !alpha; col_sec++)
+            {
+                std::swap(matrix[s][col_sec], matrix[s + 1][col_sec]);
+            }
 
             for (std::uint32_t row = 0; row < matrix.size(); row++)
             {
                 double gamma = matrix[row][s];
-                for (std::uint32_t col = s; col < matrix[row].size() && row != s; col++)
-                    matrix[row][col] = matrix[row][col] - matrix[s][col] * gamma;
+
+                for (std::uint32_t col_sec = s; col < matrix[row].size() && row != s; col_sec++)
+                {
+                    matrix[row][col_sec] = matrix[row][col_sec] - matrix[s][col_sec] * gamma;
+                }
             }
 
             std::uint32_t row = 0;
             while (row < matrix.size() && (s == matrix.size() - 1 || std::fabs(matrix[s + 1][s + 1]) < eps))
+            {
                 eigenvector.push_back(-matrix[row++][s + 1]);
+            }
 
             if (eigenvector.size() == matrix.size())
             {
                 eigenv_found = true;
                 eigenvector[s + 1] = 1;
                 for (std::uint32_t index = s + 1; index < eigenvector.size(); index++)
+                {
                     eigenvector[index] = (std::fabs(eigenvector[index]) >= eps) ? eigenvector[index] : 0;
+                }
             }
         }
     }
 
-    void get_inverse_diagonal_matrix(std::vector<std::vector<double>> matrix,
-                                     std::vector<std::vector<double>>& inv_matrix)
+    void get_inverse_diagonal_matrix(const points_t& matrix, points_t& inv_matrix)
     {
         inv_matrix.resize(matrix.size());
         for (std::uint32_t index = 0; index < matrix.size(); index++)
@@ -449,9 +525,7 @@ namespace transform
         }
     }
 
-    void get_reduced_matrix(std::vector<std::vector<double>> matrix,
-                            std::vector<std::vector<double>>& r_matrix,
-                            std::size_t new_size)
+    void get_reduced_matrix(const points_t& matrix, points_t& r_matrix, std::size_t new_size)
     {
         r_matrix.resize(new_size);
         std::size_t index_d = matrix.size() - new_size;
@@ -459,9 +533,12 @@ namespace transform
         while (row < matrix.size())
         {
             r_matrix[row_n].resize(new_size);
+
             std::uint32_t col = index_d, col_n = 0;
             while (col < matrix.size())
+            {
                 r_matrix[row_n][col_n++] = matrix[row][col++];
+            }
 
             row++;
             row_n++;
@@ -472,15 +549,15 @@ namespace transform
     {
         matrix3.resize(matrix1.size());
 
-        for (auto row = 0; row < matrix1.size(); row++)
+        for (std::uint32_t row = 0; row < matrix1.size(); row++)
         {
             matrix3[row].resize(matrix1[row].size());
 
-            for (auto col = 0; col < matrix1[row].size(); col++)
+            for (std::uint32_t col = 0; col < matrix1[row].size(); col++)
             {
                 matrix3[row][col] = 0.0;
 
-                for (auto k = 0; k < matrix1[row].size(); k++)
+                for (std::uint32_t k = 0; k < matrix1[row].size(); k++)
                 {
                     matrix3[row][col] += matrix1[row][k] * matrix2[k][col];
                 }
@@ -492,42 +569,18 @@ namespace transform
     {
         matrix2.resize(matrix1.size());
 
-        for (auto row = 0; row < matrix1.size(); row++)
+        for (std::uint32_t row = 0; row < matrix1.size(); row++)
         {
             matrix2[row].resize(matrix1[row].size());
 
-            for (auto col = 0; col < matrix1[row].size(); col++)
+            for (std::uint32_t col = 0; col < matrix1[row].size(); col++)
             {
                 matrix2[row][col] = matrix1[col][row];
             }
         }
     }
 
-    void generate_matrix(std::vector<std::vector<long double = "">>& matrix, std::size_t rows, std::size_t cols)
-    {
-        std::srand((unsigned int)std::time(nullptr));
-        matrix.resize(rows);
-        for (std::size_t row = 0; row < matrix.size(); row++)
-        {
-            matrix[row].resize(cols);
-            for (std::size_t col = 0; col < matrix[row].size(); col++)
-                matrix[row][col] = std::rand() % 20 - std::rand() % 20;
-        }
-    }
-
-    void print_matrix(std::vector<std::vector<long double = "">> matrix)
-    {
-        for (std::size_t row = 0; row < matrix.size(); row++)
-        {
-            for (std::size_t col = 0; col < matrix[row].size(); col++)
-                std::cout << std::setprecision(5) << std::fixed << matrix[row][col] << " ";
-
-            std::cout << "\n";
-        }
-
-        std::cout << "\n";
-    }
-
+    /*
     void substract_matrix(const std::vector<std::vector<double>>& first,
                           const std::vector<std::vector<double>>& second,
                           std::vector<std::vector<double>>& result)
@@ -540,5 +593,6 @@ namespace transform
                 matrix2[row][col] = matrix1[col][row];
         }
     }
+     */
 
 } // namespace transform

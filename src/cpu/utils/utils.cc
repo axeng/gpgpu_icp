@@ -2,28 +2,29 @@
 
 namespace utils
 {
-    float compute_distance(point p, point q)
+    float compute_distance(point_t p, point_t q)
     {
-        double X1 = std::get<0>(p);
-        double Y1 = std::get<1>(p);
-        double Z1 = std::get<2>(p);
-        double X2 = std::get<0>(q);
-        double Y2 = std::get<1>(q);
-        double Z2 = std::get<2>(q);
+        double X1 = p[0];
+        double Y1 = p[1];
+        double Z1 = p[2];
+        double X2 = q[0];
+        double Y2 = q[1];
+        double Z2 = q[2];
 
         return sqrt(pow(X2 - X1, 2) + pow(Y2 - Y1, 2) + pow(Z2 - Z1, 2) * 1.0);
     }
 
-    void get_nearest_neighbors(points P, points Q, std::vector<std::tuple<point,point>>& NN)
+    void get_nearest_neighbors(points_t P, points_t Q, std::vector<std::tuple<point_t, point_t>>& NN)
     {
-        for (points::iterator it = P.begin(); it != P.end(); ++it)
+        for (points_t::iterator it = P.begin(); it != P.end(); ++it)
         {
-            point p_point = *it;
+            point_t p_point = *it;
             float min_dist = MAXFLOAT;
-            point chosen;
-            for (points::iterator it2 = Q.begin(); it2 != Q.end(); ++it2)
+            point_t chosen;
+
+            for (points_t::iterator it2 = Q.begin(); it2 != Q.end(); ++it2)
             {
-                point q_point = *it2;       
+                point_t q_point = *it2;
                 float dist = compute_distance(p_point, q_point);
                 if (dist < min_dist)
                 {
@@ -31,7 +32,8 @@ namespace utils
                     chosen = q_point;
                 }
             }
-            NN.push_back(std::make_tuple(p_point, chosen));
+
+            NN.emplace_back(p_point, chosen);
         }
     }
 

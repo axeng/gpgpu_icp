@@ -10,5 +10,8 @@
 
 namespace parser
 {
-    bool parse_file(const std::string& path, std::vector<std::tuple<double, double, double>>& point_list);
+    using point_t = std::vector<double>;
+    using points_t = std::vector<point_t>;
+
+    bool parse_file(const std::string& path, points_t& point_list);
 } // namespace parser

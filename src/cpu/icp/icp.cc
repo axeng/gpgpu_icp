@@ -4,7 +4,7 @@
 
 namespace icp
 {
-    void icp(const points_t& A, const points_t& B, std::size_t max_iterations=20, double tolerance=0.001)
+    void icp(const points_t& A, const points_t& B, std::size_t max_iterations, double tolerance)
     {
         if (A.empty() || B.empty() || (A[0].size() != B[0].size()))
         {

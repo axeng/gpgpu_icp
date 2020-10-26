@@ -81,11 +81,11 @@ def best_fit_transform(A, B):
         substractByCentroid(B, centroid_B, BB);
 
         std::vector<std::vector<double>> AA_T;
-        transpose(AA, AA_T);
+        matrix_transpose(AA, AA_T);
 
         // Rotation Matrix
         std::vector<std::vector<double>> H;
-        dotProduct(AA_T, BB, H);
+        matrix_by_matrix(AA_T, BB, H);
 
         std::vector<std::vector<double>> s;
         std::vector<std::vector<double>> u;
@@ -218,33 +218,6 @@ def best_fit_transform(A, B):
             }
         }
 
-    }
-
-    /**
-     * Return the dot product of the two set
-     */
-    void dotProduct(const std::vector<std::tuple<double,double,double>>& firstSet,
-        const std::vector<std::tuple<double,double,double>>& secondSet,
-        std::vector<std::tuple<double,double,double>>& result)
-    {
-        // init
-        result = firstSet;
-        std::fill(result.begin(), result.end(), 0); // reset every value
-
-        size_t nbFirst = firstSet.size();
-        size_t nbSecond = secondSet.size();
-
-        for(int i = 0; i < nbFirst; i++)
-        {
-            for(j = 0; j < nbSecond; j++)
-            {
-                mul[i][j]=0;
-                for(k = 0; k < nbSecond; k++)
-                {
-                    result[i][j] += firstSet[i][k] * secondSet[k][j];
-                }
-            }
-        }
     }
 
     /**

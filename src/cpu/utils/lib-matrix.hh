@@ -34,6 +34,7 @@ namespace utils
 
     void matrix_transpose(const matrix_t& matrix, matrix_t& result, bool init_matrix = true);
     void matrix_dot_product(const matrix_t& lhs, const matrix_t& rhs, matrix_t& result, bool init_matrix = true);
+    void matrix_dot_product_copy_rhs(const matrix_t& lhs, matrix_t rhs, matrix_t& result, bool init_matrix = true);
     void
     matrix_subtract_vector(const matrix_t& matrix, const matrix_t& vector, matrix_t& result, bool init_matrix = true);
     void matrix_inverse_diagonal(const matrix_t& matrix, matrix_t& result, bool init_matrix = true);

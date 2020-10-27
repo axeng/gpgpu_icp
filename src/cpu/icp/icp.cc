@@ -20,6 +20,7 @@ namespace icp
 
         matrix_t A_T;
         utils::matrix_transpose(A, A_T);
+        // TODO use submatrix
         for (std::size_t row = 0; row < m; row++)
         {
             for (std::size_t col = 0; col < src[row].size(); col++)
@@ -30,6 +31,7 @@ namespace icp
 
         matrix_t B_T;
         utils::matrix_transpose(B, B_T);
+        // TODO use submatrix
         for (std::size_t row = 0; row < m; row++)
         {
             for (std::size_t col = 0; col < dst[row].size(); col++)
@@ -59,8 +61,7 @@ namespace icp
             matrix_t T;
             transform::get_fit_transform(sub_src_T, sub_dst_T, T);
 
-            // FIXME not sure this actually works
-            utils::matrix_dot_product(T, src, src, false);
+            utils::matrix_dot_product_copy_rhs(T, src, src, false);
 
             // FIXME error (need to see how can we get 'distances', maybe compute them after
         }

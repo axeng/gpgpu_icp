@@ -90,6 +90,28 @@ namespace utils
         }
     }
 
+    void matrix_dot_product_copy_rhs(const matrix_t& lhs, matrix_t rhs, matrix_t& result, bool init_matrix)
+    {
+        std::size_t row_count = matrix_row_count(lhs);
+        std::size_t col_count = matrix_col_count(lhs);
+
+        if (init_matrix)
+        {
+            gen_matrix(row_count, col_count, result, 0.0);
+        }
+
+        for (std::size_t row = 0; row < row_count; row++)
+        {
+            for (std::size_t col = 0; col < col_count; col++)
+            {
+                for (std::size_t k = 0; k < col_count; k++)
+                {
+                    result[row][col] += lhs[row][k] * rhs[k][col];
+                }
+            }
+        }
+    }
+
     void matrix_subtract_vector(const matrix_t& matrix, const matrix_t& vector, matrix_t& result, bool init_matrix)
     {
         std::size_t row_count = matrix_row_count(matrix);

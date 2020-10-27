@@ -46,4 +46,6 @@ namespace utils
     void hermitian_matrix(const vector_t& eigen_vector, matrix_t& result, bool init_matrix = true);
     void hermitian_matrix_inverse(const vector_t& eigen_vector, matrix_t& result, bool init_matrix = true);
     void jordan_gaussian_transform(matrix_t matrix, vector_t& result);
+
+    void print_matrix(const matrix_t& matrix);
 } // namespace utils

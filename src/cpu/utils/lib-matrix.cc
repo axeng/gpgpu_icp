@@ -317,4 +317,17 @@ namespace utils
             }
         }
     }
+
+    void print_matrix(const matrix_t& matrix)
+    {
+        for (const auto& row : matrix)
+        {
+            for (const auto& col: row)
+            {
+                std::cout << col << " ";
+            }
+        std::cout << std::endl;
+        }
+    }
+
 } // namespace utils

@@ -54,16 +54,16 @@ namespace icp
             matrix_t sub_dst_T;
             utils::matrix_transpose(sub_dst, sub_dst_T);
 
-            std::vector<std::tuple<vector_t, vector_t>> nearest_neighbors;
+            matrix_t nearest_neighbors;
             std::vector<double> distances;
             utils::get_nearest_neighbors(sub_src_T, sub_dst_T, nearest_neighbors, distances);
 
-            matrix_t nn;
-
+            matrix_t nearest_neighbors_T;
+            utils::matrix_transpose(nearest_neighbors, nearest_neighbors_T);
 
             // FIXME wtf is he doing with indices in python's code
             matrix_t T;
-            transform::get_fit_transform(sub_src_T, sub_dst_T, T);
+            transform::get_fit_transform(sub_src_T, nearest_neighbors_T, T);
 
             utils::matrix_dot_product_copy_rhs(T, src, src, false);
 

@@ -14,7 +14,7 @@ namespace utils
     using matrix_t = parser::matrix_t;
 
     double compute_distance(const vector_t& p, const vector_t& q);
-    void get_nearest_neighbors(const matrix_t& P, const matrix_t& Q, std::vector<std::tuple<vector_t, vector_t>>& NN, std::vector<double>& distances);
+    void get_nearest_neighbors(const matrix_t& P, const matrix_t& Q, matrix_t& res, std::vector<double>& distances);
     unsigned int get_line_count(const std::string& path);
 
     double get_mean_vector(const std::vector<double>& values);

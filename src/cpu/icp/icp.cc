@@ -55,7 +55,8 @@ namespace icp
             utils::matrix_transpose(sub_dst, sub_dst_T);
 
             std::vector<std::tuple<vector_t, vector_t>> nearest_neighbors;
-            utils::get_nearest_neighbors(sub_src_T, sub_dst_T, nearest_neighbors);
+            std::vector<double> distances;
+            utils::get_nearest_neighbors(sub_src_T, sub_dst_T, nearest_neighbors, distances);
 
             // FIXME wtf is he doing with indices in python's code
             matrix_t T;

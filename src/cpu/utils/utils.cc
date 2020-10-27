@@ -35,4 +35,18 @@ namespace utils
         }
     }
 
+    double get_mean_vector(const std::vector<double>& values)
+    {
+        double mean = 0;
+        for (auto val = values.begin(); val != values.end(); val++)
+        {
+            mean += *val;
+        }
+
+        mean /= values.size();
+
+        return mean;
+    }
+
+
 } // namespace utils

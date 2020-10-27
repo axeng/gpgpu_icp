@@ -16,4 +16,6 @@ namespace utils
     double compute_distance(const vector_t& p, const vector_t& q);
     void get_nearest_neighbors(const matrix_t& P, const matrix_t& Q, std::vector<std::tuple<vector_t, vector_t>>& NN);
     unsigned int get_line_count(const std::string& path);
+
+    double get_mean_vector(const std::vector<double>& values);
 } // namespace utils

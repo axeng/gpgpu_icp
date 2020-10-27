@@ -3,7 +3,7 @@
 #include "icp/icp.hh"
 #include "parser/parser.hh"
 
-int main(int argc, char* argv[])
+int main(/*int argc, char* argv[]*/ void)
 {
     /* if (argc < 2)
     {
@@ -32,7 +32,16 @@ int main(int argc, char* argv[])
     B.push_back(Btwo);
     B.push_back(Bthree);
 
-    icp::icp(A, B);
+    parser::matrix_t T;
+
+    icp::icp(A, B, T);
+
+    for (const auto& row : T)
+    {
+        for (const auto& col: row)
+            std::cout << col << " ";
+        std::cout << std::endl;
+    }
 
     /*
     if (!ret)

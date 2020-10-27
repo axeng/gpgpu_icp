@@ -270,7 +270,7 @@ namespace utils
         }
     }
 
-    void jordan_gaussian_transform(matrix_t matrix, vector_t& result, bool init_matrix)
+    void jordan_gaussian_transform(matrix_t matrix, vector_t& result)
     {
         const double eps = 0.000001;
         bool eigen_value_found = false;

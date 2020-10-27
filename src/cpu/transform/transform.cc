@@ -54,9 +54,6 @@ namespace transform
             return; // FIXME
         }
 
-        std::size_t row_count = utils::matrix_row_count(A);
-        std::size_t col_count = utils::matrix_col_count(A);
-
         // Get the dimension of stored points
         std::size_t m = 3;
 

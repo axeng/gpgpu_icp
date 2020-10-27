@@ -61,7 +61,6 @@ namespace icp
             matrix_t nearest_neighbors_T;
             utils::matrix_transpose(nearest_neighbors, nearest_neighbors_T);
 
-            // FIXME wtf is he doing with indices in python's code
             matrix_t T;
             transform::get_fit_transform(sub_src_T, nearest_neighbors_T, T);
 

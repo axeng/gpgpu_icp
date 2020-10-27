@@ -285,7 +285,7 @@ namespace utils
                 matrix[row][col++] /= alpha;
             }
 
-            for (std::size_t col_sec = row; col < matrix[row].size() && alpha == 0; col_sec++)
+            for (std::size_t col_sec = row; col_sec < matrix[row].size() && alpha == 0; col_sec++)
             {
                 std::swap(matrix[row][col_sec], matrix[row + 1][col_sec]);
             }
@@ -294,7 +294,7 @@ namespace utils
             {
                 double gamma = matrix[row_sec][row];
 
-                for (std::size_t col_sec = row; col < matrix[row_sec].size() && row_sec != row; col_sec++)
+                for (std::size_t col_sec = row; col_sec < matrix[row_sec].size() && row_sec != row; col_sec++)
                 {
                     matrix[row_sec][col_sec] = matrix[row_sec][col_sec] - matrix[row][col_sec] * gamma;
                 }

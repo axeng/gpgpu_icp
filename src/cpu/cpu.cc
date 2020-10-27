@@ -1,9 +1,9 @@
-#include "parser/parser.hh"
-#include "icp/icp.hh"
-
 #include <iostream>
 
-int main(int argc, char *argv[])
+#include "icp/icp.hh"
+#include "parser/parser.hh"
+
+int main(int argc, char* argv[])
 {
     /* if (argc < 2)
     {
@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     }
     */
     parser::points_t vect_point;
-    //bool ret = parser::parse_file(argv[1], vect_point);
+    // bool ret = parser::parse_file(argv[1], vect_point);
 
     parser::point_t Aone = {0, 0, 0};
     parser::point_t Atwo = {0.5, 0.5, 0.5};
@@ -42,5 +42,4 @@ int main(int argc, char *argv[])
     }
     */
     return 0;
-
 }

@@ -1,10 +1,12 @@
 #include "icp.hh"
 
 #include "cpu/transform/transform.hh"
+#include "cpu/utils/lib-matrix.hh"
+#include "cpu/utils/utils.hh"
 
 namespace icp
 {
-    void icp(const points_t& A, const points_t& B, std::size_t max_iterations, double tolerance)
+    void icp(const matrix_t& A, const matrix_t& B, std::size_t max_iterations, double tolerance)
     {
         if (A.empty() || B.empty() || (A[0].size() != B[0].size()))
         {
@@ -13,45 +15,26 @@ namespace icp
 
         auto m = A[0].size();
 
-        points_t src;
-        for (std::size_t i = 0; i < m + 1; i++)
-        {
-            point_t sub;
-            for (std::size_t j = 0; j < A.size(); j++)
-            {
-                sub.push_back(1);
-            }
-            src.push_back(sub);
-        }
+        matrix_t src = utils::gen_matrix(m + 1, A.size(), 1.0);
+        matrix_t dst = utils::gen_matrix(m + 1, A.size(), 1.0);
 
-        points_t dst;
-        for (std::size_t i = 0; i < m + 1; i++)
+        matrix_t A_T;
+        utils::matrix_transpose(A, A_T);
+        for (std::size_t row = 0; row < m; row++)
         {
-            point_t sub;
-            for (std::size_t j = 0; j < A.size(); j++)
+            for (std::size_t col = 0; col < src[row].size(); col++)
             {
-                sub.push_back(1);
-            }
-            src.push_back(sub);
-        }
-
-        points_t A_T;
-        transform::matrix_transpose(A, A_T);
-        for (std::size_t i = 0; i < m; i++)
-        {
-            for (std::size_t j = 0; j < src[i].size(); j++)
-            {
-                src[i][j] = A_T[i][j];
+                src[row][col] = A_T[row][col];
             }
         }
 
-        points_t B_T;
-        transform::matrix_transpose(B, B_T);
-        for (std::size_t i = 0; i < m; i++)
+        matrix_t B_T;
+        utils::matrix_transpose(B, B_T);
+        for (std::size_t row = 0; row < m; row++)
         {
-            for (std::size_t j = 0; j < dst[i].size(); j++)
+            for (std::size_t col = 0; col < dst[row].size(); col++)
             {
-                dst[i][j] = B_T[i][j];
+                dst[row][col] = B_T[row][col];
             }
         }
 
@@ -59,8 +42,29 @@ namespace icp
 
         for (std::size_t i = 0; i < max_iterations; i++)
         {
+            matrix_t sub_src;
+            utils::sub_matrix(src, 0, 0, m, src[0].size(), sub_src);
+            matrix_t sub_src_T;
+            utils::matrix_transpose(sub_src, sub_src_T);
 
-            //get_nearest_neighbors(points_t P, points_t Q, std::vector<std::tuple<point_t, point_t>>& NN);
+            matrix_t sub_dst;
+            utils::sub_matrix(dst, 0, 0, m, dst[0].size(), sub_dst);
+            matrix_t sub_dst_T;
+            utils::matrix_transpose(sub_dst, sub_dst_T);
+
+            std::vector<std::tuple<vector_t, vector_t>> nearest_neighbors;
+            utils::get_nearest_neighbors(sub_src_T, sub_dst_T, nearest_neighbors);
+
+            // FIXME wtf is he doing with indices in python's code
+            matrix_t T;
+            transform::get_fit_transform(sub_src_T, sub_dst_T, T);
+
+            // FIXME not sure this actually works
+            utils::matrix_dot_product(T, src, src, false);
+
+            // FIXME error (need to see how can we get 'distances', maybe compute them after
         }
+
+        // FIXME run best_fit (get_fit_transform) one last time
     }
 } // namespace icp

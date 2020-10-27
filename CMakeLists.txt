@@ -52,7 +52,8 @@ set(CPU_TRANSFORM_SOURCES
         src/cpu/transform/transform.cc)
 
 set(CPU_UTILS_SOURCES
-        src/cpu/utils/utils.cc)
+        src/cpu/utils/utils.cc
+        src/cpu/utils/lib-matrix.cc)
 
 set(CPU_SOURCES
         ${CPU_ICP_SOURCES}

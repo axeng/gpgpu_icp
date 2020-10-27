@@ -2,7 +2,7 @@
 
 namespace parser
 {
-    bool parse_file(const std::string& path, points_t& point_list)
+    bool parse_file(const std::string& path, matrix_t& point_list)
     {
         std::string line;
         std::ifstream file;
@@ -17,8 +17,8 @@ namespace parser
                 std::vector<std::string> words;
                 boost::split(words, line, boost::is_any_of(","));
 
-                point_t points = {std::stod(words[0]), std::stod(words[1]), std::stod(words[2])};
-                point_list.push_back(points);
+                vector_t point = {std::stod(words[0]), std::stod(words[1]), std::stod(words[2])};
+                point_list.push_back(point);
             }
             return true;
         }

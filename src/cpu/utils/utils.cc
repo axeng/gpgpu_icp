@@ -14,7 +14,7 @@ namespace utils
         return sqrt(pow(X2 - X1, 2) + pow(Y2 - Y1, 2) + pow(Z2 - Z1, 2) * 1.0);
     }
 
-    void get_nearest_neighbors(const matrix_t& P, const matrix_t& Q, std::vector<std::tuple<vector_t, vector_t>>& NN)
+    void get_nearest_neighbors(const matrix_t& P, const matrix_t& Q, std::vector<std::tuple<vector_t, vector_t>>& NN, std::vector<double>& distances)
     {
         for (const auto& p_point : P)
         {
@@ -30,7 +30,7 @@ namespace utils
                     chosen = q_point;
                 }
             }
-
+            distances.emplace_back(min_dist);
             NN.emplace_back(p_point, chosen);
         }
     }

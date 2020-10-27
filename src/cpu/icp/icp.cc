@@ -6,7 +6,7 @@
 
 namespace icp
 {
-    void icp(const matrix_t& A, const matrix_t& B, std::size_t max_iterations, double tolerance)
+    void icp(const matrix_t& A, const matrix_t& B, matrix_t& result, std::size_t max_iterations, double tolerance)
     {
         if (A.empty() || B.empty() || (A[0].size() != B[0].size()))
         {
@@ -41,7 +41,7 @@ namespace icp
         }
 
         // Take a look at homogeneous transformation
-
+        double prev_error = 0.0;
         for (std::size_t i = 0; i < max_iterations; i++)
         {
             matrix_t sub_src;
@@ -58,15 +58,28 @@ namespace icp
             std::vector<double> distances;
             utils::get_nearest_neighbors(sub_src_T, sub_dst_T, nearest_neighbors, distances);
 
+            matrix_t nn;
+
+
             // FIXME wtf is he doing with indices in python's code
             matrix_t T;
             transform::get_fit_transform(sub_src_T, sub_dst_T, T);
 
             utils::matrix_dot_product_copy_rhs(T, src, src, false);
 
-            // FIXME error (need to see how can we get 'distances', maybe compute them after
+            auto mean_error = utils::get_mean_vector(distances);
+            if (abs(prev_error - mean_error) < tolerance)
+            {
+                break;
+            }
+            prev_error = mean_error;
         }
 
-        // FIXME run best_fit (get_fit_transform) one last time
+        matrix_t sub_src;
+        utils::sub_matrix(src, 0, 0, m, src[0].size(), sub_src);
+        matrix_t sub_src_T;
+        utils::matrix_transpose(sub_src, sub_src_T);
+
+        transform::get_fit_transform(A, sub_src_T, result);
     }
 } // namespace icp

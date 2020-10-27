@@ -38,9 +38,9 @@ namespace utils
     double get_mean_vector(const std::vector<double>& values)
     {
         double mean = 0;
-        for (auto val = values.begin(); val != values.end(); val++)
+        for (double value : values)
         {
-            mean += *val;
+            mean += value;
         }
 
         mean /= values.size();

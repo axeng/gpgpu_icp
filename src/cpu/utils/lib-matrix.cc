@@ -165,6 +165,25 @@ namespace utils
         return sqrt(sum);
     }
 
+    double matrix_subtract(const matrix_t& lhs, const matrix_t& rhs, matrix_t& result, bool init_matrix)
+    {
+        std::size_t row_count = matrix_row_count(lhs);
+        std::size_t col_count = matrix_col_count(lhs);
+
+        if (init_matrix)
+        {
+            gen_matrix(row_count, col_count, result, 0.0);
+        }
+
+        for (std::size_t row = 0; row < row_count; row++)
+        {
+            for (std::size_t col = 0; col < col_count; col++)
+            {
+                result[row][col] = lhs[row][col] - rhs[row][col];
+            }
+        }
+    }
+
     void matrix_dot_product_copy_rhs(const matrix_t& lhs, matrix_t rhs, matrix_t& result, bool init_matrix)
     {
         std::size_t row_count = matrix_row_count(lhs);
@@ -203,6 +222,25 @@ namespace utils
             {
                 // considering the vector as a line vector (as returned by the centroid)
                 result[row][col] = matrix[row][col] - vector[0][col];
+            }
+        }
+    }
+
+    void matrix_add_vector(const matrix_t& matrix, const matrix_t& vector, matrix_t& result, bool init_matrix)
+    {
+        std::size_t row_count = matrix_row_count(matrix);
+        std::size_t col_count = matrix_col_count(matrix);
+
+        if (init_matrix)
+        {
+            gen_matrix(row_count, col_count, result, 0.0);
+        }
+
+        for (std::size_t row = 0; row < row_count; row++)
+        {
+            for (std::size_t col = 0; col < col_count; col++)
+            {
+                result[row][col] = matrix[row][col] + vector[0][col];
             }
         }
     }

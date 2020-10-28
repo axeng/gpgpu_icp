@@ -45,9 +45,11 @@ namespace utils
     double matrix_sum(const matrix_t& matrix);
     double vector_sum(const vector_t& vector);
     double vector_norm_2(const vector_t& vector);
+    double matrix_subtract(const matrix_t& lhs, const matrix_t& rhs, matrix_t& result, bool init_matrix = true);
     void matrix_dot_product_copy_rhs(const matrix_t& lhs, matrix_t rhs, matrix_t& result, bool init_matrix = true);
     void
     matrix_subtract_vector(const matrix_t& matrix, const matrix_t& vector, matrix_t& result, bool init_matrix = true);
+    void matrix_add_vector(const matrix_t& matrix, const matrix_t& vector, matrix_t& result, bool init_matrix = true);
     void matrix_inverse_diagonal(const matrix_t& matrix, matrix_t& result, bool init_matrix = true);
     void matrix_reduced(const matrix_t& matrix, std::size_t new_size, matrix_t& result, bool init_matrix = true);
 

@@ -59,9 +59,9 @@ namespace utils
             gen_matrix(col_count, row_count, result);
         }
 
-        for (std::size_t row = 0; row < row_count; row++)
+        for (std::size_t row = 0; row < col_count; row++)
         {
-            for (std::size_t col = 0; col < col_count; col++)
+            for (std::size_t col = 0; col < row_count; col++)
             {
                 result[row][col] = matrix[col][row];
             }

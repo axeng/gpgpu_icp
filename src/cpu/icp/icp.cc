@@ -301,7 +301,7 @@ namespace icp
         matrix_t P_time_R;
         utils::matrix_dot_product(P, s_time_R_T, P_time_R);
 
-        utils::matrix_add_vector(P_time_R, t, newP);
+        utils::matrix_add_vector(P_time_R, t, newP, false);
 
     }
 } // namespace icp

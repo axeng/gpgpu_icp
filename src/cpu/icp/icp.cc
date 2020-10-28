@@ -42,6 +42,7 @@ namespace icp
         auto Nm = M.size();
         auto dim = P[0].size();
 
+
         // ----------------------------------------
         // Find Correspondences
         for (std::size_t iteration = 0; iteration < max_iterations; iteration++)
@@ -64,7 +65,28 @@ namespace icp
 
             // ----------------------------------------
             // Compute Residual Error
+            matrix_t d;
+            utils::matrix_subtract(Y, translated_P, d, true);
+            
+            matrix_t d_T;
+            utils::matrix_transpose(d, d_T);
 
+            matrix_t d_dot_d_T;
+            utils::matrix_dot_product(d, d_T, d_dot_d_T);
+
+            double err = 0;
+
+            for (auto i = 0; i < d_dot_d_T.size(); i++)
+            {
+                err += d_dot_d_T[i][i];
+            }
+
+            err /= Np;
+
+            if (err < threshold)
+            {
+                break;
+            }
         }
     }
 
@@ -263,5 +285,6 @@ namespace icp
         utils::matrix_dot_product(P, s_time_R_T, P_time_R);
 
         utils::matrix_add_vector(P_time_R, t, newP);
+
     }
 } // namespace icp

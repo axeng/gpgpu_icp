@@ -431,7 +431,7 @@ namespace utils
         }
     }
 
-    void multiply_by_scalar(const matrix_t& matrix, double val, matrix_t& result, bool init_matrix = true)
+    void multiply_by_scalar(const matrix_t& matrix, double val, matrix_t& result, bool init_matrix)
     {
         std::size_t row_count = matrix_row_count(matrix);
         std::size_t col_count = matrix_col_count(matrix);

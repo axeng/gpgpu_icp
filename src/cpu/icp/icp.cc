@@ -47,26 +47,27 @@ namespace icp
         // Find Correspondences
         for (std::size_t iteration = 0; iteration < max_iterations; iteration++)
         {
+            std::cout << "Iteration: " << iteration << std::endl;
+
             matrix_t Y;
             std::vector<double> distances;
-            utils::get_nearest_neighbors(M, P, Y, distances);
+            utils::get_nearest_neighbors(M, newP, Y, distances);
 
             // ----------------------------------------
             // Find Alignment
             double scaling_factor = 0.0;
             matrix_t rotation_matrix;
             matrix_t translation_matrix;
-            find_alignment(P, Y, scaling_factor, rotation_matrix, translation_matrix);
+            find_alignment(newP, Y, scaling_factor, rotation_matrix, translation_matrix);
 
             // ----------------------------------------
-            // Apply Alignment and Compute Residual Error
-            matrix_t translated_P;
-            apply_alignment(P, scaling_factor, rotation_matrix, translation_matrix, translated_P);
+            // Apply Alignment
+            apply_alignment(newP, scaling_factor, rotation_matrix, translation_matrix, newP);
 
             // ----------------------------------------
             // Compute Residual Error
             matrix_t d;
-            utils::matrix_subtract(Y, translated_P, d, true);
+            utils::matrix_subtract(Y, newP, d, true);
             
             matrix_t d_T;
             utils::matrix_transpose(d, d_T);
@@ -82,6 +83,9 @@ namespace icp
             }
 
             err /= Np;
+
+
+            std::cout << "error: " << err << std::endl;
 
             if (err < threshold)
             {
@@ -287,7 +291,7 @@ namespace icp
         }
     }
 
-    void apply_alignment(const matrix_t& P, double s, const matrix_t& R, const matrix_t& t, matrix_t& newP)
+    void apply_alignment(matrix_t P, double s, const matrix_t& R, const matrix_t& t, matrix_t& newP)
     {
         matrix_t s_time_R;
         utils::multiply_by_scalar(R, s, s_time_R);

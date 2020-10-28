@@ -19,5 +19,5 @@ namespace icp
 
     bool find_alignment(const matrix_t& P, const matrix_t& Y, double& s, matrix_t& R, matrix_t& t);
     void power_iteration(const matrix_t& A, matrix_t& eigen_vector, std::size_t num_simulations=10);
-    void apply_alignment(const matrix_t& P, double s, const matrix_t& R, const matrix_t& t, matrix_t& newP);
+    void apply_alignment(matrix_t P, double s, const matrix_t& R, const matrix_t& t, matrix_t& newP);
 } // namespace icp

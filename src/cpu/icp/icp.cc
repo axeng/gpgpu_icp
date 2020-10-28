@@ -39,8 +39,8 @@ namespace icp
         utils::sub_matrix(P, 0, 0, P.size(), P[0].size(), newP);
 
         auto Np = P.size();
-        auto Nm = M.size();
-        auto dim = P[0].size();
+        //auto Nm = M.size();     // FIXME : Unused ?
+        //auto dim = P[0].size();  // FIXME : Unused ?
 
 
         // ----------------------------------------
@@ -76,7 +76,7 @@ namespace icp
 
             double err = 0;
 
-            for (auto i = 0; i < d_dot_d_T.size(); i++)
+            for (std::size_t i = 0; i < d_dot_d_T.size(); i++)
             {
                 err += d_dot_d_T[i][i];
             }
@@ -251,6 +251,8 @@ namespace icp
         utils::matrix_dot_product(s_time_R, Mu_p, R_dot_Mu_p);
 
         utils::matrix_subtract(Mu_y, R_dot_Mu_p, t);
+
+        return true;
     }
 
     void power_iteration(const matrix_t& A, matrix_t& eigen_vector, std::size_t num_simulations)

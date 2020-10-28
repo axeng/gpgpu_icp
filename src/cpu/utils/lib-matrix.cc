@@ -117,7 +117,7 @@ namespace utils
         {
             if (init_vector)
             {
-                result.push_back(lhs[i] * rhs[i])
+                result.push_back(lhs[i] * rhs[i]);
             }
             else
             {
@@ -389,6 +389,25 @@ namespace utils
                 {
                     result[index] = (std::fabs(result[index]) >= eps) ? result[index] : 0;
                 }
+            }
+        }
+    }
+
+    void multiply_by_scalar(const matrix_t& matrix, double val, matrix_t& result, bool init_matrix = true)
+    {
+        std::size_t row_count = matrix_row_count(matrix);
+        std::size_t col_count = matrix_col_count(matrix);
+
+        if (init_matrix)
+        {
+            utils::gen_matrix(row_count, col_count, result, 0.0);
+        }
+
+        for (std::size_t row = 0; row < row_count; row++)
+        {
+            for (std::size_t col = 0; col < col_count; col++)
+            {
+                result[row][col] = matrix[row][col] * val;
             }
         }
     }

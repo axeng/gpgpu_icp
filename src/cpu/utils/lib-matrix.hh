@@ -58,5 +58,7 @@ namespace utils
     void hermitian_matrix_inverse(const vector_t& eigen_vector, matrix_t& result, bool init_matrix = true);
     void jordan_gaussian_transform(matrix_t matrix, vector_t& result);
 
+    void multiply_by_scalar(const matrix_t& matrix, double val, matrix_t& result, bool init_matrix = true);
+
     void print_matrix(const matrix_t& matrix);
 } // namespace utils

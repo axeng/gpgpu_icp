@@ -186,10 +186,10 @@ namespace icp
 
         // ----------------------------------------
         // Rotation matrix computation
-        auto q0 = q[0][0];
-        auto q1 = q[0][1];
-        auto q2 = q[0][2];
-        auto q3 = q[0][3];
+        double q0 = q[0][0];
+        double q1 = q[1][0];
+        double q2 = q[2][0];
+        double q3 = q[3][0];
 
         matrix_t Qbar;
         Qbar.emplace_back(vector_t({q0, -q1, -q2, -q3}));
@@ -198,13 +198,16 @@ namespace icp
         Qbar.emplace_back(vector_t({q3, q2, -q1, q0}));
 
         matrix_t Q;
-        Q.emplace_back(vector_t({q0, q1, q2, q3}));
-        Q.emplace_back(vector_t({-q1, q0, q3, -q2}));
-        Q.emplace_back(vector_t({-q2, -q3, q0, q1}));
-        Q.emplace_back(vector_t({-q3, q2, -q1, q0}));
+        Q.emplace_back(vector_t({q0, -q1, -q2, -q3}));
+        Q.emplace_back(vector_t({q1, q0, -q3, q2}));
+        Q.emplace_back(vector_t({q2, q3, q0, -q1}));
+        Q.emplace_back(vector_t({q3, -q2, q1, q0}));
+
+        matrix_t Qbar_T;
+        utils::matrix_transpose(Qbar, Qbar_T);
 
         matrix_t R_full;
-        utils::matrix_dot_product(Qbar, Q, R_full);
+        utils::matrix_dot_product(Qbar_T, Q, R_full);
 
         utils::sub_matrix(R_full, 1, 1, 3, 3, R);
 
@@ -247,8 +250,13 @@ namespace icp
         // Translational offset computation
         matrix_t s_time_R;
         utils::multiply_by_scalar(R, s, s_time_R);
+
+        matrix_t Mu_p_T;
+        utils::matrix_transpose(Mu_p, Mu_p_T);
+
         matrix_t R_dot_Mu_p;
-        utils::matrix_dot_product(s_time_R, Mu_p, R_dot_Mu_p);
+        utils::matrix_dot_product(s_time_R, Mu_p_T, R_dot_Mu_p);
+
 
         utils::matrix_subtract(Mu_y, R_dot_Mu_p, t);
 
@@ -257,9 +265,13 @@ namespace icp
 
     void power_iteration(const matrix_t& A, matrix_t& eigen_vector, std::size_t num_simulations)
     {
-        vector_t vector(A[0].size());
-        std::generate_n(vector.begin(), A[0].size(), utils::UniformRandom<double>(0.0, 1.1));
-        eigen_vector.push_back(vector);
+        vector_t vector(1);
+
+        for (std::size_t i = 0; i < A[0].size(); i++)
+        {
+            std::generate_n(vector.begin(), 1, utils::UniformRandom<double>(0.0, 1.1));
+            eigen_vector.push_back(vector);
+        }
 
         for (std::size_t simulation = 0; simulation < num_simulations; simulation++)
         {

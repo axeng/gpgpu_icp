@@ -165,7 +165,7 @@ namespace utils
         return sqrt(sum);
     }
 
-    double matrix_subtract(const matrix_t& lhs, const matrix_t& rhs, matrix_t& result, bool init_matrix)
+    void matrix_subtract(const matrix_t& lhs, const matrix_t& rhs, matrix_t& result, bool init_matrix)
     {
         std::size_t row_count = matrix_row_count(lhs);
         std::size_t col_count = matrix_col_count(lhs);

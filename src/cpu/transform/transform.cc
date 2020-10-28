@@ -161,6 +161,8 @@ namespace transform
         matrix_t v_1;
         vector_t eigen_values;
 
+        utils::print_matrix(matrix_product_2);
+
         compute_evd(matrix_product_2, eigen_values, v_1, 0);
 
         utils::matrix_transpose(v_1, v, init_matrix);
@@ -185,6 +187,7 @@ namespace transform
 
     void compute_evd(const matrix_t& matrix, vector_t& eigen_values, matrix_t& eigen_vectors, std::size_t eig_count)
     {
+        std::cout << "eig_count: " << eig_count << std::endl;
         std::size_t m_size = matrix.size();
 
         vector_t vec(m_size, 1.0);
@@ -232,6 +235,7 @@ namespace transform
 
             if (index_eval > 0)
             {
+                utils::print_matrix(m);
                 double lambda = 0.0;
                 if (m[0][index_eval - 1] != 0)
                 {
@@ -242,6 +246,11 @@ namespace transform
                     lambda = m[0][index_eval];
                 }
 
+                /*
+                std::cout << "lambda: " << lambda << std::endl;
+                std::cout << "lambda_old: " << lambda_old << std::endl;
+                std::cout << "lambda - lambda_old: " << std::fabs(lambda - lambda_old) << std::endl << std::endl;
+                */
                 is_eval = std::fabs(lambda - lambda_old) < 0.0000000001;
 
                 if (std::fabs(lambda) < 10e-6)

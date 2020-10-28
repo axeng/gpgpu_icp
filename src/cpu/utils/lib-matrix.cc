@@ -90,6 +90,81 @@ namespace utils
         }
     }
 
+    void
+    matrix_element_wise_multiplication(const matrix_t& lhs, const matrix_t& rhs, matrix_t& result, bool init_matrix)
+    {
+        std::size_t row_count = matrix_row_count(lhs);
+        std::size_t col_count = matrix_col_count(lhs);
+
+        if (init_matrix)
+        {
+            gen_matrix(row_count, col_count, result, 0.0);
+        }
+
+        for (std::size_t row = 0; row < row_count; row++)
+        {
+            for (std::size_t col = 0; col < col_count; col++)
+            {
+                result[row][col] = lhs[row][col] * rhs[row][col];
+            }
+        }
+    }
+
+    void
+    vector_element_wise_multiplication(const vector_t& lhs, const vector_t& rhs, vector_t& result, bool init_vector)
+    {
+        for (std::size_t i = 0; i < lhs.size(); i++)
+        {
+            if (init_vector)
+            {
+                result.push_back(lhs[i] * rhs[i])
+            }
+            else
+            {
+                result[i] = lhs[i] * rhs[i];
+            }
+        }
+    }
+
+    double matrix_sum(const matrix_t& matrix)
+    {
+        double sum = 0.0;
+
+        for (const auto& row : matrix)
+        {
+            for (const auto& element : row)
+            {
+                sum += element;
+            }
+        }
+
+        return sum;
+    }
+
+    double vector_sum(const vector_t& vector)
+    {
+        double sum = 0.0;
+
+        for (const auto& element : vector)
+        {
+            sum += element;
+        }
+
+        return sum;
+    }
+
+    double vector_norm_2(const vector_t& vector)
+    {
+        double sum = 0.0;
+
+        for (const auto& element : vector)
+        {
+            sum += pow(element, 2);
+        }
+
+        return sqrt(sum);
+    }
+
     void matrix_dot_product_copy_rhs(const matrix_t& lhs, matrix_t rhs, matrix_t& result, bool init_matrix)
     {
         std::size_t row_count = matrix_row_count(lhs);
@@ -322,11 +397,11 @@ namespace utils
     {
         for (const auto& row : matrix)
         {
-            for (const auto& col: row)
+            for (const auto& col : row)
             {
                 std::cout << col << " ";
             }
-        std::cout << std::endl;
+            std::cout << std::endl;
         }
     }
 

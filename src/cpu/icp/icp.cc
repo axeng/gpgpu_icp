@@ -180,10 +180,10 @@ namespace icp
         double Szz = utils::vector_sum(zz);
 
         matrix_t Nmatrix;
-        Nmatrix.emplace_back(vector_t({  Sxx + Syy + Szz,    -Szy + Syz,         Szx - Sxz,          -Syx + Sxy      }));
-        Nmatrix.emplace_back(vector_t({  Syz - Szy,          Sxx - Szz - Syy,    Syx + Sxy,          Szx + Sxz       }));
-        Nmatrix.emplace_back(vector_t({  -Sxz + Szx,         Sxy + Syx,          Syy - Szz - Sxx,    Szy + Syz       }));
-        Nmatrix.emplace_back(vector_t({  Sxy - Syx,          Sxz + Szx,          Syz + Szy,          Szz - Syy - Sxx }));
+        Nmatrix.emplace_back(std::initializer_list<double>{  Sxx + Syy + Szz,    -Szy + Syz,         Szx - Sxz,          -Syx + Sxy      });
+        Nmatrix.emplace_back(std::initializer_list<double>{  Syz - Szy,          Sxx - Szz - Syy,    Syx + Sxy,          Szx + Sxz       });
+        Nmatrix.emplace_back(std::initializer_list<double>{  -Sxz + Szx,         Sxy + Syx,          Syy - Szz - Sxx,    Szy + Syz       });
+        Nmatrix.emplace_back(std::initializer_list<double>{  Sxy - Syx,          Sxz + Szx,          Syz + Szy,          Szz - Syy - Sxx });
 
         matrix_t q;
         power_iteration(Nmatrix, q);
@@ -196,16 +196,16 @@ namespace icp
         double q3 = q[3][0];
 
         matrix_t Qbar;
-        Qbar.emplace_back(vector_t({q0, -q1, -q2, -q3}));
-        Qbar.emplace_back(vector_t({q1, q0, q3, -q2}));
-        Qbar.emplace_back(vector_t({q2, -q3, q0, q1}));
-        Qbar.emplace_back(vector_t({q3, q2, -q1, q0}));
+        Qbar.emplace_back(std::initializer_list<double>{q0, -q1, -q2, -q3});
+        Qbar.emplace_back(std::initializer_list<double>{q1, q0, q3, -q2});
+        Qbar.emplace_back(std::initializer_list<double>{q2, -q3, q0, q1});
+        Qbar.emplace_back(std::initializer_list<double>{q3, q2, -q1, q0});
 
         matrix_t Q;
-        Q.emplace_back(vector_t({q0, -q1, -q2, -q3}));
-        Q.emplace_back(vector_t({q1, q0, -q3, q2}));
-        Q.emplace_back(vector_t({q2, q3, q0, -q1}));
-        Q.emplace_back(vector_t({q3, -q2, q1, q0}));
+        Q.emplace_back(std::initializer_list<double>{q0, -q1, -q2, -q3});
+        Q.emplace_back(std::initializer_list<double>{q1, q0, -q3, q2});
+        Q.emplace_back(std::initializer_list<double>{q2, q3, q0, -q1});
+        Q.emplace_back(std::initializer_list<double>{q3, -q2, q1, q0});
 
         matrix_t Qbar_T;
         utils::matrix_transpose(Qbar, Qbar_T);
@@ -260,7 +260,6 @@ namespace icp
 
         matrix_t R_dot_Mu_p;
         utils::matrix_dot_product(s_time_R, Mu_p_T, R_dot_Mu_p);
-
 
         utils::matrix_subtract(Mu_y, R_dot_Mu_p, t);
 

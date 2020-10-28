@@ -1,6 +1,7 @@
 #include "lib-matrix.hh"
 
 #include <cmath>
+#include <iomanip>
 
 namespace utils
 {
@@ -454,11 +455,14 @@ namespace utils
     {
         for (const auto& row : matrix)
         {
-            for (const auto& col : row)
+            std::cout << "| ";
+
+            for (const auto& element : row)
             {
-                std::cout << col << " ";
+                std::cout << std::fixed << std::setw(7) << std::setprecision(4) << element << " ";
             }
-            std::cout << std::endl;
+
+            std::cout << "|" << std::endl;
         }
     }
 

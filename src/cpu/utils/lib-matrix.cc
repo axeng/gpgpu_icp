@@ -72,7 +72,10 @@ namespace utils
     void matrix_dot_product(const matrix_t& lhs, const matrix_t& rhs, matrix_t& result, bool init_matrix)
     {
         std::size_t row_count = matrix_row_count(lhs);
-        std::size_t col_count = matrix_col_count(lhs);
+        std::size_t col_count = matrix_col_count(rhs);
+
+        std::size_t common_dim = matrix_col_count(lhs);
+
 
         if (init_matrix)
         {
@@ -83,7 +86,7 @@ namespace utils
         {
             for (std::size_t col = 0; col < col_count; col++)
             {
-                for (std::size_t k = 0; k < col_count; k++)
+                for (std::size_t k = 0; k < common_dim; k++)
                 {
                     result[row][col] += lhs[row][k] * rhs[k][col];
                 }

@@ -7,8 +7,8 @@
 
 namespace icp
 {
-    void icp(const matrix_t& M,
-             const matrix_t& P,
+    void icp(const matrix_t& M /*dst*/,
+             const matrix_t& P /*src*/,
              double& s,
              matrix_t& R,
              matrix_t& t,
@@ -42,6 +42,7 @@ namespace icp
         //auto Nm = M.size();     // FIXME : Unused ?
         //auto dim = P[0].size();  // FIXME : Unused ?
 
+        utils::print_matrix(M);
 
         // ----------------------------------------
         // Find Correspondences
@@ -73,7 +74,7 @@ namespace icp
             utils::matrix_transpose(d, d_T);
 
             matrix_t d_dot_d_T;
-            utils::matrix_dot_product(d, d_T, d_dot_d_T);
+            utils::matrix_dot_product(d_T, d, d_dot_d_T);
 
             double err = 0;
 
@@ -86,6 +87,7 @@ namespace icp
 
 
             std::cout << "error: " << err << std::endl;
+            utils::print_matrix(newP);
 
             if (err < threshold)
             {

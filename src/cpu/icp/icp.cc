@@ -192,8 +192,11 @@ namespace icp
         Nmatrix.emplace_back(std::initializer_list<double>{ Szx - Sxz,          Syx + Sxy,          Syy - Szz - Sxx,    Syz + Szy       });
         Nmatrix.emplace_back(std::initializer_list<double>{ -Syx + Sxy,         Szx + Sxz,          Szy + Syz,          Szz - Syy - Sxx });
 
+        matrix_t Nmatrix_T;
+        utils::matrix_transpose(Nmatrix, Nmatrix_T);
+
         matrix_t q;
-        power_iteration(Nmatrix, q);
+        power_iteration(Nmatrix_T, q, 100);
 
         // ----------------------------------------
         // Rotation matrix computation

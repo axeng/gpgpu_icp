@@ -196,7 +196,7 @@ namespace icp
         utils::matrix_transpose(Nmatrix, Nmatrix_T);
 
         matrix_t q;
-        power_iteration(Nmatrix_T, q, 100);
+        power_iteration(Nmatrix_T, q, 1000);
 
         // ----------------------------------------
         // Rotation matrix computation

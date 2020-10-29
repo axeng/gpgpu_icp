@@ -45,6 +45,7 @@ namespace utils
     double matrix_sum(const matrix_t& matrix);
     double vector_sum(const vector_t& vector);
     double vector_norm_2(const vector_t& vector);
+    double matrix_norm_2(const matrix_t& matrix);
     void matrix_subtract(const matrix_t& lhs, const matrix_t& rhs, matrix_t& result, bool init_matrix = true);
     void matrix_dot_product_copy_rhs(const matrix_t& lhs, matrix_t rhs, matrix_t& result, bool init_matrix = true);
     void

@@ -41,11 +41,11 @@ namespace utils
             utils::gen_matrix(row_count, col_count, result, 0.0);
         }
 
-        for (std::size_t row = starting_row; row < row_count; row++)
+        for (std::size_t row = 0; row < row_count; row++)
         {
-            for (std::size_t col = starting_col; col < col_count; col++)
+            for (std::size_t col = 0; col < col_count; col++)
             {
-                result[row - starting_row][col - starting_col] = matrix[row][col];
+                result[row][col] = matrix[row + starting_row][col + starting_col];
             }
         }
     }
@@ -164,6 +164,21 @@ namespace utils
         for (const auto& element : vector)
         {
             sum += pow(element, 2);
+        }
+
+        return sqrt(sum);
+    }
+
+    double matrix_norm_2(const matrix_t& matrix)
+    {
+        double sum = 0.0;
+
+        for (const auto& row : matrix)
+        {
+            for (const auto& element : row)
+            {
+                sum += pow(element, 2);
+            }
         }
 
         return sqrt(sum);

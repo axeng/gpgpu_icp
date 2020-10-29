@@ -2,7 +2,6 @@
 
 #include <sstream>
 
-#include "cpu/transform/transform.hh"
 #include "cpu/utils/lib-matrix.hh"
 #include "cpu/utils/uniform-random.hh"
 #include "cpu/utils/utils.hh"
@@ -11,12 +10,10 @@ namespace icp
 {
     void icp(const matrix_t& M /*dst*/,
              const matrix_t& P /*src*/,
-             double& s,
-             matrix_t& R,
-             matrix_t& t,
              matrix_t& newP,
              std::size_t max_iterations,
-             double threshold)
+             double threshold,
+             std::size_t power_iteration_simulations)
     {
         if (M.empty() || P.empty() || (M[0].size() != P[0].size()))
         {
@@ -25,18 +22,6 @@ namespace icp
 
         // ----------------------------------------
         // Initialization
-        s = 1.0;
-
-        // R = eye(size(M, 1))
-        utils::gen_matrix(M[0].size(), M[0].size(), R);
-        for (std::size_t row = 0; row < M[0].size(); row++)
-        {
-            R[row][row] = 1;
-        }
-
-        // t = zeros(size(M, 1), 1)
-        utils::gen_matrix(M[0].size(), 1, t, 0);
-
         // newP = P
         utils::sub_matrix(P, 0, 0, P.size(), P[0].size(), newP);
 
@@ -58,10 +43,10 @@ namespace icp
 
             // ----------------------------------------
             // Find Alignment
-            double scaling_factor = 0.0;
-            matrix_t rotation_matrix;
-            matrix_t translation_matrix;
-            find_alignment(newP, Y, scaling_factor, rotation_matrix, translation_matrix);
+            double scaling_factor = 0.0; // s
+            matrix_t rotation_matrix; // R
+            matrix_t translation_matrix; // t
+            find_alignment(newP, Y, scaling_factor, rotation_matrix, translation_matrix, power_iteration_simulations);
 
             // ----------------------------------------
             // Apply Alignment
@@ -101,7 +86,7 @@ namespace icp
         }
     }
 
-    bool find_alignment(const matrix_t& P, const matrix_t& Y, double& s, matrix_t& R, matrix_t& t)
+    bool find_alignment(const matrix_t& P, const matrix_t& Y, double& s, matrix_t& R, matrix_t& t, std::size_t power_iteration_simulations)
     {
         auto Np = P.size();
         auto dim_p = Np > 0 ? P[0].size() : 0;
@@ -196,7 +181,7 @@ namespace icp
         utils::matrix_transpose(Nmatrix, Nmatrix_T);
 
         matrix_t q;
-        power_iteration(Nmatrix_T, q, 1000);
+        power_iteration(Nmatrix_T, q, power_iteration_simulations);
 
         // ----------------------------------------
         // Rotation matrix computation

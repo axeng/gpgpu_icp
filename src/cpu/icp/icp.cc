@@ -1,9 +1,11 @@
 #include "icp.hh"
 
+#include <sstream>
+
 #include "cpu/transform/transform.hh"
 #include "cpu/utils/lib-matrix.hh"
-#include "cpu/utils/utils.hh"
 #include "cpu/utils/uniform-random.hh"
+#include "cpu/utils/utils.hh"
 
 namespace icp
 {
@@ -41,6 +43,8 @@ namespace icp
         auto Np = P.size();
         //auto Nm = M.size();     // FIXME : Unused ?
         //auto dim = P[0].size();  // FIXME : Unused ?
+
+        utils::matrix_to_csv(newP, "../res.csv/res.csv.0");
 
         // ----------------------------------------
         // Find Correspondences
@@ -85,6 +89,10 @@ namespace icp
 
 
             std::cout << "error: " << err << std::endl;
+
+            std::stringstream filename;
+            filename << "../res.csv/res.csv." << (iteration + 1);
+            utils::matrix_to_csv(newP, filename.str());
 
             if (err < threshold)
             {

@@ -64,4 +64,5 @@ namespace utils
     void multiply_by_scalar(const matrix_t& matrix, double val, matrix_t& result, bool init_matrix = true);
 
     void print_matrix(const matrix_t& matrix);
+    void matrix_to_csv(const matrix_t& matrix, const std::string& path);
 } // namespace utils

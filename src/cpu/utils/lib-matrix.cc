@@ -484,4 +484,28 @@ namespace utils
         }
     }
 
+    void matrix_to_csv(const matrix_t& matrix, const std::string& path)
+    {
+        std::ofstream file;
+        file.open(path);
+
+        file << "x,y,z" << std::endl;
+
+        for (const auto& row : matrix)
+        {
+            if (row.size() <= 0)
+                break;
+
+            file << row[0];
+            for (std::size_t i = 1; i < row.size(); i++)
+            {
+                file << ',' << row[i];
+            }
+
+            file << std::endl;
+        }
+
+        file.close();
+    }
+
 } // namespace utils

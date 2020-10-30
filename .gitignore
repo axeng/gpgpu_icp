@@ -1,7 +1,6 @@
 build/
 .vscode
-data_students/
-tuto-paraview
+tests/data_students/
 # Created by https://www.toptal.com/developers/gitignore/api/c++,vim,visualstudiocode,jetbrains+all,cuda,sublimetext,cmake
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,vim,visualstudiocode,jetbrains+all,cuda,sublimetext,cmake
 

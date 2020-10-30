@@ -27,43 +27,9 @@ int main(int argc, char* argv[])
         std::cerr << "[ERROR] Parse A" << std::endl;
         return 1;
     }
-
-    /*parser::vector_t Aone({0, 0, 0});
-    parser::vector_t Atwo({0.5, 0.5, 0.5});
-    parser::vector_t Athree({1, 1, 1});
-    parser::vector_t Afour({1.5, 1.5, 1.5});
-
-    parser::matrix_t A;
-    A.push_back(Aone);
-    A.push_back(Atwo);
-    A.push_back(Athree);
-    A.push_back(Afour);
-
-    parser::vector_t Bone({0.5, 0.5, 0.5});
-    parser::vector_t Btwo({1, 1, 1});
-    parser::vector_t Bthree({1.5, 1.5, 1.5});
-    parser::vector_t Bfour({2, 2, 2});
-
-    parser::matrix_t B;
-    B.push_back(Bone);
-    B.push_back(Btwo);
-    B.push_back(Bthree);
-    B.push_back(Bfour);
-
-    parser::matrix_t T;
-*/
     parser::matrix_t newP;
     double error = 0;
     icp::icp(A, B, newP, error, true);
-/*
-    for (const auto& row : T)
-    {
-        for (const auto& col: row)
-            std::cout << col << " ";
-        std::cout << std::endl;
-    }*/
-
-
 
     return 0;
 }

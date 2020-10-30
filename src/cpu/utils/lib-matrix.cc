@@ -13,10 +13,10 @@ namespace utils
 
     void gen_matrix(std::size_t rows, std::size_t cols, matrix_t& result, value_t value)
     {
-        vector_t row(cols, value);
+        result.resize(rows);
         for (std::size_t i = 0; i < rows; i++)
         {
-            result.push_back(row);
+            result[i].resize(cols, value);
         }
     }
 

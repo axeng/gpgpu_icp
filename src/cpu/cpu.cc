@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 
     parser::matrix_t newP;
     double error = 0;
-    icp::icp(A, B, newP, error, true);
+    icp::icp_cpu(A, B, newP, error, true);
 
     return 0;
 }

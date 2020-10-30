@@ -8,7 +8,7 @@ namespace icp
     using vector_t = parser::vector_t;
     using matrix_t = parser::matrix_t;
 
-    std::size_t icp(const matrix_t& M,
+    std::size_t icp_cpu(const matrix_t& M,
                     const matrix_t& P,
                     matrix_t& newP,
                     double& err,

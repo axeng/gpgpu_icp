@@ -17,7 +17,5 @@ namespace utils
     void get_nearest_neighbors(const matrix_t& P, const matrix_t& Q, matrix_t& res, std::vector<double>& distances);
     unsigned int get_line_count(const std::string& path);
 
-    double get_mean_vector(const std::vector<double>& values);
-
     void save_result(std::size_t iteration, double error);
 } // namespace utils

@@ -8,15 +8,15 @@
 
 namespace icp
 {
-    std::size_t icp(const matrix_t& M /*dst*/,
-                    const matrix_t& P /*src*/,
-                    matrix_t& newP,
-                    double& err,
-                    bool verbose,
-                    bool save_results,
-                    std::size_t max_iterations,
-                    double threshold,
-                    std::size_t power_iteration_simulations)
+    std::size_t icp_cpu(const matrix_t& M /*dst*/,
+                        const matrix_t& P /*src*/,
+                        matrix_t& newP,
+                        double& err,
+                        bool verbose,
+                        bool save_results,
+                        std::size_t max_iterations,
+                        double threshold,
+                        std::size_t power_iteration_simulations)
     {
         if (M.empty() || P.empty() || (M[0].size() != P[0].size()))
         {
@@ -93,8 +93,6 @@ namespace icp
                 std::stringstream filename;
                 filename << "../res.csv/res.csv." << (iteration + 1);
                 utils::matrix_to_csv(newP, filename.str());
-
-
             }
 
             if (err < threshold)

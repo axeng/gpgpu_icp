@@ -35,19 +35,6 @@ namespace utils
         }
     }
 
-    double get_mean_vector(const std::vector<double>& values)
-    {
-        double mean = 0;
-        for (double value : values)
-        {
-            mean += value;
-        }
-
-        mean /= values.size();
-
-        return mean;
-    }
-
     void save_result(std::size_t iteration, double error)
     {
         std::ofstream file;

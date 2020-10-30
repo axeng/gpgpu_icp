@@ -43,7 +43,9 @@ void sub_matrix(const thrust::host_vector<thrust::host_vector<double>>& matrix,
 
     if (init_matrix)
     {
-        utils::gen_matrix(row_count, col_count, result, 0.0);
+        thrust::device_vector<thrust::device_vector<double>> D_temp(row_count, thrust::device_vector<double>);
+        gen_matrix(row_count, col_count, D_temp, 0.0);
+        result = D_temp;
     }
 
     for (int row = 0; row < row_count; row++)
@@ -73,7 +75,9 @@ void sub_matrix(const thrust::host_vector<thrust::host_vector<double>>& matrix,
 
         if (init_matrix)
         {
-            utils::gen_matrix(row_count, col_count, result, 0.0);
+            thrust::device_vector<thrust::device_vector<double>> D_temp(row_count, thrust::device_vector<double>);
+            gen_matrix(row_count, col_count, D_temp, 0.0);
+            result = D_temp;
         }
 
         for (std::size_t row = 0; row < row_count; row++)
@@ -92,7 +96,10 @@ void sub_matrix(const thrust::host_vector<thrust::host_vector<double>>& matrix,
 
         if (init_matrix)
         {
-            gen_matrix(col_count, row_count, result);
+            thrust::device_vector<thrust::device_vector<double>> D_temp(row_count, thrust::device_vector<double>);
+            gen_matrix(row_count, col_count, D_temp, 0.0);
+            result = D_temp;
+
         }
 
         for (std::size_t row = 0; row < col_count; row++)
@@ -113,7 +120,9 @@ void sub_matrix(const thrust::host_vector<thrust::host_vector<double>>& matrix,
 
         if (init_matrix)
         {
-            gen_matrix(row_count, col_count, result, 0.0);
+            thrust::device_vector<thrust::device_vector<double>> D_temp(row_count, thrust::device_vector<double>);
+            gen_matrix(row_count, col_count, D_temp, 0.0);
+            result = D_temp;
         }
 
         for (std::size_t row = 0; row < row_count; row++)
@@ -178,7 +187,9 @@ void sub_matrix(const thrust::host_vector<thrust::host_vector<double>>& matrix,
 
         if (init_matrix)
         {
-            gen_matrix(row_count, col_count, result, 0.0);
+            thrust::device_vector<thrust::device_vector<double>> D_temp(row_count, thrust::device_vector<double>);
+            gen_matrix(row_count, col_count, D_temp, 0.0);
+            result = D_temp;
         }
 
         for (std::size_t row = 0; row < row_count; row++)
@@ -197,7 +208,9 @@ void sub_matrix(const thrust::host_vector<thrust::host_vector<double>>& matrix,
 
         if (init_matrix)
         {
-            gen_matrix(row_count, col_count, result, 0.0);
+            thrust::device_vector<thrust::device_vector<double>> D_temp(row_count, thrust::device_vector<double>);
+            gen_matrix(row_count, col_count, D_temp, 0.0);
+            result = D_temp;
         }
 
         for (std::size_t row = 0; row < row_count; row++)
@@ -217,7 +230,9 @@ void sub_matrix(const thrust::host_vector<thrust::host_vector<double>>& matrix,
 
         if (init_matrix)
         {
-            gen_matrix(row_count, col_count, result, 0.0);
+            thrust::device_vector<thrust::device_vector<double>> D_temp(row_count, thrust::device_vector<double>);
+            gen_matrix(row_count, col_count, D_temp, 0.0);
+            result = D_temp;
         }
 
         for (std::size_t row = 0; row < row_count; row++)
@@ -236,7 +251,10 @@ void sub_matrix(const thrust::host_vector<thrust::host_vector<double>>& matrix,
 
         if (init_matrix)
         {
-            gen_matrix(1, col_count, result, 0.0);
+            thrust::device_vector<thrust::device_vector<double>> D_temp(1, thrust::device_vector<double>);
+            gen_matrix(1, col_count, D_temp, 0.0);
+            result = D_temp;
+
         }
 
         for (const auto& row : matrix)
@@ -259,7 +277,9 @@ void sub_matrix(const thrust::host_vector<thrust::host_vector<double>>& matrix,
 
         if (init_matrix)
         {
-            utils::gen_matrix(row_count, col_count, result, 0.0);
+            thrust::device_vector<thrust::device_vector<double>> D_temp(row_count, thrust::device_vector<double>);
+            gen_matrix(row_count, col_count, D_temp, 0.0);
+            result = D_temp;
         }
 
         for (std::size_t row = 0; row < row_count; row++)
@@ -320,7 +340,9 @@ std::size_t col_count = matrix_col_count(matrix);
 
 if (init_matrix)
 {
-gen_matrix(col_count, row_count, result);
+    thrust::device_vector<thrust::device_vector<double>> D_temp(row_count, thrust::device_vector<double>);
+    gen_matrix(row_count, col_count, D_temp, 0.0);
+    result = D_temp;
 }
 
 for (std::size_t row = 0; row < col_count; row++)
@@ -341,7 +363,9 @@ std::size_t common_dim = matrix_col_count(lhs);
 
 if (init_matrix)
 {
-gen_matrix(row_count, col_count, result, 0.0);
+    thrust::device_vector<thrust::device_vector<double>> D_temp(row_count, thrust::device_vector<double>);
+    gen_matrix(row_count, col_count, D_temp, 0.0);
+    result = D_temp;
 }
 
 for (std::size_t row = 0; row < row_count; row++)
@@ -406,7 +430,9 @@ std::size_t col_count = matrix_col_count(lhs);
 
 if (init_matrix)
 {
-gen_matrix(row_count, col_count, result, 0.0);
+    thrust::device_vector<thrust::device_vector<double>> D_temp(row_count, thrust::device_vector<double>);
+    gen_matrix(row_count, col_count, D_temp, 0.0);
+    result = D_temp;
 }
 
 for (std::size_t row = 0; row < row_count; row++)
@@ -425,7 +451,9 @@ std::size_t col_count = matrix_col_count(matrix);
 
 if (init_matrix)
 {
-gen_matrix(row_count, col_count, result, 0.0);
+    thrust::device_vector<thrust::device_vector<double>> D_temp(row_count, thrust::device_vector<double>);
+    gen_matrix(row_count, col_count, D_temp, 0.0);
+    result = D_temp;
 }
 
 for (std::size_t row = 0; row < row_count; row++)
@@ -445,7 +473,9 @@ std::size_t col_count = matrix_col_count(matrix);
 
 if (init_matrix)
 {
-gen_matrix(row_count, col_count, result, 0.0);
+    thrust::device_vector<thrust::device_vector<double>> D_temp(row_count, thrust::device_vector<double>);
+    gen_matrix(row_count, col_count, D_temp, 0.0);
+    result = D_temp;
 }
 
 for (std::size_t row = 0; row < row_count; row++)
@@ -464,7 +494,9 @@ std::size_t col_count = matrix_col_count(matrix);
 
 if (init_matrix)
 {
-gen_matrix(1, col_count, result, 0.0);
+    thrust::device_vector<thrust::device_vector<double>> D_temp(1, thrust::device_vector<double>);
+    gen_matrix(1, col_count, D_temp, 0.0);
+    result = D_temp;
 }
 
 for (const auto& row : matrix)
@@ -487,8 +519,9 @@ std::size_t col_count = matrix_col_count(matrix);
 
 if (init_matrix)
 {
-utils::gen_matrix(row_count, col_count, result, 0.0);
-}
+    thrust::device_vector<thrust::device_vector<double>> D_temp(row_count, thrust::device_vector<double>);
+    gen_matrix(row_count, col_count, D_temp, 0.0);
+    result = D_temp;
 
 for (std::size_t row = 0; row < row_count; row++)
 {

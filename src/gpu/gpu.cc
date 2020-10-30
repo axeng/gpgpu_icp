@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-
+    
     parser::matrix_t A;
     bool ret = parser::parse_file(argv[1], A);
     if (!ret)
@@ -27,6 +27,7 @@ int main(int argc, char* argv[])
         std::cerr << "[ERROR] Parse A" << std::endl;
         return 1;
     }
+    //func matrix_t -> **double 
     parser::matrix_t newP;
     double error = 0;
     icp::icp(A, B, newP, error, true);

@@ -1,17 +1,16 @@
-#include "lib-matrix.hh"
+#include "lib-matrix-gpu.hh"
 
 #include <cmath>
-#include <iomanip>
 
 namespace utils
 {
-    matrix_t gen_matrix(std::size_t rows, std::size_t cols, value_t value)
+   /* matrix_t gen_matrix(std::size_t rows, std::size_t cols, value_t value)
     {
         vector_t row(cols, value);
         return matrix_t(rows, row);
-    }
+    }*/
 
-    void gen_matrix(std::size_t rows, std::size_t cols, matrix_t& result, value_t value)
+    void gen_matrix(std::size_t rows, std::size_t cols, thrust::host_vector<thrust::host_vector<double>> result, value_t value)
     {
         vector_t row(cols, value);
         for (std::size_t i = 0; i < rows; i++)
@@ -20,12 +19,12 @@ namespace utils
         }
     }
 
-    void sub_matrix(const matrix_t& matrix,
+    void sub_matrix(const thrust::host_vector<thrust::host_vector<double>> matrix,
                     std::size_t starting_row,
                     std::size_t starting_col,
                     std::size_t row_count,
                     std::size_t col_count,
-                    matrix_t& result,
+                    thrust::host_vector<thrust::host_vector<double>> result,
                     bool init_matrix)
     {
         std::size_t origin_row_count = matrix_row_count(matrix);
@@ -50,7 +49,7 @@ namespace utils
         }
     }
 
-    void matrix_transpose(const matrix_t& matrix, matrix_t& result, bool init_matrix)
+    void matrix_transpose(const thrust::host_vector<thrust::host_vector<double>> matrix, thrust::host_vector<thrust::host_vector<double>> result, bool init_matrix)
     {
         std::size_t row_count = matrix_row_count(matrix);
         std::size_t col_count = matrix_col_count(matrix);
@@ -69,7 +68,7 @@ namespace utils
         }
     }
 
-    void matrix_dot_product(const matrix_t& lhs, const matrix_t& rhs, matrix_t& result, bool init_matrix)
+    void matrix_dot_product(const thrust::host_vector<thrust::host_vector<double>> lhs, const thrust::host_vector<thrust::host_vector<double>> rhs, thrust::host_vector<thrust::host_vector<double>> result, bool init_matrix)
     {
         std::size_t row_count = matrix_row_count(lhs);
         std::size_t col_count = matrix_col_count(rhs);
@@ -121,7 +120,7 @@ namespace utils
         return sum;
     }
 
-    double matrix_norm_2(const matrix_t& matrix)
+    double matrix_norm_2(const thrust::host_vector<thrust::host_vector<double>> matrix)
     {
         double sum = 0.0;
 
@@ -136,7 +135,7 @@ namespace utils
         return sqrt(sum);
     }
 
-    void matrix_subtract(const matrix_t& lhs, const matrix_t& rhs, matrix_t& result, bool init_matrix)
+    void matrix_subtract(const thrust::host_vector<thrust::host_vector<double>> lhs, const thrust::host_vector<thrust::host_vector<double>> rhs, thrust::host_vector<thrust::host_vector<double>> result, bool init_matrix)
     {
         std::size_t row_count = matrix_row_count(lhs);
         std::size_t col_count = matrix_col_count(lhs);
@@ -155,7 +154,7 @@ namespace utils
         }
     }
 
-    void matrix_subtract_vector(const matrix_t& matrix, const matrix_t& vector, matrix_t& result, bool init_matrix)
+    void matrix_subtract_vector(const thrust::host_vector<thrust::host_vector<double>> matrix, const thrust::host_vector<thrust::host_vector<double>> vector, thrust::host_vector<thrust::host_vector<double>> result, bool init_matrix)
     {
         std::size_t row_count = matrix_row_count(matrix);
         std::size_t col_count = matrix_col_count(matrix);
@@ -175,7 +174,7 @@ namespace utils
         }
     }
 
-    void matrix_add_vector(const matrix_t& matrix, const matrix_t& vector, matrix_t& result, bool init_matrix)
+    void matrix_add_vector(const thrust::host_vector<thrust::host_vector<double>> matrix, const thrust::host_vector<thrust::host_vector<double>> vector, thrust::host_vector<thrust::host_vector<double>> result, bool init_matrix)
     {
         std::size_t row_count = matrix_row_count(matrix);
         std::size_t col_count = matrix_col_count(matrix);
@@ -194,7 +193,7 @@ namespace utils
         }
     }
 
-    void matrix_centroid(const matrix_t& matrix, matrix_t& result, bool init_matrix)
+    void matrix_centroid(const thrust::host_vector<thrust::host_vector<double>> matrix, thrust::host_vector<thrust::host_vector<double>> result, bool init_matrix)
     {
         std::size_t row_count = matrix_row_count(matrix);
         std::size_t col_count = matrix_col_count(matrix);
@@ -217,7 +216,7 @@ namespace utils
         result[0][2] /= row_count;
     }
 
-    void multiply_by_scalar(const matrix_t& matrix, double val, matrix_t& result, bool init_matrix)
+    void multiply_by_scalar(const thrust::host_vector<thrust::host_vector<double>> matrix, double val, thrust::host_vector<thrust::host_vector<double>> result, bool init_matrix)
     {
         std::size_t row_count = matrix_row_count(matrix);
         std::size_t col_count = matrix_col_count(matrix);
@@ -237,7 +236,7 @@ namespace utils
     }
 
     // TODO DO NOT TRANSLATE TO GPU (MAYBE)
-    void print_matrix(const matrix_t& matrix)
+    void print_matrix(const thrust::host_vector<thrust::host_vector<double>> matrix)
     {
         for (const auto& row : matrix)
         {
@@ -252,7 +251,7 @@ namespace utils
         }
     }
 
-    void matrix_to_csv(const matrix_t& matrix, const std::string& path)
+    void matrix_to_csv(const thrust::host_vector<thrust::host_vector<double>> matrix, const std::string& path)
     {
         std::ofstream file;
         file.open(path);

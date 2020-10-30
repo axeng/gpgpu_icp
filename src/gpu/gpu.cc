@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "icp/icp.hh"
-#include "parser/parser.hh"
+#include "gpu/icp/icp.hh"
+#include "gpu/parser/parser.hh"
 
 int main(int argc, char* argv[])
 {
@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
     //func matrix_t -> **double 
     parser::matrix_t newP;
     double error = 0;
-    icp::icp(A, B, newP, error, true);
+    icp::icp_gpu(A, B, newP, error, true);
 
     return 0;
 }

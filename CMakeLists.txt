@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(gpgpu_icp)
+project(gpgpu_icp LANGUAGES CXX CUDA)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -16,7 +16,7 @@ endif()
 
 ############### COMPILATION FLAGS ###############
 # General compilation flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic -std=c++17")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic -std=c++11")
 
 # Debug compilation flags
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3")
@@ -61,6 +61,26 @@ set(CPU_EXEC_SOURCES
         ${CPU_SOURCES}
         src/cpu/cpu.cc)
 
+# GPU sources
+set(GPU_ICP_SOURCES
+        src/gpu/icp/icp.cu)
+
+set(GPU_PARSER_SOURCES
+        src/gpu/parser/parser.cc)
+
+set(GPU_UTILS_SOURCES
+        src/gpu/utils/utils.cu
+        src/gpu/utils/lib-matrix.cu)
+
+set(GPU_SOURCES
+        ${GPU_ICP_SOURCES}
+        ${GPU_PARSER_SOURCES}
+        ${GPU_UTILS_SOURCES})
+
+set(GPU_EXEC_SOURCES
+        ${GPU_SOURCES}
+        src/gpu/gpu.cc)
+
 # Benchmarking Sources
 set(BENCH_SOURCES
         bench/main.cc
@@ -75,6 +95,9 @@ set(UNIT_TESTS_SOURCES
 # CPU Executable
 add_executable(${CPU_TARGET}
         ${CPU_EXEC_SOURCES})
+
+add_executable(${GPU_TARGET}
+        ${GPU_EXEC_SOURCES})
 
 # Benchmarking Executable
 add_executable(${BENCH_TARGET} EXCLUDE_FROM_ALL ${BENCH_SOURCES})

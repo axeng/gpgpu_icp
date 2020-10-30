@@ -1,21 +1,23 @@
 #pragma once
 
-#include "cpu/parser/parser.hh"
+#include <thrust/host_vector.h>
+
+#include "gpu/parser/parser.hh"
 
 namespace icp
 {
-    using value_t = parser::value_t;
-    using vector_t = parser::vector_t;
-    using matrix_t = parser::matrix_t;
+    using value_t = double;
+    using vector_t = thrust::device_vector<value_t>;
+    using matrix_t = thrust::device_vector<vector_t>;
 
-    std::size_t icp(const matrix_t& M,
-                    const matrix_t& P,
-                    matrix_t& newP,
-                    double& err,
-                    bool verbose = false,
-                    std::size_t max_iterations = 200,
-                    double threshold = 1e-5,
-                    std::size_t power_iteration_simulations = 100);
+    std::size_t icp_gpu(const parser::matrix_t& M_host,
+                        const parser::matrix_t& P_host,
+                        parser::matrix_t& newP_host,
+                        double& err,
+                        bool verbose = false,
+                        std::size_t max_iterations = 200,
+                        double threshold = 1e-5,
+                        std::size_t power_iteration_simulations = 100);
 
     bool find_alignment(const matrix_t& P,
                         const matrix_t& Y,

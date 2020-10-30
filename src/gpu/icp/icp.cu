@@ -1,21 +1,20 @@
-#include "icp.hh"
-
 #include <sstream>
 
-#include "cpu/utils/lib-matrix.hh"
-#include "cpu/utils/uniform-random.hh"
-#include "cpu/utils/utils.hh"
+#include "gpu/utils/lib-matrix.hh"
+#include "gpu/utils/uniform-random.hh"
+#include "gpu/utils/utils.hh"
+#include "icp.hh"
 
 namespace icp
 {
-    std::size_t icp(const matrix_t& M /*dst*/,
-                    const matrix_t& P /*src*/,
-                    matrix_t& newP,
-                    double& err,
-                    bool verbose,
-                    std::size_t max_iterations,
-                    double threshold,
-                    std::size_t power_iteration_simulations)
+    std::size_t icp_gpu(const parser::matrix_t& M /*dst*/,
+                        const parser::matrix_t& P /*src*/,
+                        parser::matrix_t& newP,
+                        double& err,
+                        bool verbose,
+                        std::size_t max_iterations,
+                        double threshold,
+                        std::size_t power_iteration_simulations)
     {
         if (M.empty() || P.empty() || (M[0].size() != P[0].size()))
         {
@@ -30,11 +29,6 @@ namespace icp
         auto Np = P.size();
         // auto Nm = M.size();     // FIXME : Unused ?
         // auto dim = P[0].size();  // FIXME : Unused ?
-
-        if (verbose)
-        {
-            utils::matrix_to_csv(newP, "../res.csv/res.csv.0");
-        }
 
         // ----------------------------------------
         // Find Correspondences
@@ -85,10 +79,6 @@ namespace icp
             if (verbose)
             {
                 std::cout << "error: " << err << std::endl;
-
-                std::stringstream filename;
-                filename << "../res.csv/res.csv." << (iteration + 1);
-                utils::matrix_to_csv(newP, filename.str());
             }
 
             if (err < threshold)
@@ -97,15 +87,17 @@ namespace icp
             }
         }
 
+        // FIXME set newP into newP_host
+
         return iteration;
     }
 
     bool find_alignment(const matrix_t& P,
-                        const matrix_t& Y,
-                        double& s,
-                        matrix_t& R,
-                        matrix_t& t,
-                        std::size_t power_iteration_simulations)
+                                   const matrix_t& Y,
+                                   double& s,
+                                   matrix_t& R,
+                                   matrix_t& t,
+                                   std::size_t power_iteration_simulations)
     {
         auto Np = P.size();
         auto dim_p = Np > 0 ? P[0].size() : 0;
@@ -284,13 +276,28 @@ namespace icp
         return true;
     }
 
+    struct UniformRandom
+    {
+        float operator()(int idx)
+        {
+            thurst::default_random_engine random_engine;
+            thurst::uniform_real_distribution<double> uniform_real_distribution;
+            random_engine.discard(idx);
+            return uniform_real_distribution(random_engine);
+        }
+    };
+
     void power_iteration(const matrix_t& A, matrix_t& eigen_vector, std::size_t num_simulations)
     {
         vector_t vector(A[0].size());
-        std::generate_n(vector.begin(), A[0].size(), utils::UniformRandom<double>(0.0, 1.1));
+        thurst::transform(thrust::make_counting_iterator(0),
+                          thrust::make_counting_iterator(A[0].size()),
+                          vector.begin(),
+                          UniformRandom());
+
         for (std::size_t i = 0; i < A[0].size(); i++)
         {
-            eigen_vector.emplace_back(std::initializer_list<double>{vector[i]});
+            eigen_vector.push_back(std::initializer_list<double>{vector[i]});
         }
 
         for (std::size_t simulation = 0; simulation < num_simulations; simulation++)

@@ -8,16 +8,18 @@
 
 namespace icp
 {
-    void icp(const matrix_t& M /*dst*/,
-             const matrix_t& P /*src*/,
-             matrix_t& newP,
-             std::size_t max_iterations,
-             double threshold,
-             std::size_t power_iteration_simulations)
+    std::size_t icp(const matrix_t& M /*dst*/,
+                    const matrix_t& P /*src*/,
+                    matrix_t& newP,
+                    double& err,
+                    bool verbose,
+                    std::size_t max_iterations,
+                    double threshold,
+                    std::size_t power_iteration_simulations)
     {
         if (M.empty() || P.empty() || (M[0].size() != P[0].size()))
         {
-            return;
+            return 0;
         }
 
         // ----------------------------------------
@@ -26,16 +28,24 @@ namespace icp
         utils::sub_matrix(P, 0, 0, P.size(), P[0].size(), newP);
 
         auto Np = P.size();
-        //auto Nm = M.size();     // FIXME : Unused ?
-        //auto dim = P[0].size();  // FIXME : Unused ?
+        // auto Nm = M.size();     // FIXME : Unused ?
+        // auto dim = P[0].size();  // FIXME : Unused ?
 
-        utils::matrix_to_csv(newP, "../res.csv/res.csv.0");
+        if (verbose)
+        {
+            utils::matrix_to_csv(newP, "../res.csv/res.csv.0");
+        }
 
         // ----------------------------------------
         // Find Correspondences
-        for (std::size_t iteration = 0; iteration < max_iterations; iteration++)
+        std::size_t iteration = 0;
+        for (; iteration < max_iterations; iteration++)
         {
-            std::cout << "----------------------------------------" << std::endl << "Iteration: " << iteration << std::endl;
+            if (verbose)
+            {
+                std::cout << "----------------------------------------" << std::endl
+                          << "Iteration: " << iteration << std::endl;
+            }
 
             matrix_t Y;
             std::vector<double> distances;
@@ -56,14 +66,14 @@ namespace icp
             // Compute Residual Error
             matrix_t d;
             utils::matrix_subtract(Y, newP, d, true);
-            
+
             matrix_t d_T;
             utils::matrix_transpose(d, d_T);
 
             matrix_t d_dot_d_T;
             utils::matrix_dot_product(d_T, d, d_dot_d_T);
 
-            double err = 0;
+            err = 0;
 
             for (std::size_t i = 0; i < d_dot_d_T.size(); i++)
             {
@@ -72,21 +82,30 @@ namespace icp
 
             err /= Np;
 
+            if (verbose)
+            {
+                std::cout << "error: " << err << std::endl;
 
-            std::cout << "error: " << err << std::endl;
-
-            std::stringstream filename;
-            filename << "../res.csv/res.csv." << (iteration + 1);
-            utils::matrix_to_csv(newP, filename.str());
+                std::stringstream filename;
+                filename << "../res.csv/res.csv." << (iteration + 1);
+                utils::matrix_to_csv(newP, filename.str());
+            }
 
             if (err < threshold)
             {
                 break;
             }
         }
+
+        return iteration;
     }
 
-    bool find_alignment(const matrix_t& P, const matrix_t& Y, double& s, matrix_t& R, matrix_t& t, std::size_t power_iteration_simulations)
+    bool find_alignment(const matrix_t& P,
+                        const matrix_t& Y,
+                        double& s,
+                        matrix_t& R,
+                        matrix_t& t,
+                        std::size_t power_iteration_simulations)
     {
         auto Np = P.size();
         auto dim_p = Np > 0 ? P[0].size() : 0;
@@ -124,7 +143,6 @@ namespace icp
 
         matrix_t Yprime;
         utils::matrix_subtract_vector(Y, Mu_y, Yprime);
-
 
         // ----------------------------------------
         // Quaternion computation
@@ -172,16 +190,19 @@ namespace icp
         double Szz = utils::vector_sum(zz);
 
         matrix_t Nmatrix;
-        Nmatrix.emplace_back(std::initializer_list<double>{ Sxx + Syy + Szz,    Syz - Szy,          -Sxz + Szx,         Sxy - Syx       });
-        Nmatrix.emplace_back(std::initializer_list<double>{ -Szy + Syz,         Sxx - Szz - Syy,    Sxy + Syx,          Sxz + Szx       });
-        Nmatrix.emplace_back(std::initializer_list<double>{ Szx - Sxz,          Syx + Sxy,          Syy - Szz - Sxx,    Syz + Szy       });
-        Nmatrix.emplace_back(std::initializer_list<double>{ -Syx + Sxy,         Szx + Sxz,          Szy + Syz,          Szz - Syy - Sxx });
+        /*Nmatrix.emplace_back(std::initializer_list<double>{ Sxx + Syy + Szz,    Syz - Szy,          -Sxz + Szx, Sxy -
+        Syx}); Nmatrix.emplace_back(std::initializer_list<double>{ -Szy + Syz,         Sxx - Szz - Syy,    Sxy + Syx,
+        Sxz + Szx}); Nmatrix.emplace_back(std::initializer_list<double>{ Szx - Sxz,          Syx + Sxy,          Syy -
+        Szz - Sxx,    Syz + Szy}); Nmatrix.emplace_back(std::initializer_list<double>{ -Syx + Sxy,         Szx + Sxz,
+        Szy + Syz,          Szz - Syy - Sxx});*/
 
-        matrix_t Nmatrix_T;
-        utils::matrix_transpose(Nmatrix, Nmatrix_T);
+        Nmatrix.emplace_back(std::initializer_list<double>{Sxx + Syy + Szz, -Szy + Syz, Szx - Sxz, -Syx + Sxy});
+        Nmatrix.emplace_back(std::initializer_list<double>{Syz - Szy, Sxx - Szz - Syy, Syx + Sxy, Szx + Sxz});
+        Nmatrix.emplace_back(std::initializer_list<double>{-Sxz + Szx, Sxy + Syx, Syy - Szz - Sxx, Szy + Syz});
+        Nmatrix.emplace_back(std::initializer_list<double>{Sxy - Syx, Sxz + Szx, Syz + Szy, Szz - Syy - Sxx});
 
         matrix_t q;
-        power_iteration(Nmatrix_T, q, power_iteration_simulations);
+        power_iteration(Nmatrix, q, power_iteration_simulations);
 
         // ----------------------------------------
         // Rotation matrix computation
@@ -230,7 +251,6 @@ namespace icp
 
             D += dot_product[0][0];
 
-
             // Sp = Sp + Pprime(:,i)' * Pprime(:,i)
             matrix_t Pprime_i;
             Pprime_i.push_back(Pprime[i]);
@@ -243,8 +263,7 @@ namespace icp
             Sp += dot_product[0][0];
         }
 
-        s = sqrt(D/Sp);
-        s = 1;
+        s = sqrt(D / Sp);
 
         // ----------------------------------------
         // Translational offset computation
@@ -288,7 +307,7 @@ namespace icp
         }
     }
 
-    void apply_alignment(matrix_t P, double s, const matrix_t& R, const matrix_t& t, matrix_t& newP)
+    void apply_alignment(const matrix_t& P, double s, const matrix_t& R, const matrix_t& t, matrix_t& newP)
     {
         matrix_t s_time_R;
         utils::multiply_by_scalar(R, s, s_time_R);

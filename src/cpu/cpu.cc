@@ -53,10 +53,8 @@ int main(int argc, char* argv[])
     parser::matrix_t T;
 */
     parser::matrix_t newP;
-    std::size_t max_iterations = 200;   // default value set to 200
-    double threshold = 0.00001;         // default value set to 1 x 10^-5
-
-    icp::icp(A, B, newP, max_iterations, threshold);
+    double error = 0;
+    icp::icp(A, B, newP, error, true);
 /*
     for (const auto& row : T)
     {

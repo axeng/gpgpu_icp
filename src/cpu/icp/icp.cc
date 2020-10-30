@@ -13,6 +13,7 @@ namespace icp
                     matrix_t& newP,
                     double& err,
                     bool verbose,
+                    bool save_results,
                     std::size_t max_iterations,
                     double threshold,
                     std::size_t power_iteration_simulations)
@@ -31,7 +32,7 @@ namespace icp
         // auto Nm = M.size();     // FIXME : Unused ?
         // auto dim = P[0].size();  // FIXME : Unused ?
 
-        if (verbose)
+        if (save_results)
         {
             utils::matrix_to_csv(newP, "../res.csv/res.csv.0");
         }
@@ -85,10 +86,15 @@ namespace icp
             if (verbose)
             {
                 std::cout << "error: " << err << std::endl;
+            }
 
+            if (save_results)
+            {
                 std::stringstream filename;
                 filename << "../res.csv/res.csv." << (iteration + 1);
                 utils::matrix_to_csv(newP, filename.str());
+
+
             }
 
             if (err < threshold)

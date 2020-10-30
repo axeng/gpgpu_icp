@@ -35,12 +35,30 @@ void run_icp(benchmark::State& state, const std::string& file_1, const std::stri
     state.SetItemsProcessed(state.iterations());
 }
 
-static void BM_Simple_Cow(benchmark::State& state)
+static void BM_Cow_TR_1(benchmark::State& state)
 {
     run_icp(state, "../tests/data_students/cow_ref.txt", "../tests/data_students/cow_tr1.txt");
 }
 
-BENCHMARK(BM_Simple_Cow);
+static void BM_Cow_TR_2(benchmark::State& state)
+{
+    run_icp(state, "../tests/data_students/cow_ref.txt", "../tests/data_students/cow_tr2.txt");
+}
+
+static void BM_Horse_TR_1(benchmark::State& state)
+{
+    run_icp(state, "../tests/data_students/horse_ref.txt", "../tests/data_students/horse_tr1.txt");
+}
+
+static void BM_Horse_TR_2(benchmark::State& state)
+{
+    run_icp(state, "../tests/data_students/horse_ref.txt", "../tests/data_students/horse_tr2.txt");
+}
+
+BENCHMARK(BM_Cow_TR_1);
+BENCHMARK(BM_Cow_TR_2);
+BENCHMARK(BM_Horse_TR_1);
+BENCHMARK(BM_Horse_TR_2);
 
 // Run the benchmark
 BENCHMARK_MAIN();

@@ -13,9 +13,10 @@ namespace icp
                     matrix_t& newP,
                     double& err,
                     bool verbose = false,
+                    bool save_results = false,
                     std::size_t max_iterations = 200,
                     double threshold = 1e-5,
-                    std::size_t power_iteration_simulations = 100);
+                    std::size_t power_iteration_simulations = 1000);
 
     bool find_alignment(const matrix_t& P,
                         const matrix_t& Y,

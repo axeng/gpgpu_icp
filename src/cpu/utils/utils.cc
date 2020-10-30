@@ -48,5 +48,14 @@ namespace utils
         return mean;
     }
 
+    void save_result(std::size_t iteration, double error)
+    {
+        std::ofstream file;
+        // FIXME append mode
+        file.open("results.csv");
 
+        file << iteration << ',' << error;
+
+        file.close();
+    }
 } // namespace utils

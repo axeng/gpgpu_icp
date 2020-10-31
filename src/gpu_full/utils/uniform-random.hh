@@ -21,7 +21,10 @@ namespace utils
          ** @param minimum The minimum value that the generator can generate, included
          ** @param width The maximum value that the generator can generate, excluded
          */
-        UniformRandom(T minimum, T maximum);
+        UniformRandom(T minimum, T maximum)
+            : random_engine_(std::random_device()())
+            , distribution_(minimum, maximum)
+        {}
 
         /** \} */
 
@@ -31,7 +34,10 @@ namespace utils
         /** @brief Generate a new random number
          ** @return The random number
          */
-        T operator()();
+        T operator()()
+        {
+            return this->distribution_(this->random_engine_);
+        }
 
         /** \} */
 

@@ -89,7 +89,7 @@ namespace utils
 
                 for (std::size_t k = 0; k < common_dim; k++)
                 {
-                    result.data_[row][col] += lhs.at(row, k) * rhs.at(k, col);
+                    result.data_[row][col] += lhs.data_[row][k] * rhs.data_[k][col];
                 }
             }
         }
@@ -112,7 +112,7 @@ namespace utils
         {
             for (std::size_t col = 0; col < lhs.get_cols(); col++)
             {
-                result.data_[row][col] = lhs.at(row, col) - rhs.at(row, col);
+                result.data_[row][col] = lhs.data_[row][col] - rhs.data_[row][col];
             }
         }
     }

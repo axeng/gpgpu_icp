@@ -17,7 +17,7 @@ namespace icp
                         bool save_results,
                         std::size_t max_iterations,
                         double threshold,
-                        std::size_t power_iteration_simulations);
+                        std::size_t power_iteration_simulations)
     {
         if (M.empty() || P.empty() || (M.get_cols() != P.get_cols()))
         {

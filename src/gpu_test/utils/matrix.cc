@@ -6,12 +6,12 @@
 
 namespace utils
 {
-    Matrix::Matrix(std::size_t rows, std::size_t cols, value_t value)
+    MatrixGPUGPU::MatrixGPUGPU(std::size_t rows, std::size_t cols, value_t value)
     {
         matrix_fill(rows, cols, value);
     }
 
-    void Matrix::matrix_fill(std::size_t rows, std::size_t cols, value_t value)
+    void MatrixGPUGPU::matrix_fill(std::size_t rows, std::size_t cols, value_t value)
     {
         rows_ = rows;
         cols_ = cols;
@@ -23,7 +23,7 @@ namespace utils
         }
     }
 
-    void Matrix::sub_matrix(std::size_t starting_row,
+    void MatrixGPU::sub_matrix(std::size_t starting_row,
                     std::size_t starting_col,
                     std::size_t row_count,
                     std::size_t col_count,
@@ -49,7 +49,7 @@ namespace utils
         }
     }
 
-    void Matrix::matrix_transpose(matrix_t& result, bool init_matrix) const
+    void MatrixGPU::matrix_transpose(matrix_t& result, bool init_matrix) const
     {
         std::size_t row_count = this->rows_;
         std::size_t col_count = this->cols_;
@@ -68,7 +68,7 @@ namespace utils
         }
     }
 
-    double Matrix::matrix_norm_2() const
+    double MatrixGPU::matrix_norm_2() const
     {
         double sum = 0.0;
 
@@ -84,7 +84,7 @@ namespace utils
     }
 
     void
-    Matrix::matrix_subtract_vector(const matrix_t& vector, matrix_t& result, bool init_matrix) const
+    MatrixGPU::matrix_subtract_vector(const matrix_t& vector, matrix_t& result, bool init_matrix) const
     {
         std::size_t row_count = this->rows_;
         std::size_t col_count = this->cols_;
@@ -104,7 +104,7 @@ namespace utils
         }
     }
 
-    void Matrix::matrix_add_vector(const matrix_t& vector, matrix_t& result, bool init_matrix) const
+    void MatrixGPU::matrix_add_vector(const matrix_t& vector, matrix_t& result, bool init_matrix) const
     {
         std::size_t row_count = this->rows_;
         std::size_t col_count = this->cols_;
@@ -123,7 +123,7 @@ namespace utils
         }
     }
 
-    void Matrix::matrix_centroid(matrix_t& result, bool init_matrix) const
+    void MatrixGPU::matrix_centroid(matrix_t& result, bool init_matrix) const
     {
         std::size_t row_count = this->rows_;
         std::size_t col_count = this->cols_;
@@ -146,7 +146,7 @@ namespace utils
         result.data_[0][2] /= row_count;
     }
 
-    void Matrix::multiply_by_scalar(double val, matrix_t& result, bool init_matrix) const
+    void MatrixGPU::multiply_by_scalar(double val, matrix_t& result, bool init_matrix) const
     {
         std::size_t row_count = this->rows_;
         std::size_t col_count = this->cols_;
@@ -165,7 +165,7 @@ namespace utils
         }
     }
 
-    void Matrix::print_matrix() const
+    void MatrixGPU::print_matrix() const
     {
         for (const auto& row : this->data_)
         {
@@ -180,7 +180,7 @@ namespace utils
         }
     }
 
-    void Matrix::matrix_to_csv(const std::string& path) const
+    void MatrixGPU::matrix_to_csv(const std::string& path) const
     {
         std::ofstream file;
         file.open(path);

@@ -10,13 +10,13 @@
 namespace utils
 {
     template <typename T>
-    UniformRandom<T>::UniformRandom(T minimum, T maximum)
+    UniformRandomGPU<T>::UniformRandomGPU(T minimum, T maximum)
         : random_engine_(std::random_device()())
         , distribution_(minimum, maximum)
     {}
 
     template <typename T>
-    T UniformRandom<T>::operator()()
+    T UniformRandomGPU<T>::operator()()
     {
         return this->distribution_(this->random_engine_);
     }

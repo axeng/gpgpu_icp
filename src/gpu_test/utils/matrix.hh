@@ -6,7 +6,7 @@
 
 namespace utils
 {
-    class Matrix
+    class MatrixGPU
     {
     public:
         using value_t = double;

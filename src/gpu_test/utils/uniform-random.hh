@@ -11,7 +11,7 @@ namespace utils
 {
     /// Uniform Distribution Random real number generator
     template <typename T>
-    class UniformRandom
+    class UniformRandomGPU
     {
     public:
         /** @name Constructors

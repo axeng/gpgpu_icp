@@ -1,4 +1,6 @@
-#include "lib-matrix.hh"
+#include "matrix.hh"
+
+#include <spdlog/spdlog.h>
 
 namespace utils
 {

@@ -2,6 +2,7 @@
 #include <iomanip>
 
 #include "lib-matrix.hh"
+#include "matrix.hh"
 
 namespace utils
 {

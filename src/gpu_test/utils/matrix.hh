@@ -75,6 +75,16 @@ namespace utils
             return this->data_;
         }
 
+        inline bool set_data(size_t i, const vector_t vec)
+        {
+            if (i >= this->rows_)
+                return false;
+
+            this->data_[i] = vec;
+
+            return true;
+        }
+
         inline void push_line(const vector_t& values)
         {
             this->data_.push_back(values);

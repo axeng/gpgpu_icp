@@ -34,7 +34,7 @@ namespace utils
                     chosen = q_point;
                 }
         }
-        res.get_data()[i] = chosen;
+        res.set_data(i, chosen);
 
 
 

@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "lib-matrix-cuda.hh"
+#include "lib-matrix.hh"
 
 namespace utils
 {

@@ -28,14 +28,10 @@ namespace utils
 
     __global__ void copy_line_cuda(const matrix_device_t& matrix, const vector_device_t& line, std::size_t row);
 
-    __global__ void
-    matrix_dot_product_cuda(const matrix_device_t& lhs, const matrix_device_t& rhs, matrix_device_t& result);
     __global__ void vector_element_wise_multiplication_cuda(const vector_device_t& lhs,
                                                             const vector_device_t& rhs,
                                                             vector_device_t& result,
                                                             std::size_t vector_size);
-    __global__ void
-    matrix_subtract_cuda(const matrix_device_t& lhs, const matrix_device_t& rhs, matrix_device_t& result);
 
     // Others
     void matrix_dot_product(const matrix_device_t& lhs, const matrix_device_t& rhs, matrix_device_t& result);

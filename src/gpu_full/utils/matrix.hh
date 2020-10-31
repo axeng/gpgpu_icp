@@ -63,10 +63,10 @@ namespace utils
             return this->data_;
         }
 
-        friend void matrix_dot_product_cuda(const matrix_device_t& lhs,
+        friend __global__ void matrix_dot_product_cuda(const matrix_device_t& lhs,
                                        const matrix_device_t& rhs,
                                        matrix_device_t& result);
-        friend void matrix_subtract_cuda(const matrix_device_t& lhs,
+        friend __global__ void matrix_subtract_cuda(const matrix_device_t& lhs,
                                     const matrix_device_t& rhs,
                                     matrix_device_t& result);
 

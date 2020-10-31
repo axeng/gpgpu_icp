@@ -1,7 +1,7 @@
 #include <cmath>
 #include <iomanip>
 
-#include "lib-matrix-cuda.hh"
+#include "lib-matrix.hh"
 
 namespace utils
 {

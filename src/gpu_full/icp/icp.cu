@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <sstream>
 
-#include "gpu_full/utils/lib-matrix-cuda.hh"
+#include "gpu_full/utils/lib-matrix.hh"
 #include "gpu_full/utils/uniform-random.hh"
 #include "gpu_full/utils/utils.hh"
 

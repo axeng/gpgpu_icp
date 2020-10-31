@@ -1,5 +1,6 @@
 #include "icp.hh"
 
+#include <algorithm>
 #include <sstream>
 
 #include "cpu/utils/lib-matrix.hh"

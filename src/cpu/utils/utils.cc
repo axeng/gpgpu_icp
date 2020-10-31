@@ -45,4 +45,20 @@ namespace utils
 
         file.close();
     }
+
+    void string_split(std::string str, const std::string& delimiter, std::vector<std::string>& words)
+    {
+        std::size_t position = 0;
+        std::string word;
+
+        while ((position = str.find(delimiter)) != std::string::npos)
+        {
+            word = str.substr(0, position);
+            words.push_back(word);
+            str.erase(0, position + delimiter.length());
+        }
+
+        word = str.substr(0, position);
+        words.push_back(word);
+    }
 } // namespace utils

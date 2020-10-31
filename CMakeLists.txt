@@ -26,10 +26,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -march=native -fl
 #################################################
 
 ############### EXTERNAL LIBRARIES ##############
-# Boost
-find_package(Boost COMPONENTS system REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
-
 # Benchmark
 set(BENCHMARK_DOWNLOAD_DEPENDENCIES ON)
 set(BENCHMARK_ENABLE_TESTING OFF)
@@ -102,7 +98,7 @@ add_executable(${GPU_TARGET}
 # Benchmarking Executable
 add_executable(${BENCH_TARGET} EXCLUDE_FROM_ALL ${BENCH_SOURCES})
 target_include_directories(bench PRIVATE bench)
-target_link_libraries(bench PRIVATE benchmark::benchmark ${Boost_LIBRARIES})
+target_link_libraries(bench PRIVATE benchmark::benchmark)
 
 
 

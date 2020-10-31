@@ -26,6 +26,10 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -march=native -fl
 #################################################
 
 ############### EXTERNAL LIBRARIES ##############
+# CUDA
+find_package(CUDA REQUIRED)
+find_package(Thrust REQUIRED)
+
 # Benchmark
 set(BENCHMARK_DOWNLOAD_DEPENDENCIES ON)
 set(BENCHMARK_ENABLE_TESTING OFF)
@@ -75,7 +79,7 @@ set(GPU_SOURCES
 
 set(GPU_EXEC_SOURCES
         ${GPU_SOURCES}
-        src/gpu/gpu.cc)
+        src/gpu/gpu.cu)
 
 # Benchmarking Sources
 set(BENCH_SOURCES
@@ -94,6 +98,8 @@ add_executable(${CPU_TARGET}
 
 add_executable(${GPU_TARGET}
         ${GPU_EXEC_SOURCES})
+target_include_directories(${GPU_TARGET} PRIVATE jkblabla)
+target_link_libraries(${GPU_TARGET} PRIVATE blabla)
 
 # Benchmarking Executable
 add_executable(${BENCH_TARGET} EXCLUDE_FROM_ALL ${BENCH_SOURCES})

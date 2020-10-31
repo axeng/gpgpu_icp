@@ -93,7 +93,6 @@ set(GPU_FULL_PARSER_SOURCES
 set(GPU_FULL_UTILS_SOURCES
         src/gpu_full/utils/utils.cu
         src/gpu_full/utils/lib-matrix.cu
-        src/gpu_full/utils/lib-matrix-cuda.cu
         src/gpu_full/utils/matrix.cu)
 
 set(GPU_FULL_SOURCES

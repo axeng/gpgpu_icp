@@ -1,13 +1,15 @@
 #include "utils.hh"
 
+#include <iostream>
+
 namespace utils
 {
     [[gnu::noinline]]
     void _abortError(const char* msg, const char* fname, int line)
     {
         cudaError_t err = cudaGetLastError();
-        spdlog::error("{} ({}, line: {})", msg, fname, line);
-        spdlog::error("Error {}: {}", cudaGetErrorName(err), cudaGetErrorString(err));
+        std::cerr << msg << "(" << fname << ", line: " << line << ")" << std::endl;
+        std::cerr << "Error " << cudaGetErrorName(err) << ": " << cudaGetErrorString(err) << std::endl;
         std::exit(1);
     }
 

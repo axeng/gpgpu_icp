@@ -300,7 +300,7 @@ namespace icp
     void power_iteration(const matrix_t& A, matrix_t& eigen_vector, std::size_t num_simulations)
     {
         vector_t vector(A.get_cols());
-        std::generate_n(vector.begin(), A.get_cols(), utils::UniformRandom<double>(0.0, 1.1));
+        std::generate_n(vector.begin(), A.get_cols(), utils::UniformRandomGPU<double>(0.0, 1.1));
         for (std::size_t i = 0; i < A.get_cols(); i++)
         {
             eigen_vector.emplace_line(std::initializer_list<double>{vector[i]});

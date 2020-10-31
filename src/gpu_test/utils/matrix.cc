@@ -6,12 +6,12 @@
 
 namespace utils
 {
-    MatrixGPUGPU::MatrixGPUGPU(std::size_t rows, std::size_t cols, value_t value)
+    MatrixGPU::MatrixGPU(std::size_t rows, std::size_t cols, value_t value)
     {
         matrix_fill(rows, cols, value);
     }
 
-    void MatrixGPUGPU::matrix_fill(std::size_t rows, std::size_t cols, value_t value)
+    void MatrixGPU::matrix_fill(std::size_t rows, std::size_t cols, value_t value)
     {
         rows_ = rows;
         cols_ = cols;

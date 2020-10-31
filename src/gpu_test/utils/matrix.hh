@@ -11,10 +11,10 @@ namespace utils
     public:
         using value_t = double;
         using vector_t = std::vector<value_t>;
-        using matrix_t = Matrix;
+        using matrix_t = MatrixGPU;
 
-        Matrix() = default;
-        Matrix(std::size_t rows, std::size_t cols, value_t value = 0);
+        MatrixGPU() = default;
+        MatrixGPU(std::size_t rows, std::size_t cols, value_t value = 0);
 
         void matrix_fill(std::size_t rows, std::size_t cols, value_t value = 0);
 

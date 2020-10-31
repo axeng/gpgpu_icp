@@ -21,7 +21,7 @@ namespace utils
          ** @param minimum The minimum value that the generator can generate, included
          ** @param width The maximum value that the generator can generate, excluded
          */
-        UniformRandom(T minimum, T maximum);
+        UniformRandomGPU(T minimum, T maximum);
 
         /** \} */
 

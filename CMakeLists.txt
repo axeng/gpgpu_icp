@@ -85,15 +85,16 @@ set(GPU_TEST_EXEC_SOURCES
 
 # GPU full sources
 set(GPU_FULL_ICP_SOURCES
-        src/gpu_full/icp/icp.cc)
+        src/gpu_full/icp/icp.cu)
 
 set(GPU_FULL_PARSER_SOURCES
         src/gpu_full/parser/parser.cc)
 
 set(GPU_FULL_UTILS_SOURCES
         src/gpu_full/utils/utils.cc
-        src/gpu_full/utils/lib-matrix.cc
-        src/gpu_full/utils/matrix.cc)
+        src/gpu_full/utils/lib-matrix.cu
+        src/gpu_full/utils/lib-matrix-cuda.cu
+        src/gpu_full/utils/matrix.cu)
 
 set(GPU_FULL_SOURCES
         ${GPU_FULL_ICP_SOURCES}

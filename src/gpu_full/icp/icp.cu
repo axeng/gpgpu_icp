@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <sstream>
 
-#include "gpu_full/utils/lib-matrix.hh"
+#include "gpu_full/utils/lib-matrix-cuda.hh"
 #include "gpu_full/utils/uniform-random.hh"
 #include "gpu_full/utils/utils.hh"
 
@@ -312,7 +312,8 @@ namespace icp
         {
             utils::matrix_dot_product(A, eigen_vector, b_k1);
 
-            double b_k1_norm = b_k1.matrix_norm_2();
+            double b_k1_norm = 0.0;
+            b_k1.matrix_norm_2(b_k1_norm);
 
             for (std::size_t i = 0; i < eigen_vector.get_rows(); i++)
             {

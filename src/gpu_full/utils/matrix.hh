@@ -25,7 +25,7 @@ namespace utils
                         matrix_device_t& result) const;
         void matrix_transpose(matrix_device_t& result) const;
 
-        double matrix_norm_2() const;
+        void matrix_norm_2(double& norm) const;
         void
         matrix_subtract_vector(const matrix_device_t& vector, matrix_device_t& result) const;
         void matrix_add_vector(const matrix_device_t& vector, matrix_device_t& result) const;
@@ -63,10 +63,10 @@ namespace utils
             return this->data_;
         }
 
-        friend void matrix_dot_product(const matrix_device_t& lhs,
+        friend void matrix_dot_product_cuda(const matrix_device_t& lhs,
                                        const matrix_device_t& rhs,
                                        matrix_device_t& result);
-        friend void matrix_subtract(const matrix_device_t& lhs,
+        friend void matrix_subtract_cuda(const matrix_device_t& lhs,
                                     const matrix_device_t& rhs,
                                     matrix_device_t& result);
 

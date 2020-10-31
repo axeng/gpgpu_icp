@@ -4,16 +4,19 @@
 #include <iomanip>
 #include <iostream>
 
+#include "utils.hh"
+
 namespace utils
 {
     Matrix::Matrix(std::size_t rows, std::size_t cols, value_t value)
         : rows_(rows)
         , cols_(cols)
+        , data_(nullptr)
     {
         cudaError_t rc = cudaSuccess;
         std::size_t pitch;
 
-        rc = cudaMallocPitch(this->data_, &pitch, cols, rows);
+        rc = cudaMallocPitch(&this->data_, &pitch, cols, rows);
         if (rc)
         {
             abortError("Fail buffer allocation");
@@ -36,7 +39,7 @@ namespace utils
                             std::size_t col_count,
                             matrix_device_t& result) const
     {
-        sub_matrix_cuda<<<1, 1>>>(this, starting_row, starting_col, row_count, col_count, result);
+        sub_matrix_cuda<<<1, 1>>>(*this, starting_row, starting_col, row_count, col_count, result);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
         {
@@ -46,7 +49,7 @@ namespace utils
 
     void Matrix::matrix_transpose(matrix_device_t& result) const
     {
-        matrix_transpose_cuda<<<1, 1>>>(this, result);
+        matrix_transpose_cuda<<<1, 1>>>(*this, result);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
         {
@@ -71,7 +74,7 @@ namespace utils
 
     void Matrix::matrix_subtract_vector(const matrix_device_t& vector, matrix_device_t& result) const
     {
-        matrix_subtract_vector_cuda<<<1, 1>>>(this, vector, result);
+        matrix_subtract_vector_cuda<<<1, 1>>>(*this, vector, result);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
         {
@@ -81,7 +84,7 @@ namespace utils
 
     void Matrix::matrix_add_vector(const matrix_device_t& vector, matrix_device_t& result) const
     {
-        matrix_add_vector_cuda<<<1, 1>>>(this, vector, result);
+        matrix_add_vector_cuda<<<1, 1>>>(*this, vector, result);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
         {
@@ -109,7 +112,7 @@ namespace utils
 
     void Matrix::multiply_by_scalar(double val, matrix_device_t& result) const
     {
-        multiply_by_scalar_cuda<<<1, 1>>>(this, val, result);
+        multiply_by_scalar_cuda<<<1, 1>>>(*this, val, result);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
         {
@@ -132,13 +135,13 @@ namespace utils
             line_ptr[col] = line[col];
         }
 
-        cudaMemcpy(this->data_[row], line, this->cols_, cudaMemcpyHostToDevice);
+        cudaMemcpy(&this->data_[row], line_ptr, this->cols_, cudaMemcpyHostToDevice);
 
         free(line_ptr);
     }
 
     void Matrix::copy_data(const value_t& data, std::size_t row, std::size_t col)
     {
-        cudaMemcpy(this->data_[row][col], &data, sizeof(value_t), cudaMemcpyHostToDevice);
+        cudaMemcpy(&this->data_[row][col], &data, sizeof(value_t), cudaMemcpyHostToDevice);
     }
 } // namespace utils

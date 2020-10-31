@@ -20,7 +20,7 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic -std=c++11")
 
 # Debug compilation flags
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3 -lineinfo")
 
 # Release compilation flags
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -march=native -flto")
@@ -102,7 +102,7 @@ set(GPU_FULL_SOURCES
 
 set(GPU_FULL_EXEC_SOURCES
         ${GPU_FULL_SOURCES}
-        src/gpu_full/gpu.cc)
+        src/gpu_full/gpu.cu)
 
 # Benchmarking Sources
 set(BENCH_SOURCES

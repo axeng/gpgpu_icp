@@ -19,8 +19,8 @@ namespace parser
                 std::vector<std::string> words;
                 utils::string_split(line, ",", words);
 
-                vector_t point = {std::stod(words[0]), std::stod(words[1]), std::stod(words[2])};
-                point_list.push_back(point);
+                point_list.emplace_line(
+                    std::initializer_list<double>{std::stod(words[0]), std::stod(words[1]), std::stod(words[2])});
             }
             return true;
         }

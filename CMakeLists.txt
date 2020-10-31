@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(gpgpu_icp LANGUAGES CXX CUDA)
+project(gpgpu_icp LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -27,8 +27,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -march=native -fl
 
 ############### EXTERNAL LIBRARIES ##############
 # CUDA
-find_package(CUDA REQUIRED)
-find_package(Thrust REQUIRED)
 
 # Benchmark
 set(BENCHMARK_DOWNLOAD_DEPENDENCIES ON)
@@ -50,7 +48,8 @@ set(CPU_PARSER_SOURCES
 
 set(CPU_UTILS_SOURCES
         src/cpu/utils/utils.cc
-        src/cpu/utils/lib-matrix.cc)
+        src/cpu/utils/lib-matrix.cc
+        src/cpu/utils/matrix.cc)
 
 set(CPU_SOURCES
         ${CPU_ICP_SOURCES}

@@ -16,12 +16,12 @@ namespace utils
 
     void get_nearest_neighbors(const matrix_t& P, const matrix_t& Q, matrix_t& res, std::vector<double>& distances)
     {
-        for (const auto& p_point : P)
+        for (const auto& p_point : P.get_data())
         {
             float min_dist = MAXFLOAT;
 
             vector_t chosen;
-            for (const auto& q_point : Q)
+            for (const auto& q_point : Q.get_data())
             {
                 auto dist = compute_distance(p_point, q_point);
                 if (dist < min_dist)
@@ -31,7 +31,7 @@ namespace utils
                 }
             }
             distances.emplace_back(min_dist);
-            res.emplace_back(chosen);
+            res.emplace_line(chosen);
         }
     }
 

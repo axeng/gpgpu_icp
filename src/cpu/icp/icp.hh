@@ -1,12 +1,13 @@
 #pragma once
 
 #include "cpu/parser/parser.hh"
+#include "cpu/utils/utils.hh"
 
 namespace icp
 {
-    using value_t = parser::value_t;
-    using vector_t = parser::vector_t;
-    using matrix_t = parser::matrix_t;
+    using value_t = utils::Matrix::value_t;
+    using vector_t = utils::Matrix::vector_t;
+    using matrix_t = utils::Matrix::matrix_t;
 
     std::size_t icp_cpu(const matrix_t& M,
                     const matrix_t& P,

@@ -60,7 +60,7 @@ namespace icp
                           << "Iteration: " << iteration << std::endl;
             }
 
-            utils::get_nearest_neighbors(newP, M, Y);
+            utils::get_nearest_neighbors<<<1, newP.get_rows>>>(newP, M, Y);
 
             // ----------------------------------------
             // Find Alignment

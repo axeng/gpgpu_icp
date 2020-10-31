@@ -58,6 +58,18 @@ namespace utils
             return this->data_[row][col];
         }
 
+        // Useful for gpu func implem
+        inline vector_t& get_row(size_t row)
+        {
+            return this->data_[row];
+        }
+
+        inline vector_t get_row(size_t row) const
+        {
+            return this->data_[row];
+        }
+
+
         inline const std::vector<vector_t>& get_data() const
         {
             return this->data_;

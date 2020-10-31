@@ -6,9 +6,9 @@
 
 namespace icp
 {
-    using value_t = double;
-    using vector_t = thrust::device_vector<value_t>;
-    using matrix_t = thrust::device_vector<vector_t>;
+    using value_t = utils::Matrix::value_t;
+    using vector_t = utils::Matrix::vector_t;
+    using matrix_t = utils::Matrix::matrix_t;
 
     std::size_t icp_gpu(const parser::matrix_t& M_host,
                         const parser::matrix_t& P_host,

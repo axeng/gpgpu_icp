@@ -41,8 +41,7 @@ namespace icp
             }
 
             matrix_t Y;
-            std::vector<double> distances;
-            utils::get_nearest_neighbors(newP, M, Y, distances);
+            utils::get_nearest_neighbors(newP, M, Y);
 
             // ----------------------------------------
             // Find Alignment

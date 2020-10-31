@@ -14,8 +14,33 @@ namespace utils
         return sqrt(pow(X2 - X1, 2) + pow(Y2 - Y1, 2) + pow(Z2 - Z1, 2) * 1.0);
     }
 
-    __device__ void get_nearest_neighbors(const matrix_t& P, const matrix_t& Q, matrix_t& res, std::vector<double>& distances)
+    __device__ void get_nearest_neighbors(const matrix_t& P, const matrix_t& Q, matrix_t& res)
     {
+        /**
+        GPU
+        */
+        int i = threadIdx.x;
+        if (i >= P.get_rows())
+            return;
+
+        float min_dist = MAXFLOAT;
+        for (const auto& q_point : Q)
+        {
+            auto dist = compute_distance(P.get_row(i), q_point);
+                if (dist < min_dist)
+                {
+                    min_dist = dist;
+                    chosen = q_point;
+                }
+        }
+        res.get_data()[i] = chosen;
+
+
+
+        /**
+        CPU
+        */
+        /*
         for (const auto& p_point : P)
         {
             float min_dist = MAXFLOAT;
@@ -30,9 +55,9 @@ namespace utils
                     chosen = q_point;
                 }
             }
-            distances.emplace_back(min_dist);
             res.emplace_back(chosen);
         }
+        */
     }
 
     void string_split(std::string str, const std::string& delimiter, std::vector<std::string>& words)

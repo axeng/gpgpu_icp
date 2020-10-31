@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CPU_TARGET cpu)
 set(GPU_TEST_TARGET gpu_test)
+set(GPU_FULL_TARGET gpu_full)
 set(BENCH_TARGET bench)
 set(UNIT_TESTS_TARGET unit_tests)
 
@@ -82,6 +83,27 @@ set(GPU_TEST_EXEC_SOURCES
         ${GPU_TEST_SOURCES}
         src/gpu_test/gpu.cu)
 
+# GPU full sources
+set(GPU_FULL_ICP_SOURCES
+        src/gpu_full/icp/icp.cc)
+
+set(GPU_FULL_PARSER_SOURCES
+        src/gpu_full/parser/parser.cc)
+
+set(GPU_FULL_UTILS_SOURCES
+        src/gpu_full/utils/utils.cc
+        src/gpu_full/utils/lib-matrix.cc
+        src/gpu_full/utils/matrix.cc)
+
+set(GPU_FULL_SOURCES
+        ${GPU_FULL_ICP_SOURCES}
+        ${GPU_FULL_PARSER_SOURCES}
+        ${GPU_FULL_UTILS_SOURCES})
+
+set(GPU_FULL_EXEC_SOURCES
+        ${GPU_FULL_SOURCES}
+        src/gpu_full/gpu.cc)
+
 # Benchmarking Sources
 set(BENCH_SOURCES
         bench/main.cc
@@ -99,6 +121,9 @@ add_executable(${CPU_TARGET}
 
 add_executable(${GPU_TEST_TARGET}
         ${GPU_TEST_EXEC_SOURCES})
+
+add_executable(${GPU_FULL_TARGET}
+        ${GPU_FULL_EXEC_SOURCES})
 
 # Benchmarking Executable
 add_executable(${BENCH_TARGET} EXCLUDE_FROM_ALL ${BENCH_SOURCES})

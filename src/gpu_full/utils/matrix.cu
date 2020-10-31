@@ -4,8 +4,6 @@
 #include <iomanip>
 #include <iostream>
 
-#include "lib-matrix.hh"
-
 namespace utils
 {
     Matrix::Matrix(std::size_t rows, std::size_t cols, value_t value)

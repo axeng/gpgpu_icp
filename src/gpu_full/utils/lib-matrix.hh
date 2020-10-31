@@ -2,14 +2,10 @@
 
 #include <vector>
 
-#include "gpu_full/parser/parser.hh"
 #include "gpu_full/utils/utils.hh"
 
 namespace utils
 {
-    void _abortError(const char* msg, const char* fname, int line);
-#define abortError(msg) _abortError(msg, __FUNCTION__, __LINE__)
-
     void matrix_dot_product(const matrix_device_t& lhs, const matrix_device_t& rhs, matrix_device_t& result);
     void vector_element_wise_multiplication(const vector_device_t& lhs,
                                             const vector_device_t& rhs,

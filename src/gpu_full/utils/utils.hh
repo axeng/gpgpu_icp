@@ -10,6 +10,9 @@
 
 namespace utils
 {
+#define abortError(msg) _abortError(msg, __FUNCTION__, __LINE__)
+    void _abortError(const char* msg, const char* fname, int line);
+
     using value_t = Matrix::value_t;
 
     using vector_host_t = parser::vector_host_t;

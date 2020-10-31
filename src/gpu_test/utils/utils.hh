@@ -5,6 +5,7 @@
 #include <tuple>
 
 #include "gpu_test/icp/icp.hh"
+#include "gpu_test/utils/matrix.hh"
 
 namespace utils
 {

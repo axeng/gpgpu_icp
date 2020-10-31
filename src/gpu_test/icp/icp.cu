@@ -13,11 +13,11 @@ namespace icp
                         const matrix_t& P,
                         matrix_t& newP,
                         double& err,
-                        bool verbose = false,
-                        bool save_results = false,
-                        std::size_t max_iterations = 200,
-                        double threshold = 1e-5,
-                        std::size_t power_iteration_simulations = 1000);
+                        bool verbose,
+                        bool save_results,
+                        std::size_t max_iterations,
+                        double threshold,
+                        std::size_t power_iteration_simulations);
     {
         if (M.empty() || P.empty() || (M.get_cols() != P.get_cols()))
         {

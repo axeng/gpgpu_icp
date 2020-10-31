@@ -24,6 +24,7 @@ namespace utils
             return;
 
         float min_dist = MAXFLOAT;
+        vector_t chosen;
         for (const auto& q_point : Q)
         {
             auto dist = compute_distance(P.get_row(i), q_point);

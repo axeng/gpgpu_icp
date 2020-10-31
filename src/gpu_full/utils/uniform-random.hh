@@ -48,5 +48,3 @@ namespace utils
         std::uniform_real_distribution<T> distribution_;
     };
 } // namespace utils
-
-#include "cpu/utils/uniform-random.hxx"

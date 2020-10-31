@@ -1,6 +1,6 @@
 #include "parser.hh"
 
-#include "cpu/utils/utils.hh"
+#include "gpu_test/utils/utils.hh"
 
 namespace parser
 {

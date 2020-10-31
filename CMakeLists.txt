@@ -4,7 +4,7 @@ project(gpgpu_icp LANGUAGES CXX CUDA)
 set(CMAKE_CXX_STANDARD 17)
 
 set(CPU_TARGET cpu)
-set(GPU_TARGET gpu)
+set(GPU_TEST_TARGET gpu_test)
 set(BENCH_TARGET bench)
 set(UNIT_TESTS_TARGET unit_tests)
 
@@ -27,6 +27,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -march=native -fl
 
 ############### EXTERNAL LIBRARIES ##############
 # CUDA
+find_package(CUDA REQUIRED)
 
 # Benchmark
 set(BENCHMARK_DOWNLOAD_DEPENDENCIES ON)
@@ -61,24 +62,24 @@ set(CPU_EXEC_SOURCES
         src/cpu/cpu.cc)
 
 # GPU sources
-set(GPU_ICP_SOURCES
+set(GPU_TEST_ICP_SOURCES
         src/gpu_test/icp/icp.cu)
 
-set(GPU_PARSER_SOURCES
+set(GPU_TEST_PARSER_SOURCES
         src/gpu_test/parser/parser.cc)
 
-set(GPU_UTILS_SOURCES
+set(GPU_TEST_UTILS_SOURCES
         src/gpu_test/utils/utils.cu
         src/gpu_test/utils/lib-matrix.cu
         src/gpu_test/utils/matrix.cc)
 
-set(GPU_SOURCES
-        ${GPU_ICP_SOURCES}
-        ${GPU_PARSER_SOURCES}
-        ${GPU_UTILS_SOURCES})
+set(GPU_TEST_SOURCES
+        ${GPU_TEST_ICP_SOURCES}
+        ${GPU_TEST_PARSER_SOURCES}
+        ${GPU_TEST_UTILS_SOURCES})
 
-set(GPU_EXEC_SOURCES
-        ${GPU_SOURCES}
+set(GPU_TEST_EXEC_SOURCES
+        ${GPU_TEST_SOURCES}
         src/gpu_test/gpu.cu)
 
 # Benchmarking Sources
@@ -96,8 +97,8 @@ set(UNIT_TESTS_SOURCES
 add_executable(${CPU_TARGET}
         ${CPU_EXEC_SOURCES})
 
-add_executable(${GPU_TARGET}
-        ${GPU_EXEC_SOURCES})
+add_executable(${GPU_TEST_TARGET}
+        ${GPU_TEST_EXEC_SOURCES})
 target_include_directories(${GPU_TARGET} PRIVATE jkblabla)
 target_link_libraries(${GPU_TARGET} PRIVATE blabla)
 

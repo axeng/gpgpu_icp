@@ -1,8 +1,7 @@
 #pragma once
 
-#include <thrust/device_vector.h>
-
-#include "gpu/parser/parser.hh"
+#include "gpu_test/parser/parser.hh"
+#include "gpu_test/utils/utils.hh"
 
 namespace icp
 {
@@ -10,14 +9,15 @@ namespace icp
     using vector_t = utils::Matrix::vector_t;
     using matrix_t = utils::Matrix::matrix_t;
 
-    std::size_t icp_gpu(const parser::matrix_t& M_host,
-                        const parser::matrix_t& P_host,
-                        parser::matrix_t& newP_host,
-                        double& err,
-                        bool verbose = false,
-                        std::size_t max_iterations = 200,
-                        double threshold = 1e-5,
-                        std::size_t power_iteration_simulations = 100);
+    std::size_t icp_cpu(const matrix_t& M,
+                    const matrix_t& P,
+                    matrix_t& newP,
+                    double& err,
+                    bool verbose = false,
+                    bool save_results = false,
+                    std::size_t max_iterations = 200,
+                    double threshold = 1e-5,
+                    std::size_t power_iteration_simulations = 1000);
 
     bool find_alignment(const matrix_t& P,
                         const matrix_t& Y,

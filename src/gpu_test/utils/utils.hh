@@ -4,7 +4,7 @@
 #include <string>
 #include <tuple>
 
-#include "gpu/icp/icp.hh"
+#include "gpu_test/icp/icp.hh"
 
 namespace utils
 {

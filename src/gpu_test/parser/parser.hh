@@ -1,6 +1,5 @@
 #pragma once
 
-#include <thrust/host_vector.h>
 
 #include <fstream>
 #include <iostream>

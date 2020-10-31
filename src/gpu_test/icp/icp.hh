@@ -9,7 +9,7 @@ namespace icp
     using vector_t = utils::MatrixGPU::vector_t;
     using matrix_t = utils::MatrixGPU::matrix_t;
 
-    std::size_t icp_cpu(const matrix_t& M,
+    std::size_t icp_gpu(const matrix_t& M,
                     const matrix_t& P,
                     matrix_t& newP,
                     double& err,

@@ -9,14 +9,15 @@
 
 namespace icp
 {
-    std::size_t icp_gpu(const parser::matrix_t& M /*dst*/,
-                        const parser::matrix_t& P /*src*/,
-                        parser::matrix_t& newP,
+    std::size_t icp_gpu(const matrix_t& M,
+                        const matrix_t& P,
+                        matrix_t& newP,
                         double& err,
-                        bool verbose,
-                        std::size_t max_iterations,
-                        double threshold,
-                        std::size_t power_iteration_simulations)
+                        bool verbose = false,
+                        bool save_results = false,
+                        std::size_t max_iterations = 200,
+                        double threshold = 1e-5,
+                        std::size_t power_iteration_simulations = 1000);
     {
         if (M.empty() || P.empty() || (M.get_cols() != P.get_cols()))
         {

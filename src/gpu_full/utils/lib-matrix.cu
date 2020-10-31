@@ -108,9 +108,9 @@ namespace utils
 
     __global__ void matrix_subtract_cuda(const matrix_device_t& lhs, const matrix_device_t& rhs, matrix_device_t& result)
     {
-        for (std::size_t row = 0; row < lhs.get_rows(); row++)
+        for (std::size_t row = 0; row < lhs.rows_; row++)
         {
-            for (std::size_t col = 0; col < lhs.get_cols(); col++)
+            for (std::size_t col = 0; col < lhs.cols_; col++)
             {
                 result.data_[row][col] = lhs.data_[row][col] - rhs.data_[row][col];
             }

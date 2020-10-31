@@ -18,7 +18,7 @@ namespace utils
                                std::size_t col_count,
                                matrix_device_t& result)
     {
-        if (starting_row + row_count > this->rows_ || starting_col + col_count > this->cols_)
+        if (starting_row + row_count > matrix.rows_ || starting_col + col_count > matrix.cols_)
         {
             return;
         }
@@ -27,18 +27,18 @@ namespace utils
         {
             for (std::size_t col = 0; col < col_count; col++)
             {
-                result.data_[row][col] = this->data_[row + starting_row][col + starting_col];
+                result.data_[row][col] = matrix.data_[row + starting_row][col + starting_col];
             }
         }
     }
 
     __global__ void matrix_transpose_cuda(const matrix_device_t& matrix, matrix_device_t& result)
     {
-        for (std::size_t row = 0; row < this->cols_; row++)
+        for (std::size_t row = 0; row < matrix.cols_; row++)
         {
-            for (std::size_t col = 0; col < this->rows_; col++)
+            for (std::size_t col = 0; col < matrix.rows_; col++)
             {
-                result.data_[row][col] = this->data_[col][row];
+                result.data_[row][col] = matrix.data_[col][row];
             }
         }
     }
@@ -46,12 +46,12 @@ namespace utils
     __global__ void
     matrix_subtract_vector_cuda(const matrix_device_t& matrix, const matrix_device_t& vector, matrix_device_t& result)
     {
-        for (std::size_t row = 0; row < this->rows_; row++)
+        for (std::size_t row = 0; row < matrix.rows_; row++)
         {
-            for (std::size_t col = 0; col < this->cols_; col++)
+            for (std::size_t col = 0; col < matrix.cols_; col++)
             {
                 // considering the vector as a line vector (as returned by the centroid)
-                result.data_[row][col] = this->data_[row][col] - vector.data_[0][col];
+                result.data_[row][col] = matrix.data_[row][col] - vector.data_[0][col];
             }
         }
     }
@@ -59,32 +59,32 @@ namespace utils
     __global__ void
     matrix_add_vector_cuda(const matrix_device_t& matrix, const matrix_device_t& vector, matrix_device_t& result)
     {
-        for (std::size_t row = 0; row < this->rows_; row++)
+        for (std::size_t row = 0; row < matrix.rows_; row++)
         {
-            for (std::size_t col = 0; col < this->cols_; col++)
+            for (std::size_t col = 0; col < matrix.cols_; col++)
             {
-                result.data_[row][col] = this->data_[row][col] + vector.data_[0][col];
+                result.data_[row][col] = matrix.data_[row][col] + vector.data_[0][col];
             }
         }
     }
 
     __global__ void multiply_by_scalar_cuda(const matrix_device_t& matrix, double val, matrix_device_t& result)
     {
-        for (std::size_t row = 0; row < this->rows_; row++)
+        for (std::size_t row = 0; row < matrix.rows_; row++)
         {
-            for (std::size_t col = 0; col < this->cols_; col++)
+            for (std::size_t col = 0; col < matrix.cols_; col++)
             {
-                result.data_[row][col] = this->data_[row][col] * val;
+                result.data_[row][col] = matrix.data_[row][col] * val;
             }
         }
     }
 
     __global__ void matrix_dot_product_cuda(const matrix_device_t& lhs, const matrix_device_t& rhs, matrix_device_t& result)
     {
-        std::size_t row_count = lhs.get_rows();
-        std::size_t col_count = rhs.get_cols();
+        std::size_t row_count = lhs.rows_;
+        std::size_t col_count = rhs.cols_;
 
-        std::size_t common_dim = lhs.get_cols();
+        std::size_t common_dim = lhs.cols_;
 
         for (std::size_t row = 0; row < row_count; row++)
         {

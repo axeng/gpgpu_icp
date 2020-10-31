@@ -16,6 +16,9 @@ namespace utils
 
     void get_nearest_neighbors(const matrix_t& P, const matrix_t& Q, matrix_t& res, std::vector<double>& distances)
     {
+        res.clear();
+        distances.clear();
+
         for (const auto& p_point : P.get_data())
         {
             float min_dist = MAXFLOAT;

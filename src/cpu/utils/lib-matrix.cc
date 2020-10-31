@@ -21,6 +21,8 @@ namespace utils
         {
             for (std::size_t col = 0; col < col_count; col++)
             {
+                result.at(row, col) = 0;
+
                 for (std::size_t k = 0; k < common_dim; k++)
                 {
                     result.at(row, col) += lhs.at(row, k) * rhs.at(k, col);

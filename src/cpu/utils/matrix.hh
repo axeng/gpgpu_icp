@@ -14,9 +14,9 @@ namespace utils
         using matrix_t = Matrix;
 
         Matrix() = default;
-        Matrix(size_t rows, size_t cols, value_t value = 0);
+        Matrix(std::size_t rows, std::size_t cols, value_t value = 0);
 
-        void matrix_fill(size_t rows, size_t cols, value_t value = 0);
+        void matrix_fill(std::size_t rows, std::size_t cols, value_t value = 0);
 
         void sub_matrix(std::size_t starting_row,
                         std::size_t starting_col,
@@ -80,7 +80,14 @@ namespace utils
 
         inline bool empty() const
         {
-            return data_.empty();
+            return this->data_.empty();
+        }
+
+        inline void clear()
+        {
+            this->rows_ = 0;
+            this->cols_ = 0;
+            this->data_.clear();
         }
 
     private:

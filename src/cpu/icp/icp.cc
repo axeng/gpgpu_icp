@@ -40,6 +40,19 @@ namespace icp
 
         // ----------------------------------------
         // Find Correspondences
+        matrix_t Y;
+        std::vector<double> distances;
+
+        double scaling_factor = 0.0; // s
+        matrix_t rotation_matrix; // R
+        matrix_t translation_matrix; // t
+
+        matrix_t d(newP.get_rows(), newP.get_cols());
+        matrix_t d_T(newP.get_cols(), newP.get_rows());
+
+        matrix_t d_dot_d_T(newP.get_cols(), newP.get_cols());
+
+
         std::size_t iteration = 0;
         for (; iteration < max_iterations; iteration++)
         {
@@ -49,15 +62,10 @@ namespace icp
                           << "Iteration: " << iteration << std::endl;
             }
 
-            matrix_t Y;
-            std::vector<double> distances;
             utils::get_nearest_neighbors(newP, M, Y, distances);
 
             // ----------------------------------------
             // Find Alignment
-            double scaling_factor = 0.0; // s
-            matrix_t rotation_matrix; // R
-            matrix_t translation_matrix; // t
             find_alignment(newP, Y, scaling_factor, rotation_matrix, translation_matrix, power_iteration_simulations);
 
             // ----------------------------------------
@@ -66,14 +74,9 @@ namespace icp
 
             // ----------------------------------------
             // Compute Residual Error
-            matrix_t d;
-            utils::matrix_subtract(Y, newP, d, true);
-
-            matrix_t d_T;
-            d.matrix_transpose(d_T);
-
-            matrix_t d_dot_d_T;
-            utils::matrix_dot_product(d_T, d, d_dot_d_T);
+            utils::matrix_subtract(Y, newP, d, false);
+            d.matrix_transpose(d_T, false);
+            utils::matrix_dot_product(d_T, d, d_dot_d_T, false);
 
             err = 0;
 
@@ -112,6 +115,10 @@ namespace icp
                         matrix_t& t,
                         std::size_t power_iteration_simulations)
     {
+        s = 0.0;
+        R.clear();
+        t.clear();
+
         auto Np = P.get_rows();
         auto dim_p = Np > 0 ? P.get_cols() : 0;
 
@@ -298,10 +305,11 @@ namespace icp
             eigen_vector.emplace_line(std::initializer_list<double>{vector[i]});
         }
 
+        matrix_t b_k1(A.get_rows(), eigen_vector.get_cols(), 0.0);
+
         for (std::size_t simulation = 0; simulation < num_simulations; simulation++)
         {
-            matrix_t b_k1;
-            utils::matrix_dot_product(A, eigen_vector, b_k1);
+            utils::matrix_dot_product(A, eigen_vector, b_k1, false);
 
             double b_k1_norm = b_k1.matrix_norm_2();
 

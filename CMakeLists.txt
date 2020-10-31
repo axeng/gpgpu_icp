@@ -99,8 +99,6 @@ add_executable(${CPU_TARGET}
 
 add_executable(${GPU_TEST_TARGET}
         ${GPU_TEST_EXEC_SOURCES})
-target_include_directories(${GPU_TARGET} PRIVATE jkblabla)
-target_link_libraries(${GPU_TARGET} PRIVATE blabla)
 
 # Benchmarking Executable
 add_executable(${BENCH_TARGET} EXCLUDE_FROM_ALL ${BENCH_SOURCES})

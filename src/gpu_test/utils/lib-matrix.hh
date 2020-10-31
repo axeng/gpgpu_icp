@@ -2,7 +2,7 @@
 
 #include <thrust/device_vector.h>
 
-#include "gpu/utils/utils.hh"
+#include "gpu_test/utils/utils.hh"
 
 namespace utils
 {

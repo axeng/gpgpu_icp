@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "gpu/icp/icp.hh"
-#include "gpu/parser/parser.hh"
+#include "gpu_test/icp/icp.hh"
+#include "gpu_test/parser/parser.hh"
 
 int main(int argc, char* argv[])
 {

@@ -21,6 +21,8 @@ namespace utils
         {
             abortError("Fail buffer allocation");
         }
+
+        // FIXME fill with value
     }
 
     Matrix::~Matrix()

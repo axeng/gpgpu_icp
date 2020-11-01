@@ -24,8 +24,8 @@ namespace utils
             {
                 value_t *result_ptr;
                 value_t *matrix_ptr;
-                result.get_val_ptr(row, col, &result_ptr);
-                matrix.get_val_ptr(row + starting_row, col + starting_col, &matrix_ptr);
+                result.get_val_ptr_cuda(row, col, &result_ptr);
+                matrix.get_val_ptr_cuda(row + starting_row, col + starting_col, &matrix_ptr);
 
                 *result_ptr = *matrix_ptr;
             }
@@ -40,8 +40,8 @@ namespace utils
             {
                 value_t *result_ptr;
                 value_t *matrix_ptr;
-                result.get_val_ptr(row, col, &result_ptr);
-                matrix.get_val_ptr(col, row, &matrix_ptr);
+                result.get_val_ptr_cuda(row, col, &result_ptr);
+                matrix.get_val_ptr_cuda(col, row, &matrix_ptr);
 
                 *result_ptr = *matrix_ptr;
             }
@@ -58,9 +58,9 @@ namespace utils
                 value_t *result_ptr;
                 value_t *matrix_ptr;
                 value_t *vector_ptr;
-                result.get_val_ptr(row, col, &result_ptr);
-                matrix.get_val_ptr(row, col, &matrix_ptr);
-                vector.get_val_ptr(0, col, &vector_ptr);
+                result.get_val_ptr_cuda(row, col, &result_ptr);
+                matrix.get_val_ptr_cuda(row, col, &matrix_ptr);
+                vector.get_val_ptr_cuda(0, col, &vector_ptr);
 
                 *result_ptr = *matrix_ptr - *vector_ptr;
             }
@@ -77,9 +77,9 @@ namespace utils
                 value_t *result_ptr;
                 value_t *matrix_ptr;
                 value_t *vector_ptr;
-                result.get_val_ptr(row, col, &result_ptr);
-                matrix.get_val_ptr(row, col, &matrix_ptr);
-                vector.get_val_ptr(0, col, &vector_ptr);
+                result.get_val_ptr_cuda(row, col, &result_ptr);
+                matrix.get_val_ptr_cuda(row, col, &matrix_ptr);
+                vector.get_val_ptr_cuda(0, col, &vector_ptr);
 
                 *result_ptr = *matrix_ptr + *vector_ptr;
             }
@@ -94,8 +94,8 @@ namespace utils
             {
                 value_t *result_ptr;
                 value_t *matrix_ptr;
-                result.get_val_ptr(row, col, &result_ptr);
-                matrix.get_val_ptr(row, col, &matrix_ptr);
+                result.get_val_ptr_cuda(row, col, &result_ptr);
+                matrix.get_val_ptr_cuda(row, col, &matrix_ptr);
 
                 *result_ptr = *matrix_ptr + val;
             }
@@ -114,7 +114,7 @@ namespace utils
             for (std::size_t col = 0; col < col_count; col++)
             {
                 value_t *result_ptr;
-                result.get_val_ptr(row, col, &result_ptr);
+                result.get_val_ptr_cuda(row, col, &result_ptr);
 
                 *result_ptr = 0;
 
@@ -122,8 +122,8 @@ namespace utils
                 {
                     value_t *lhs_ptr;
                     value_t *rhs_ptr;
-                    lhs.get_val_ptr(row, k, &lhs_ptr);
-                    rhs.get_val_ptr(k, col, &rhs_ptr);
+                    lhs.get_val_ptr_cuda(row, k, &lhs_ptr);
+                    rhs.get_val_ptr_cuda(k, col, &rhs_ptr);
 
                     *result_ptr += *lhs_ptr * *rhs_ptr;
                 }
@@ -142,9 +142,9 @@ namespace utils
             value_t *result_ptr;
             value_t *lhs_ptr;
             value_t *rhs_ptr;
-            result.get_val_ptr(0, i, &result_ptr);
-            lhs.get_val_ptr(0, i, &lhs_ptr);
-            rhs.get_val_ptr(0, i, &rhs_ptr);
+            result.get_val_ptr_cuda(0, i, &result_ptr);
+            lhs.get_val_ptr_cuda(0, i, &lhs_ptr);
+            rhs.get_val_ptr_cuda(0, i, &rhs_ptr);
 
             *result_ptr = *lhs_ptr * *rhs_ptr;
         }
@@ -159,9 +159,9 @@ namespace utils
                 value_t *result_ptr;
                 value_t *lhs_ptr;
                 value_t *rhs_ptr;
-                result.get_val_ptr(row, col, &result_ptr);
-                lhs.get_val_ptr(row, col, &lhs_ptr);
-                rhs.get_val_ptr(row, col, &rhs_ptr);
+                result.get_val_ptr_cuda(row, col, &result_ptr);
+                lhs.get_val_ptr_cuda(row, col, &lhs_ptr);
+                rhs.get_val_ptr_cuda(row, col, &rhs_ptr);
 
                 *result_ptr = *lhs_ptr - *rhs_ptr;
             }
@@ -214,18 +214,23 @@ namespace utils
         }
     }
 
-    __device__ void Matrix::get_val_ptr(std::size_t row, std::size_t col, value_t** val) const
+    __device__ void Matrix::get_val_ptr_cuda(std::size_t row, std::size_t col, const value_t** val) const
     {
-        *val = (value_t*)((char*)this->data_ + row * this->pitch_) + col;
+        *val = (value_t*)((this->data_ + row * this->pitch_) + col * sizeof(value_t));
+    }
+
+    __device__ void Matrix::get_val_ptr_cuda(std::size_t row, std::size_t col, value_t** val)
+    {
+        *val = (value_t*)((this->data_ + row * this->pitch_) + col * sizeof(value_t));
     }
 
     value_t* Matrix::get_val_ptr(std::size_t row, std::size_t col)
     {
-        return (value_t*)((char*)this->data_ + row * this->pitch_) + col;
+        return (value_t*)((this->data_ + row * this->pitch_) + col * sizeof(value_t));
     }
 
-    value_t* Matrix::get_val_ptr(std::size_t row, std::size_t col) const
+    const value_t* Matrix::get_val_ptr(std::size_t row, std::size_t col) const
     {
-        return (value_t*)((char*)this->data_ + row * this->pitch_) + col;
+        return (value_t*)((this->data_ + row * this->pitch_) + col * sizeof(value_t));
     }
 } // namespace utils

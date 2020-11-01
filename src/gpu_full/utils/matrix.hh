@@ -86,16 +86,17 @@ namespace utils
         friend __global__ void
         matrix_subtract_cuda(const matrix_device_t& lhs, const matrix_device_t& rhs, matrix_device_t& result);
 
-        __device__ void get_val_ptr(std::size_t row, std::size_t col, value_t** val) const;
+        __device__ void get_val_ptr_cuda(std::size_t row, std::size_t col, const value_t** val) const;
+        __device__ void get_val_ptr_cuda(std::size_t row, std::size_t col, value_t** val);
         value_t* get_val_ptr(std::size_t row, std::size_t col);
-        value_t* get_val_ptr(std::size_t row, std::size_t col) const;
+        const value_t* get_val_ptr(std::size_t row, std::size_t col) const;
 
     private:
         const std::size_t rows_;
         const std::size_t cols_;
         std::size_t pitch_;
 
-        value_t* data_;
+        char* data_;
     };
 
 } // namespace utils

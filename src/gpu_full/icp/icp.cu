@@ -41,7 +41,9 @@ namespace icp
         // ----------------------------------------
         // Initialization
         // newP = P
+        std::cout << "coucou" << std::endl;
         P.sub_matrix(0, 0, P.get_rows(), P.get_cols(), newP);
+        std::cout << "coucou2" << std::endl;
 
         auto Np = P.get_rows();
         // auto Nm = M.size();     // FIXME : Unused ?

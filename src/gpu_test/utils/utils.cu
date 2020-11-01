@@ -24,18 +24,18 @@ namespace utils
             return;
 
         float min_dist = MAXFLOAT;
-        vector_t chosen;
+        vector_t *chosen;
         for (int ind = 0; ind < Q_rows; ind++)
         {
-            vector_t q_point = Q->data_[ind];
-            double dist = compute_distance(P->data_[i], q_point);
+            vector_t *q_point = &Q->data_[ind];
+            double dist = compute_distance(&P->data_[i], q_point);
             if (dist < min_dist)
             {
                 min_dist = dist;
-                chosen = q_point;
+                chosen = *q_point;
             }
         }
-        res.set_data(i, chosen);
+        res.set_data(i, *chosen);
 
 
 

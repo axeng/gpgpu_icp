@@ -16,13 +16,11 @@ namespace utils
     {
         cudaError_t rc = cudaSuccess;
 
-        rc = cudaMallocPitch(&this->data_, &this->pitch_, rows, cols);
+        rc = cudaMallocPitch(&this->data_, &this->pitch_, cols * sizeof(value_t), rows);
         if (rc)
         {
             abortError("Fail buffer allocation");
         }
-
-
     }
 
     Matrix::~Matrix()

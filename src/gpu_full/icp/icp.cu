@@ -48,7 +48,7 @@ namespace icp
         }
         free(P_host_ptr);
 
-        if (M.get_cols() == 0 || M.get_cols() != P.get_cols())
+        if (M.cols_ == 0 || M.cols_ != P.cols_)
         {
             return 0;
         }
@@ -56,24 +56,24 @@ namespace icp
         // ----------------------------------------
         // Initialization
         // newP = P
-        P.sub_matrix(0, 0, P.get_rows(), P.get_cols(), newP);
+        P.sub_matrix(0, 0, P.rows_, P.cols_, newP);
 
-        auto Np = P.get_rows();
+        auto Np = P.rows_;
         // auto Nm = M.size();     // FIXME : Unused ?
         // auto dim = P[0].size();  // FIXME : Unused ?
 
         // ----------------------------------------
         // Find Correspondences
-        matrix_device_t Y(newP.get_rows(), newP.get_cols());
+        matrix_device_t Y(newP.rows_, newP.cols_);
 
         double scaling_factor = 0.0; // s
         matrix_device_t rotation_matrix(3, 3); // R
         matrix_device_t translation_matrix(1, 3); // t
 
-        matrix_device_t d(newP.get_rows(), newP.get_cols());
-        matrix_device_t d_T(newP.get_cols(), newP.get_rows());
+        matrix_device_t d(newP.rows_, newP.cols_);
+        matrix_device_t d_T(newP.cols_, newP.rows_);
 
-        matrix_device_t d_dot_d_T(newP.get_cols(), newP.get_cols());
+        matrix_device_t d_dot_d_T(newP.cols_, newP.cols_);
 
         std::size_t iteration = 0;
         for (; iteration < max_iterations; iteration++)
@@ -84,27 +84,21 @@ namespace icp
                           << "Iteration: " << iteration << std::endl;
             }
 
-            std::cout << "coucou" << std::endl;
             utils::get_nearest_neighbors(newP, M, Y);
-            std::cout << "coucou1" << std::endl;
 
             // ----------------------------------------
             // Find Alignment
             find_alignment(newP, Y, scaling_factor, rotation_matrix, translation_matrix, power_iteration_simulations);
-            std::cout << "coucou2" << std::endl;
 
             // ----------------------------------------
             // Apply Alignment
             apply_alignment(newP, scaling_factor, rotation_matrix, translation_matrix, newP);
-            std::cout << "coucou3" << std::endl;
 
             // ----------------------------------------
             // Compute Residual Error
             utils::matrix_subtract(Y, newP, d);
             d.matrix_transpose(d_T);
             utils::matrix_dot_product(d_T, d, d_dot_d_T);
-
-            std::cout << "coucou4" << std::endl;
 
             err = d_dot_d_T.matrix_diag_sum() / Np;
 
@@ -117,9 +111,9 @@ namespace icp
             {
                 break;
             }
-            std::cout << "coucou5" << std::endl;
         }
 
+        // TODO COPY BACK NEWP
         return iteration;
     }
 
@@ -132,11 +126,11 @@ namespace icp
     {
         s = 0.0;
 
-        auto Np = P.get_rows();
-        auto dim_p = Np > 0 ? P.get_cols() : 0;
+        auto Np = P.rows_;
+        auto dim_p = Np > 0 ? P.cols_ : 0;
 
-        auto Ny = Y.get_rows();
-        auto dim_y = Ny > 0 ? Y.get_cols() : 0;
+        auto Ny = Y.rows_;
+        auto dim_y = Ny > 0 ? Y.cols_ : 0;
 
         if (Np != Ny)
         {
@@ -157,52 +151,52 @@ namespace icp
 
         // ----------------------------------------
         // Zero mean point sets
-        matrix_device_t Mu_p(1, P.get_cols());
+        matrix_device_t Mu_p(1, P.cols_);
         P.matrix_centroid(Mu_p);
 
-        matrix_device_t Mu_y(1, Y.get_cols());
+        matrix_device_t Mu_y(1, Y.cols_);
         Y.matrix_centroid(Mu_y);
 
-        matrix_device_t Pprime(P.get_rows(), P.get_cols());
+        matrix_device_t Pprime(P.rows_, P.cols_);
         P.matrix_subtract_vector(Mu_p, Pprime);
 
-        matrix_device_t Yprime(Y.get_rows(), Y.get_cols());
+        matrix_device_t Yprime(Y.rows_, Y.cols_);
         Y.matrix_subtract_vector(Mu_y, Yprime);
 
         // ----------------------------------------
         // Quaternion computation
-        matrix_device_t Pprime_T(Pprime.get_cols(), Pprime.get_rows());
-        matrix_device_t Yprime_T(Yprime.get_cols(), Yprime.get_rows());
+        matrix_device_t Pprime_T(Pprime.cols_, Pprime.rows_);
+        matrix_device_t Yprime_T(Yprime.cols_, Yprime.rows_);
         Pprime.matrix_transpose(Pprime_T);
         Yprime.matrix_transpose(Yprime_T);
 
-        matrix_device_t xx(1, Pprime_T.get_cols());
+        matrix_device_t xx(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 0, Yprime_T, 0, xx);
         double Sxx = utils::vector_sum(xx);
-        matrix_device_t xy(1, Pprime_T.get_cols());
+        matrix_device_t xy(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 0, Yprime_T, 1, xy);
         double Sxy = utils::vector_sum(xy);
-        matrix_device_t xz(1, Pprime_T.get_cols());
+        matrix_device_t xz(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 0, Yprime_T, 2, xz);
         double Sxz = utils::vector_sum(xz);
 
-        matrix_device_t yx(1, Pprime_T.get_cols());
+        matrix_device_t yx(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 1, Yprime_T, 0, yx);
         double Syx = utils::vector_sum(yx);
-        matrix_device_t yy(1, Pprime_T.get_cols());
+        matrix_device_t yy(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 1, Yprime_T, 1, yy);
         double Syy = utils::vector_sum(yy);
-        matrix_device_t yz(1, Pprime_T.get_cols());
+        matrix_device_t yz(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 1, Yprime_T, 2, yz);
         double Syz = utils::vector_sum(yz);
 
-        matrix_device_t zx(1, Pprime_T.get_cols());
+        matrix_device_t zx(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 2, Yprime_T, 0, zx);
         double Szx = utils::vector_sum(zx);
-        matrix_device_t zy(1, Pprime_T.get_cols());
+        matrix_device_t zy(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 2, Yprime_T, 1, zy);
         double Szy = utils::vector_sum(zy);
-        matrix_device_t zz(1, Pprime_T.get_cols());
+        matrix_device_t zz(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 2, Yprime_T, 2, zz);
         double Szz = utils::vector_sum(zz);
 
@@ -231,7 +225,7 @@ namespace icp
         Nmatrix.copy_line(std::initializer_list<double>{Sxy - Syx, Sxz + Szx, Syz + Szy, Szz - Syy - Sxx}, 3);
          */
 
-        matrix_device_t q(Nmatrix.get_cols(), 1);
+        matrix_device_t q(Nmatrix.cols_, 1);
         power_iteration(Nmatrix, q, power_iteration_simulations);
 
         // ----------------------------------------
@@ -259,10 +253,10 @@ namespace icp
         Q.copy_line(std::initializer_list<double>{q3, q2, -q1, q0}, 3);
          */
 
-        matrix_device_t R_full(Qbar_T.get_rows(), Q.get_cols());
+        matrix_device_t R_full(Qbar_T.rows_, Q.cols_);
         utils::matrix_dot_product(Qbar_T, Q, R_full);
 
-        matrix_device_t R_full_T(R_full.get_cols(), R_full.get_rows());
+        matrix_device_t R_full_T(R_full.cols_, R_full.rows_);
         R_full.matrix_transpose(R_full_T);
 
         R_full_T.sub_matrix(1, 1, 3, 3, R);
@@ -277,13 +271,13 @@ namespace icp
         for (std::size_t i = 0; i < N; i++)
         {
             // D = D + Yprime(:,i)' * Yprime(:,i)
-            matrix_device_t Yprime_i(1, Yprime.get_cols());
+            matrix_device_t Yprime_i(1, Yprime.cols_);
             for (std::size_t col = 0; col < Yprime.cols_; col++)
             {
                 Yprime_i.set_val_ptr(0, col, utils::get_val_ptr(Yprime.data_, Yprime.pitch_, i, col));
             }
 
-            matrix_device_t Yprime_i_T(Yprime_i.get_cols(), Yprime_i.get_rows());
+            matrix_device_t Yprime_i_T(Yprime_i.cols_, Yprime_i.rows_);
             Yprime_i.matrix_transpose(Yprime_i_T);
 
             utils::matrix_dot_product(Yprime_i, Yprime_i_T, dot_product);
@@ -291,13 +285,13 @@ namespace icp
             D += dot_product.get_val(0, 0);
 
             // Sp = Sp + Pprime(:,i)' * Pprime(:,i)
-            matrix_device_t Pprime_i(1, Pprime.get_cols());
+            matrix_device_t Pprime_i(1, Pprime.cols_);
             for (std::size_t col = 0; col < Yprime.cols_; col++)
             {
                 Pprime_i.set_val_ptr(0, col, utils::get_val_ptr(Pprime.data_, Pprime.pitch_, i, col));
             }
 
-            matrix_device_t Pprime_i_T(Pprime_i.get_cols(), Pprime_i.get_rows());
+            matrix_device_t Pprime_i_T(Pprime_i.cols_, Pprime_i.rows_);
             Pprime_i.matrix_transpose(Pprime_i_T);
 
             utils::matrix_dot_product(Pprime_i, Pprime_i_T, dot_product);
@@ -309,35 +303,33 @@ namespace icp
 
         // ----------------------------------------
         // Translational offset computation
-        matrix_device_t s_time_R(R.get_rows(), R.get_cols());
+        matrix_device_t s_time_R(R.rows_, R.cols_);
         R.multiply_by_scalar(s, s_time_R);
 
-        matrix_device_t Mu_p_T(Mu_p.get_cols(), Mu_p.get_rows());
+        matrix_device_t Mu_p_T(Mu_p.cols_, Mu_p.rows_);
         Mu_p.matrix_transpose(Mu_p_T);
 
-        matrix_device_t R_dot_Mu_p(s_time_R.get_rows(), Mu_p_T.get_cols());
+        matrix_device_t R_dot_Mu_p(s_time_R.rows_, Mu_p_T.cols_);
         utils::matrix_dot_product(s_time_R, Mu_p_T, R_dot_Mu_p);
 
-        matrix_device_t R_dot_Mu_p_T(R_dot_Mu_p.get_cols(), R_dot_Mu_p.get_rows());
+        matrix_device_t R_dot_Mu_p_T(R_dot_Mu_p.cols_, R_dot_Mu_p.rows_);
         R_dot_Mu_p.matrix_transpose(R_dot_Mu_p_T);
 
         utils::matrix_subtract(Mu_y, R_dot_Mu_p_T, t);
-
-        // TODO COPY BACK NEWP
 
         return true;
     }
 
     void power_iteration(const matrix_device_t& A, matrix_device_t& eigen_vector, std::size_t num_simulations)
     {
-        vector_host_t vector(A.get_cols());
-        std::generate_n(vector.begin(), A.get_cols(), utils::UniformRandom<double>(0.0, 1.1));
-        for (std::size_t i = 0; i < A.get_cols(); i++)
+        vector_host_t vector(A.cols_);
+        std::generate_n(vector.begin(), A.cols_, utils::UniformRandom<double>(0.0, 1.1));
+        for (std::size_t i = 0; i < A.cols_; i++)
         {
             eigen_vector.set_val(i, 0, vector[i]);
         }
 
-        matrix_device_t b_k1(A.get_rows(), eigen_vector.get_cols(), 0.0);
+        matrix_device_t b_k1(A.rows_, eigen_vector.cols_, 0.0);
 
         for (std::size_t simulation = 0; simulation < num_simulations; simulation++)
         {
@@ -345,7 +337,7 @@ namespace icp
 
             double b_k1_norm = b_k1.matrix_norm_2();
 
-            for (std::size_t i = 0; i < eigen_vector.get_rows(); i++)
+            for (std::size_t i = 0; i < eigen_vector.rows_; i++)
             {
                 eigen_vector.set_val(i, 0, b_k1.get_val(i, 0) / b_k1_norm);
             }
@@ -358,13 +350,13 @@ namespace icp
                          const matrix_device_t& t,
                          matrix_device_t& newP)
     {
-        matrix_device_t s_time_R(R.get_rows(), R.get_cols());
+        matrix_device_t s_time_R(R.rows_, R.cols_);
         R.multiply_by_scalar(s, s_time_R);
 
-        matrix_device_t s_time_R_T(s_time_R.get_cols(), s_time_R.get_rows());
+        matrix_device_t s_time_R_T(s_time_R.cols_, s_time_R.rows_);
         s_time_R.matrix_transpose(s_time_R_T);
 
-        matrix_device_t P_time_R(P.get_rows(), s_time_R_T.get_cols());
+        matrix_device_t P_time_R(P.rows_, s_time_R_T.cols_);
         utils::matrix_dot_product(P, s_time_R_T, P_time_R);
 
         P_time_R.matrix_add_vector(t, newP);

@@ -28,4 +28,6 @@ namespace utils
     void string_split(std::string str, const std::string& delimiter, std::vector<std::string>& words);
 
     value_t* host_matrix_to_ptr(const matrix_host_t& host_matrix);
+
+    cudaDeviceProp get_cuda_properties(int dev_id = 0);
 } // namespace utils

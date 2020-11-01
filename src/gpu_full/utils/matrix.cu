@@ -24,14 +24,12 @@ namespace utils
 
     Matrix::~Matrix()
     {
-        /*
         cudaError_t rc = cudaSuccess;
         rc = cudaFree(this->data_);
         if (rc)
         {
             abortError("Unable to free memory");
         }
-        */
     }
 
     void Matrix::sub_matrix(std::size_t starting_row,
@@ -62,14 +60,35 @@ namespace utils
 
     double Matrix::matrix_norm_2() const
     {
-        double norm = 0.0;
-        matrix_norm_2_cuda<<<1, 1>>>(this->data_, this->pitch_, this->rows_, this->cols_, &norm);
+        double *norm_device;
+        cudaError_t rc = cudaSuccess;
+        rc = cudaMalloc(&norm_device, sizeof(double));
+        if (rc)
+        {
+            abortError("Fail buffer allocation");
+        }
+
+        matrix_norm_2_cuda<<<1, 1>>>(this->data_, this->pitch_, this->rows_, this->cols_, norm_device);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
         {
             abortError("Computation Error");
         }
-        return norm;
+
+        double norm_host;
+        rc = cudaMemcpy(&norm_host, norm_device, sizeof(double), cudaMemcpyDeviceToHost);
+        if (rc)
+        {
+            abortError("Fail buffer copy");
+        }
+
+        rc = cudaFree(norm_device);
+        if (rc)
+        {
+            abortError("Fail buffer free");
+        }
+
+        return norm_host;
     }
 
     void Matrix::matrix_subtract_vector(const matrix_device_t& vector, matrix_device_t& result) const
@@ -130,14 +149,35 @@ namespace utils
 
     double Matrix::matrix_diag_sum() const
     {
-        double sum = 0;
-        matrix_diag_sum_cuda<<<1, 1>>>(this->data_, this->pitch_, this->rows_, &sum);
+        double *sum_device;
+        cudaError_t rc = cudaSuccess;
+        rc = cudaMalloc(&sum_device, sizeof(double));
+        if (rc)
+        {
+            abortError("Fail buffer allocation");
+        }
+
+        matrix_diag_sum_cuda<<<1, 1>>>(this->data_, this->pitch_, this->rows_, sum_device);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
         {
             abortError("Computation Error");
         }
-        return sum;
+
+        double sum_host;
+        rc = cudaMemcpy(&sum_host, sum_device, sizeof(double), cudaMemcpyDeviceToHost);
+        if (rc)
+        {
+            abortError("Fail buffer copy");
+        }
+
+        rc = cudaFree(sum_device);
+        if (rc)
+        {
+            abortError("Fail buffer free");
+        }
+
+        return sum_host;
     }
 
     void Matrix::set_val(std::size_t row, std::size_t col, value_t val)
@@ -162,8 +202,45 @@ namespace utils
 
     value_t Matrix::get_val(std::size_t row, std::size_t col) const
     {
-        value_t val;
-        get_val_cuda<<<1, 1>>>(this->data_, this->pitch_, row, col, &val);
-        return val;
+        value_t *val_device;
+        cudaError_t rc = cudaSuccess;
+        rc = cudaMalloc(&val_device, sizeof(value_t));
+        if (rc)
+        {
+            abortError("Fail buffer allocation");
+        }
+
+        get_val_cuda<<<1, 1>>>(this->data_, this->pitch_, row, col, val_device);
+        cudaDeviceSynchronize();
+        if (cudaPeekAtLastError())
+        {
+            abortError("Computation Error");
+        }
+
+        double val_host;
+        rc = cudaMemcpy(&val_host, val_device, sizeof(value_t), cudaMemcpyDeviceToHost);
+        if (rc)
+        {
+            abortError("Fail buffer copy");
+        }
+
+        rc = cudaFree(val_device);
+        if (rc)
+        {
+            abortError("Fail buffer free");
+        }
+
+        return val_host;
+    }
+
+    void Matrix::print_matrix() const
+    {
+        std::cout << "rows: " << this->rows_ << " cols: " << this->cols_ << std::endl;
+        print_matrix_cuda<<<1, 1>>>(this->data_, this->pitch_, this->rows_, this->cols_);
+        cudaDeviceSynchronize();
+        if (cudaPeekAtLastError())
+        {
+            abortError("Computation Error");
+        }
     }
 } // namespace utils

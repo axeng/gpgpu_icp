@@ -117,7 +117,7 @@ namespace utils
                 get_val_ptr_cuda(result_data, result_pitch, row, col, &result_ptr);
                 get_val_ptr_const_cuda(matrix_data, matrix_pitch, row, col, &matrix_ptr);
 
-                *result_ptr = *matrix_ptr + val;
+                *result_ptr = *matrix_ptr * val;
             }
         }
     }
@@ -212,16 +212,16 @@ namespace utils
     }
 
     __global__ void
-    vector_sum_cuda(const char* vector_data, std::size_t vector_pitch, std::size_t vector_rows, double* sum)
+    vector_sum_cuda(const char* vector_data, std::size_t vector_pitch, std::size_t vector_cols, double* sum)
     {
         *sum = 0.0;
 
-        const value_t* data_line;
-        get_val_ptr_const_cuda(vector_data, vector_pitch, 0, 1, &data_line);
-
-        for (std::size_t col = 0; col < vector_rows; col++)
+        for (std::size_t col = 0; col < vector_cols; col++)
         {
-            *sum += data_line[col];
+            const value_t* data;
+            get_val_ptr_const_cuda(vector_data, vector_pitch, 0, col, &data);
+
+            *sum += *data;
         }
     }
 
@@ -352,6 +352,8 @@ namespace utils
     __global__ void
     matrix_diag_sum_cuda(const char* matrix_data, std::size_t matrix_pitch, std::size_t matrix_rows, double* sum)
     {
+        *sum = 0.0;
+
         for (std::size_t row = 0; row < matrix_rows; row++)
         {
             const value_t* matrix_ptr;
@@ -395,12 +397,14 @@ namespace utils
                                                  char* Q_data,
                                                  std::size_t Q_pitch)
     {
-        const value_t* q_ptr;
-        get_val_ptr_const_cuda(q_data, q_pitch, 0, 0, &q_ptr);
-        const value_t q0 = q_ptr[0];
-        const value_t q1 = q_ptr[1];
-        const value_t q2 = q_ptr[2];
-        const value_t q3 = q_ptr[3];
+        const value_t* q0_ptr;
+        const value_t* q1_ptr;
+        const value_t* q2_ptr;
+        const value_t* q3_ptr;
+        get_val_ptr_const_cuda(q_data, q_pitch, 0, 0, &q0_ptr);
+        get_val_ptr_const_cuda(q_data, q_pitch, 1, 0, &q1_ptr);
+        get_val_ptr_const_cuda(q_data, q_pitch, 2, 0, &q2_ptr);
+        get_val_ptr_const_cuda(q_data, q_pitch, 3, 0, &q3_ptr);
 
         value_t* QBar_T_0_ptr;
         value_t* QBar_T_1_ptr;
@@ -411,22 +415,22 @@ namespace utils
         get_val_ptr_cuda(QBar_T_data, QBar_T_pitch, 2, 0, &QBar_T_2_ptr);
         get_val_ptr_cuda(QBar_T_data, QBar_T_pitch, 3, 0, &QBar_T_3_ptr);
 
-        QBar_T_0_ptr[0] = q0;
-        QBar_T_0_ptr[1] = q1;
-        QBar_T_0_ptr[2] = q2;
-        QBar_T_0_ptr[3] = q3;
-        QBar_T_1_ptr[0] = -q1;
-        QBar_T_1_ptr[1] = q0;
-        QBar_T_1_ptr[2] = q3;
-        QBar_T_1_ptr[3] = -q2;
-        QBar_T_2_ptr[0] = -q2;
-        QBar_T_2_ptr[1] = -q3;
-        QBar_T_2_ptr[2] = q0;
-        QBar_T_2_ptr[3] = q1;
-        QBar_T_3_ptr[0] = -q3;
-        QBar_T_3_ptr[1] = q2;
-        QBar_T_3_ptr[2] = -q1;
-        QBar_T_3_ptr[3] = q0;
+        QBar_T_0_ptr[0] = *q0_ptr;
+        QBar_T_0_ptr[1] = *q1_ptr;
+        QBar_T_0_ptr[2] = *q2_ptr;
+        QBar_T_0_ptr[3] = *q3_ptr;
+        QBar_T_1_ptr[0] = -*q1_ptr;
+        QBar_T_1_ptr[1] = *q0_ptr;
+        QBar_T_1_ptr[2] = *q3_ptr;
+        QBar_T_1_ptr[3] = -*q2_ptr;
+        QBar_T_2_ptr[0] = -*q2_ptr;
+        QBar_T_2_ptr[1] = -*q3_ptr;
+        QBar_T_2_ptr[2] = *q0_ptr;
+        QBar_T_2_ptr[3] = *q1_ptr;
+        QBar_T_3_ptr[0] = -*q3_ptr;
+        QBar_T_3_ptr[1] = *q2_ptr;
+        QBar_T_3_ptr[2] = -*q1_ptr;
+        QBar_T_3_ptr[3] = *q0_ptr;
 
         value_t* Q_0_ptr;
         value_t* Q_1_ptr;
@@ -437,22 +441,22 @@ namespace utils
         get_val_ptr_cuda(Q_data, Q_pitch, 2, 0, &Q_2_ptr);
         get_val_ptr_cuda(Q_data, Q_pitch, 3, 0, &Q_3_ptr);
 
-        Q_0_ptr[0] = q0;
-        Q_0_ptr[1] = -q1;
-        Q_0_ptr[2] = -q2;
-        Q_0_ptr[3] = -q3;
-        Q_1_ptr[0] = q1;
-        Q_1_ptr[1] = q0;
-        Q_1_ptr[2] = q3;
-        Q_1_ptr[3] = -q2;
-        Q_2_ptr[0] = q2;
-        Q_2_ptr[1] = -q3;
-        Q_2_ptr[2] = q0;
-        Q_2_ptr[3] = q1;
-        Q_3_ptr[0] = q3;
-        Q_3_ptr[1] = q2;
-        Q_3_ptr[2] = -q1;
-        Q_3_ptr[3] = q0;
+        Q_0_ptr[0] = *q0_ptr;
+        Q_0_ptr[1] = -*q1_ptr;
+        Q_0_ptr[2] = -*q2_ptr;
+        Q_0_ptr[3] = -*q3_ptr;
+        Q_1_ptr[0] = *q1_ptr;
+        Q_1_ptr[1] = *q0_ptr;
+        Q_1_ptr[2] = *q3_ptr;
+        Q_1_ptr[3] = -*q2_ptr;
+        Q_2_ptr[0] = *q2_ptr;
+        Q_2_ptr[1] = -*q3_ptr;
+        Q_2_ptr[2] = *q0_ptr;
+        Q_2_ptr[3] = *q1_ptr;
+        Q_3_ptr[0] = *q3_ptr;
+        Q_3_ptr[1] = *q2_ptr;
+        Q_3_ptr[2] = -*q1_ptr;
+        Q_3_ptr[3] = *q0_ptr;
     }
 
     __global__ void
@@ -461,6 +465,22 @@ namespace utils
         const value_t* val_ptr;
         get_val_ptr_const_cuda(matrix_data, matrix_pitch, row, col, &val_ptr);
         *val = *val_ptr;
+    }
+
+    __global__ void print_matrix_cuda(const char* matrix, std::size_t pitch, std::size_t rows, std::size_t cols)
+    {
+        for (std::size_t row = 0; row < rows; row++)
+        {
+            printf("| ");
+            for (std::size_t col = 0; col < cols; col++)
+            {
+                const value_t* val;
+                get_val_ptr_const_cuda(matrix, pitch, row, col, &val);
+
+                printf("%f ", *val);
+            }
+            printf("|\n");
+        }
     }
 
     void matrix_dot_product(const matrix_device_t& lhs, const matrix_device_t& rhs, matrix_device_t& result)
@@ -507,14 +527,35 @@ namespace utils
 
     double vector_sum(const matrix_device_t& vector)
     {
-        double sum = 0.0;
-        vector_sum_cuda<<<1, 1>>>(vector.data_, vector.pitch_, vector.rows_, &sum);
+        double* sum_device;
+        cudaError_t rc = cudaSuccess;
+        rc = cudaMalloc(&sum_device, sizeof(double));
+        if (rc)
+        {
+            abortError("Fail buffer allocation");
+        }
+
+        vector_sum_cuda<<<1, 1>>>(vector.data_, vector.pitch_, vector.cols_, sum_device);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
         {
             abortError("Computation Error");
         }
-        return sum;
+
+        double sum_host;
+        rc = cudaMemcpy(&sum_host, sum_device, sizeof(double), cudaMemcpyDeviceToHost);
+        if (rc)
+        {
+            abortError("Fail buffer copy");
+        }
+
+        rc = cudaFree(sum_device);
+        if (rc)
+        {
+            abortError("Fail buffer free");
+        }
+
+        return sum_host;
     }
 
     void matrix_subtract(const matrix_device_t& lhs, const matrix_device_t& rhs, matrix_device_t& result)

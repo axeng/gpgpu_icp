@@ -38,15 +38,7 @@ namespace utils
 
         value_t get_val(std::size_t row, std::size_t col) const;
 
-        inline std::size_t get_rows() const
-        {
-            return this->rows_;
-        }
-
-        inline std::size_t get_cols() const
-        {
-            return this->cols_;
-        }
+        void print_matrix() const;
 
         const std::size_t rows_;
         const std::size_t cols_;
@@ -158,7 +150,7 @@ namespace utils
     get_val_ptr_cuda(char* data, std::size_t pitch, std::size_t row, std::size_t col, Matrix::value_t** val);
 
     __global__ void
-    vector_sum_cuda(const char* vector_data, std::size_t vector_pitch, std::size_t vector_rows, double* sum);
+    vector_sum_cuda(const char* vector_data, std::size_t vector_pitch, std::size_t vector_cols, double* sum);
 
     __global__ void matrix_norm_2_cuda(const char* matrix_data,
                                        std::size_t matrix_pitch,
@@ -206,7 +198,11 @@ namespace utils
                                                  char* Q_data,
                                                  std::size_t Q_pitch);
 
-    __global__ void
-    get_val_cuda(const char* matrix_data, std::size_t matrix_pitch, std::size_t row, std::size_t col, Matrix::value_t* val);
+    __global__ void get_val_cuda(const char* matrix_data,
+                                 std::size_t matrix_pitch,
+                                 std::size_t row,
+                                 std::size_t col,
+                                 Matrix::value_t* val);
+    __global__ void print_matrix_cuda(const char* matrix, std::size_t pitch, std::size_t rows, std::size_t cols);
 
 } // namespace utils

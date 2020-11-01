@@ -1,11 +1,11 @@
-#include "utils.hh"
-
 #include <iostream>
+
+#include "matrix.hh"
+#include "utils.hh"
 
 namespace utils
 {
-    [[gnu::noinline]]
-    void _abortError(const char* msg, const char* fname, int line)
+    [[gnu::noinline]] void _abortError(const char* msg, const char* fname, int line)
     {
         cudaError_t err = cudaGetLastError();
         std::cerr << msg << "(" << fname << ", line: " << line << ")" << std::endl;
@@ -13,41 +13,14 @@ namespace utils
         std::exit(1);
     }
 
-    double compute_distance(const matrix_device_t& p, std::size_t p_row, const matrix_device_t& q, std::size_t q_row)
+    void get_nearest_neighbors(const matrix_device_t& P, const matrix_device_t& Q, matrix_device_t& res)
     {
-        double X1 = p.at(p_row, 0);
-        double Y1 = p.at(p_row, 1);
-        double Z1 = p.at(p_row, 2);
-        double X2 = q.at(q_row, 0);
-        double Y2 = q.at(q_row, 1);
-        double Z2 = q.at(q_row, 2);
-
-        return sqrt(pow(X2 - X1, 2) + pow(Y2 - Y1, 2) + pow(Z2 - Z1, 2) * 1.0);
-    }
-
-    void get_nearest_neighbors(const matrix_device_t& P,
-                               const matrix_device_t& Q,
-                               matrix_device_t& res,
-                               std::vector<double>& distances)
-    {
-        distances.clear();
-
-        for (std::size_t p_row = 0; p_row < P.get_rows(); p_row++)
+        get_nearest_neighbors_cuda<<<1, 1>>>(
+            P.data_, P.pitch_, P.rows_, Q.data_, Q.pitch_, Q.rows_, res.data_, res.pitch_);
+        cudaDeviceSynchronize();
+        if (cudaPeekAtLastError())
         {
-            float min_dist = MAXFLOAT;
-            std::size_t choosen_row = 0;
-
-            for (std::size_t q_row = 0; q_row < Q.get_rows(); q_row++)
-            {
-                auto dist = compute_distance(P, p_row, Q, q_row);
-                if (dist < min_dist)
-                {
-                    min_dist = dist;
-                    choosen_row = q_row;
-                }
-            }
-            distances.emplace_back(min_dist);
-            res.copy_line(Q, choosen_row, p_row);
+            abortError("Computation Error");
         }
     }
 
@@ -76,5 +49,20 @@ namespace utils
 
         word = str.substr(0, position);
         words.push_back(word);
+    }
+
+    value_t* host_matrix_to_ptr(const matrix_host_t& host_matrix)
+    {
+        value_t* ptr = (value_t*)malloc(sizeof(value_t) * host_matrix.size() * host_matrix[0].size());
+
+        for (std::size_t row = 0; row < host_matrix.size(); row++)
+        {
+            for (std::size_t col = 0; col < host_matrix[row].size(); col++)
+            {
+                ptr[row * host_matrix[row].size() + col] = host_matrix[row][col];
+            }
+        }
+
+        return ptr;
     }
 } // namespace utils

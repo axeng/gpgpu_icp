@@ -1,9 +1,8 @@
-#include "matrix.hh"
-
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 
+#include "matrix.hh"
 #include "utils.hh"
 
 namespace utils
@@ -15,24 +14,24 @@ namespace utils
         , data_(nullptr)
     {
         cudaError_t rc = cudaSuccess;
-
         rc = cudaMallocPitch(&this->data_, &this->pitch_, cols * sizeof(value_t), rows);
         if (rc)
         {
             abortError("Fail buffer allocation");
         }
-
         // FIXME fill with value
     }
 
     Matrix::~Matrix()
     {
+        /*
         cudaError_t rc = cudaSuccess;
         rc = cudaFree(this->data_);
         if (rc)
         {
             abortError("Unable to free memory");
         }
+        */
     }
 
     void Matrix::sub_matrix(std::size_t starting_row,
@@ -41,7 +40,8 @@ namespace utils
                             std::size_t col_count,
                             matrix_device_t& result) const
     {
-        sub_matrix_cuda<<<1, 1>>>(*this, starting_row, starting_col, row_count, col_count, result);
+        sub_matrix_cuda<<<1, 1>>>(
+            this->data_, this->pitch_, starting_row, starting_col, row_count, col_count, result.data_, result.pitch_);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
         {
@@ -51,7 +51,8 @@ namespace utils
 
     void Matrix::matrix_transpose(matrix_device_t& result) const
     {
-        matrix_transpose_cuda<<<1, 1>>>(*this, result);
+        matrix_transpose_cuda<<<1, 1>>>(
+            this->data_, this->pitch_, this->rows_, this->cols_, result.data_, result.pitch_);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
         {
@@ -59,24 +60,28 @@ namespace utils
         }
     }
 
-    void Matrix::matrix_norm_2(double& norm) const
+    double Matrix::matrix_norm_2() const
     {
-        double sum = 0.0;
-
-        for (std::size_t row = 0; row < this->rows_; row++)
+        double norm = 0.0;
+        matrix_norm_2_cuda<<<1, 1>>>(this->data_, this->pitch_, this->rows_, this->cols_, &norm);
+        cudaDeviceSynchronize();
+        if (cudaPeekAtLastError())
         {
-            for (std::size_t col = 0; col < this->cols_; col++)
-            {
-                sum += pow(this->at(row, col), 2);
-            }
+            abortError("Computation Error");
         }
-
-        norm = sqrt(sum);
+        return norm;
     }
 
     void Matrix::matrix_subtract_vector(const matrix_device_t& vector, matrix_device_t& result) const
     {
-        matrix_subtract_vector_cuda<<<1, 1>>>(*this, vector, result);
+        matrix_subtract_vector_cuda<<<1, 1>>>(this->data_,
+                                              this->pitch_,
+                                              this->rows_,
+                                              this->cols_,
+                                              vector.data_,
+                                              vector.pitch_,
+                                              result.data_,
+                                              result.pitch_);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
         {
@@ -86,7 +91,14 @@ namespace utils
 
     void Matrix::matrix_add_vector(const matrix_device_t& vector, matrix_device_t& result) const
     {
-        matrix_add_vector_cuda<<<1, 1>>>(*this, vector, result);
+        matrix_add_vector_cuda<<<1, 1>>>(this->data_,
+                                         this->pitch_,
+                                         this->rows_,
+                                         this->cols_,
+                                         vector.data_,
+                                         vector.pitch_,
+                                         result.data_,
+                                         result.pitch_);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
         {
@@ -96,32 +108,8 @@ namespace utils
 
     void Matrix::matrix_centroid(matrix_device_t& result) const
     {
-        std::size_t row_count = this->rows_;
-        std::size_t col_count = this->cols_;
-
-        for (std::size_t row = 0; row < row_count; row++)
-        {
-            for (std::size_t col = 0; col < col_count; col++)
-            {
-                if (row == 0)
-                {
-                    *result.get_val_ptr(0, col) = this->at(row, col);
-                }
-                else
-                {
-                    *result.get_val_ptr(0, col) += this->at(row, col);
-                }
-            }
-        }
-
-        *result.get_val_ptr(0, 0) /= row_count;
-        *result.get_val_ptr(0, 1) /= row_count;
-        *result.get_val_ptr(0, 2) /= row_count;
-    }
-
-    void Matrix::multiply_by_scalar(double val, matrix_device_t& result) const
-    {
-        multiply_by_scalar_cuda<<<1, 1>>>(*this, val, result);
+        matrix_centroid_cuda<<<1, 1>>>(
+            this->data_, this->pitch_, this->rows_, this->cols_, result.data_, result.pitch_);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
         {
@@ -129,23 +117,53 @@ namespace utils
         }
     }
 
-    void Matrix::copy_line(const matrix_device_t& line, std::size_t line_row, std::size_t row)
+    void Matrix::multiply_by_scalar(double val, matrix_device_t& result) const
     {
-        cudaMemcpy2D(this->data_, this->pitch_, line.get_val_ptr(line_row, 0), line.pitch_, this->cols_ * sizeof(value_t), 1, cudaMemcpyDeviceToDevice);
+        multiply_by_scalar_cuda<<<1, 1>>>(
+            this->data_, this->pitch_, this->rows_, this->cols_, val, result.data_, result.pitch_);
+        cudaDeviceSynchronize();
+        if (cudaPeekAtLastError())
+        {
+            abortError("Computation Error");
+        }
     }
 
-    void Matrix::copy_line(const parser::vector_host_t& line, std::size_t row)
+    double Matrix::matrix_diag_sum() const
     {
-        // FIXME PAS OUF
-        value_t *line_ptr = static_cast<value_t*>(malloc(sizeof(value_t) * this->cols_));
-
-        for (std::size_t col = 0; col < this->cols_; col++)
+        double sum = 0;
+        matrix_diag_sum_cuda<<<1, 1>>>(this->data_, this->pitch_, this->rows_, &sum);
+        cudaDeviceSynchronize();
+        if (cudaPeekAtLastError())
         {
-            line_ptr[col] = line[col];
+            abortError("Computation Error");
         }
+        return sum;
+    }
 
-        cudaMemcpy2D(this->data_, this->pitch_, line_ptr, 0, this->cols_ * sizeof(value_t), 1, cudaMemcpyHostToDevice);
+    void Matrix::set_val(std::size_t row, std::size_t col, value_t val)
+    {
+        set_val_cuda<<<1, 1>>>(this->data_, this->pitch_, row, col, val);
+        cudaDeviceSynchronize();
+        if (cudaPeekAtLastError())
+        {
+            abortError("Computation Error");
+        }
+    }
 
-        free(line_ptr);
+    void Matrix::set_val_ptr(std::size_t row, std::size_t col, value_t* val)
+    {
+        set_val_ptr_cuda<<<1, 1>>>(this->data_, this->pitch_, row, col, val);
+        cudaDeviceSynchronize();
+        if (cudaPeekAtLastError())
+        {
+            abortError("Computation Error");
+        }
+    }
+
+    value_t Matrix::get_val(std::size_t row, std::size_t col) const
+    {
+        value_t val;
+        get_val_cuda<<<1, 1>>>(this->data_, this->pitch_, row, col, &val);
+        return val;
     }
 } // namespace utils

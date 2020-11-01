@@ -1,24 +1,11 @@
-#include "icp.hh"
-
 #include <algorithm>
 #include <sstream>
 
-#include "gpu_full/utils/matrix.hh"
-#include "gpu_full/utils/lib-matrix.hh"
+#include "gpu_full/icp/icp.hh"
 #include "gpu_full/utils/uniform-random.hh"
-#include "gpu_full/utils/utils.hh"
 
 namespace icp
 {
-    __global__ void print_val(const matrix_device_t& m)
-    {
-        const value_t *val;
-        m.get_val_ptr_cuda(0, 0, &val);
-
-        printf("m 0, 0 ptr: %p\n", (void*)val);
-        printf("m 0, 0 val: %f\n", *val);
-    }
-
     std::size_t icp_gpu(const matrix_host_t& M_host /*dst*/,
                         const matrix_host_t& P_host /*src*/,
                         matrix_host_t&,
@@ -28,25 +15,38 @@ namespace icp
                         double threshold,
                         std::size_t power_iteration_simulations)
     {
-        // TODO create device copy
         matrix_device_t M(M_host.size(), M_host[0].size());
         matrix_device_t P(P_host.size(), P_host[0].size());
         matrix_device_t newP(P_host.size(), P_host[0].size());
 
-        std::cout << "M 0, 0 ptr: " << M.get_val_ptr(0, 0) << std::endl;
-        print_val<<<1, 1>>>(M);
-
-        return 0;
-        /*
-        for (std::size_t i = 0; i < M_host.size(); i++)
+        auto M_host_ptr = utils::host_matrix_to_ptr(M_host);
+        cudaError_t rc = cudaSuccess;
+        rc = cudaMemcpy2D(M.data_,
+                          M.pitch_,
+                          M_host_ptr,
+                          sizeof(value_t) * M_host[0].size(),
+                          sizeof(value_t) * M_host[0].size(),
+                          M_host.size(),
+                          cudaMemcpyHostToDevice);
+        if (rc)
         {
-            M.copy_line(M_host[i], i);
+            abortError("Fail buffer copy");
         }
+        free(M_host_ptr);
 
-        for (std::size_t i = 0; i < P_host.size(); i++)
+        auto P_host_ptr = utils::host_matrix_to_ptr(P_host);
+        rc = cudaMemcpy2D(P.data_,
+                          P.pitch_,
+                          P_host_ptr,
+                          sizeof(value_t) * P_host[0].size(),
+                          sizeof(value_t) * P_host[0].size(),
+                          P_host.size(),
+                          cudaMemcpyHostToDevice);
+        if (rc)
         {
-            P.copy_line(P_host[i], i);
-        }*/
+            abortError("Fail buffer copy");
+        }
+        free(P_host_ptr);
 
         if (M.get_cols() == 0 || M.get_cols() != P.get_cols())
         {
@@ -56,9 +56,7 @@ namespace icp
         // ----------------------------------------
         // Initialization
         // newP = P
-        std::cout << "coucou" << std::endl;
         P.sub_matrix(0, 0, P.get_rows(), P.get_cols(), newP);
-        std::cout << "coucou2" << std::endl;
 
         auto Np = P.get_rows();
         // auto Nm = M.size();     // FIXME : Unused ?
@@ -67,7 +65,6 @@ namespace icp
         // ----------------------------------------
         // Find Correspondences
         matrix_device_t Y(newP.get_rows(), newP.get_cols());
-        std::vector<double> distances;
 
         double scaling_factor = 0.0; // s
         matrix_device_t rotation_matrix(3, 3); // R
@@ -87,15 +84,19 @@ namespace icp
                           << "Iteration: " << iteration << std::endl;
             }
 
-            utils::get_nearest_neighbors(newP, M, Y, distances);
+            std::cout << "coucou" << std::endl;
+            utils::get_nearest_neighbors(newP, M, Y);
+            std::cout << "coucou1" << std::endl;
 
             // ----------------------------------------
             // Find Alignment
             find_alignment(newP, Y, scaling_factor, rotation_matrix, translation_matrix, power_iteration_simulations);
+            std::cout << "coucou2" << std::endl;
 
             // ----------------------------------------
             // Apply Alignment
             apply_alignment(newP, scaling_factor, rotation_matrix, translation_matrix, newP);
+            std::cout << "coucou3" << std::endl;
 
             // ----------------------------------------
             // Compute Residual Error
@@ -103,14 +104,9 @@ namespace icp
             d.matrix_transpose(d_T);
             utils::matrix_dot_product(d_T, d, d_dot_d_T);
 
-            err = 0;
+            std::cout << "coucou4" << std::endl;
 
-            for (std::size_t i = 0; i < d_dot_d_T.get_rows(); i++)
-            {
-                err += d_dot_d_T.at(i, i);
-            }
-
-            err /= Np;
+            err = d_dot_d_T.matrix_diag_sum() / Np;
 
             if (verbose)
             {
@@ -121,6 +117,7 @@ namespace icp
             {
                 break;
             }
+            std::cout << "coucou5" << std::endl;
         }
 
         return iteration;
@@ -210,41 +207,60 @@ namespace icp
         double Szz = utils::vector_sum(zz);
 
         matrix_device_t Nmatrix(4, 4);
-        /*Nmatrix.emplace_back(std::initializer_list<double>{ Sxx + Syy + Szz,    Syz - Szy,          -Sxz + Szx, Sxy -
-        Syx}); Nmatrix.emplace_back(std::initializer_list<double>{ -Szy + Syz,         Sxx - Szz - Syy,    Sxy + Syx,
-        Sxz + Szx}); Nmatrix.emplace_back(std::initializer_list<double>{ Szx - Sxz,          Syx + Sxy,          Syy -
-        Szz - Sxx,    Syz + Szy}); Nmatrix.emplace_back(std::initializer_list<double>{ -Syx + Sxy,         Szx + Sxz,
-        Szy + Syz,          Szz - Syy - Sxx});*/
+        Nmatrix.set_val(0, 0, Sxx + Syy + Szz);
+        Nmatrix.set_val(0, 1, -Szy + Syz);
+        Nmatrix.set_val(0, 2, Szx - Sxz);
+        Nmatrix.set_val(0, 3, -Syx + Sxy);
+        Nmatrix.set_val(1, 0, Syz - Szy);
+        Nmatrix.set_val(1, 1, Sxx - Szz - Syy);
+        Nmatrix.set_val(1, 2, Syx + Sxy);
+        Nmatrix.set_val(1, 3, Szx + Sxz);
+        Nmatrix.set_val(2, 0, -Sxz + Szx);
+        Nmatrix.set_val(2, 1, Sxy + Syx);
+        Nmatrix.set_val(2, 2, Syy - Szz - Sxx);
+        Nmatrix.set_val(2, 3, Szy + Syz);
+        Nmatrix.set_val(3, 0, Sxy - Syx);
+        Nmatrix.set_val(3, 1, Sxz + Szx);
+        Nmatrix.set_val(3, 2, Syz + Szy);
+        Nmatrix.set_val(3, 3, Szz - Syy - Sxx);
 
+        /*
         Nmatrix.copy_line(std::initializer_list<double>{Sxx + Syy + Szz, -Szy + Syz, Szx - Sxz, -Syx + Sxy}, 0);
         Nmatrix.copy_line(std::initializer_list<double>{Syz - Szy, Sxx - Szz - Syy, Syx + Sxy, Szx + Sxz}, 1);
         Nmatrix.copy_line(std::initializer_list<double>{-Sxz + Szx, Sxy + Syx, Syy - Szz - Sxx, Szy + Syz}, 2);
         Nmatrix.copy_line(std::initializer_list<double>{Sxy - Syx, Sxz + Szx, Syz + Szy, Szz - Syy - Sxx}, 3);
+         */
 
         matrix_device_t q(Nmatrix.get_cols(), 1);
         power_iteration(Nmatrix, q, power_iteration_simulations);
 
         // ----------------------------------------
         // Rotation matrix computation
+        matrix_device_t Qbar_T(4, 4);
+        matrix_device_t Q(4, 4);
+        utils::compute_rotation_matrix(q, Qbar_T, Q);
+
+        /*
         double q0 = q.at(0, 0);
         double q1 = q.at(1, 0);
         double q2 = q.at(2, 0);
         double q3 = q.at(3, 0);
 
-        matrix_device_t Qbar(4, 4);
-        Qbar.copy_line(std::initializer_list<double>{q0, q1, q2, q3}, 0);
-        Qbar.copy_line(std::initializer_list<double>{-q1, q0, q3, -q2}, 1);
-        Qbar.copy_line(std::initializer_list<double>{-q2, -q3, q0, q1}, 2);
-        Qbar.copy_line(std::initializer_list<double>{-q3, q2, -q1, q0}, 3);
+        matrix_device_t Qbar_T(4, 4);
+        Qbar_T.copy_line(std::initializer_list<double>{q0, q1, q2, q3}, 0);
+        Qbar_T.copy_line(std::initializer_list<double>{-q1, q0, q3, -q2}, 1);
+        Qbar_T.copy_line(std::initializer_list<double>{-q2, -q3, q0, q1}, 2);
+        Qbar_T.copy_line(std::initializer_list<double>{-q3, q2, -q1, q0}, 3);
 
         matrix_device_t Q(4, 4);
         Q.copy_line(std::initializer_list<double>{q0, -q1, -q2, -q3}, 0);
         Q.copy_line(std::initializer_list<double>{q1, q0, q3, -q2}, 1);
         Q.copy_line(std::initializer_list<double>{q2, -q3, q0, q1}, 2);
         Q.copy_line(std::initializer_list<double>{q3, q2, -q1, q0}, 3);
+         */
 
-        matrix_device_t R_full(Qbar.get_rows(), Q.get_cols());
-        utils::matrix_dot_product(Qbar, Q, R_full);
+        matrix_device_t R_full(Qbar_T.get_rows(), Q.get_cols());
+        utils::matrix_dot_product(Qbar_T, Q, R_full);
 
         matrix_device_t R_full_T(R_full.get_cols(), R_full.get_rows());
         R_full.matrix_transpose(R_full_T);
@@ -262,25 +278,31 @@ namespace icp
         {
             // D = D + Yprime(:,i)' * Yprime(:,i)
             matrix_device_t Yprime_i(1, Yprime.get_cols());
-            Yprime_i.copy_line(Yprime, i, 0);
+            for (std::size_t col = 0; col < Yprime.cols_; col++)
+            {
+                Yprime_i.set_val_ptr(0, col, utils::get_val_ptr(Yprime.data_, Yprime.pitch_, i, col));
+            }
 
             matrix_device_t Yprime_i_T(Yprime_i.get_cols(), Yprime_i.get_rows());
             Yprime_i.matrix_transpose(Yprime_i_T);
 
             utils::matrix_dot_product(Yprime_i, Yprime_i_T, dot_product);
 
-            D += dot_product.at(0, 0);;
+            D += dot_product.get_val(0, 0);
 
             // Sp = Sp + Pprime(:,i)' * Pprime(:,i)
             matrix_device_t Pprime_i(1, Pprime.get_cols());
-            Pprime_i.copy_line(Pprime, i, 0);
+            for (std::size_t col = 0; col < Yprime.cols_; col++)
+            {
+                Pprime_i.set_val_ptr(0, col, utils::get_val_ptr(Pprime.data_, Pprime.pitch_, i, col));
+            }
 
             matrix_device_t Pprime_i_T(Pprime_i.get_cols(), Pprime_i.get_rows());
             Pprime_i.matrix_transpose(Pprime_i_T);
 
             utils::matrix_dot_product(Pprime_i, Pprime_i_T, dot_product);
 
-            Sp += dot_product.at(0, 0);
+            Sp += dot_product.get_val(0, 0);
         }
 
         s = sqrt(D / Sp);
@@ -301,6 +323,8 @@ namespace icp
 
         utils::matrix_subtract(Mu_y, R_dot_Mu_p_T, t);
 
+        // TODO COPY BACK NEWP
+
         return true;
     }
 
@@ -310,7 +334,7 @@ namespace icp
         std::generate_n(vector.begin(), A.get_cols(), utils::UniformRandom<double>(0.0, 1.1));
         for (std::size_t i = 0; i < A.get_cols(); i++)
         {
-            eigen_vector.copy_line(std::initializer_list<double>{vector[i]}, i);
+            eigen_vector.set_val(i, 0, vector[i]);
         }
 
         matrix_device_t b_k1(A.get_rows(), eigen_vector.get_cols(), 0.0);
@@ -319,12 +343,11 @@ namespace icp
         {
             utils::matrix_dot_product(A, eigen_vector, b_k1);
 
-            double b_k1_norm = 0.0;
-            b_k1.matrix_norm_2(b_k1_norm);
+            double b_k1_norm = b_k1.matrix_norm_2();
 
             for (std::size_t i = 0; i < eigen_vector.get_rows(); i++)
             {
-                *eigen_vector.get_val_ptr(i, 0) = b_k1.at(i, 0) / b_k1_norm;
+                eigen_vector.set_val(i, 0, b_k1.get_val(i, 0) / b_k1_norm);
             }
         }
     }

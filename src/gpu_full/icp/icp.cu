@@ -41,9 +41,7 @@ namespace icp
         // ----------------------------------------
         // Initialization
         // newP = P
-        std::cout << "coucou" <<std::endl;
         P.sub_matrix(0, 0, P.get_rows(), P.get_cols(), newP);
-        std::cout << "coucou2" <<std::endl;
 
         auto Np = P.get_rows();
         // auto Nm = M.size();     // FIXME : Unused ?
@@ -92,7 +90,7 @@ namespace icp
 
             for (std::size_t i = 0; i < d_dot_d_T.get_rows(); i++)
             {
-                err += d_dot_d_T.get_data()[i][i];
+                err += d_dot_d_T.get_val(i, i);
             }
 
             err /= Np;
@@ -164,45 +162,35 @@ namespace icp
         Pprime.matrix_transpose(Pprime_T);
         Yprime.matrix_transpose(Yprime_T);
 
-        auto cols_count = Pprime_T.get_cols();
+        matrix_device_t xx(1, Pprime_T.get_cols());
+        utils::vector_element_wise_multiplication(Pprime_T, 0, Yprime_T, 0, xx);
+        double Sxx = utils::vector_sum(xx);
+        matrix_device_t xy(1, Pprime_T.get_cols());
+        utils::vector_element_wise_multiplication(Pprime_T, 0, Yprime_T, 1, xy);
+        double Sxy = utils::vector_sum(xy);
+        matrix_device_t xz(1, Pprime_T.get_cols());
+        utils::vector_element_wise_multiplication(Pprime_T, 0, Yprime_T, 2, xz);
+        double Sxz = utils::vector_sum(xz);
 
-        const auto& Px = Pprime_T.get_data()[0];
-        const auto& Py = Pprime_T.get_data()[1];
-        const auto& Pz = Pprime_T.get_data()[2];
+        matrix_device_t yx(1, Pprime_T.get_cols());
+        utils::vector_element_wise_multiplication(Pprime_T, 1, Yprime_T, 0, yx);
+        double Syx = utils::vector_sum(yx);
+        matrix_device_t yy(1, Pprime_T.get_cols());
+        utils::vector_element_wise_multiplication(Pprime_T, 1, Yprime_T, 1, yy);
+        double Syy = utils::vector_sum(yy);
+        matrix_device_t yz(1, Pprime_T.get_cols());
+        utils::vector_element_wise_multiplication(Pprime_T, 1, Yprime_T, 2, yz);
+        double Syz = utils::vector_sum(yz);
 
-        const auto& Yx = Yprime_T.get_data()[0];
-        const auto& Yy = Yprime_T.get_data()[1];
-        const auto& Yz = Yprime_T.get_data()[2];
-
-        matrix_device_t xx(1, cols_count);
-        utils::vector_element_wise_multiplication(Px, Yx, xx.get_data()[0], cols_count);
-        double Sxx = utils::vector_sum(xx.get_data()[0], cols_count);
-        matrix_device_t xy(1, cols_count);
-        utils::vector_element_wise_multiplication(Px, Yy, xy.get_data()[0], cols_count);
-        double Sxy = utils::vector_sum(xy.get_data()[0], cols_count);
-        matrix_device_t xz(1, cols_count);
-        utils::vector_element_wise_multiplication(Px, Yz, xz.get_data()[0], cols_count);
-        double Sxz = utils::vector_sum(xz.get_data()[0], cols_count);
-
-        matrix_device_t yx(1, cols_count);
-        utils::vector_element_wise_multiplication(Py, Yx, yx.get_data()[0], cols_count);
-        double Syx = utils::vector_sum(yx.get_data()[0], cols_count);
-        matrix_device_t yy(1, cols_count);
-        utils::vector_element_wise_multiplication(Py, Yy, yy.get_data()[0], cols_count);
-        double Syy = utils::vector_sum(yy.get_data()[0], cols_count);
-        matrix_device_t yz(1, cols_count);
-        utils::vector_element_wise_multiplication(Py, Yz, yz.get_data()[0], cols_count);
-        double Syz = utils::vector_sum(yz.get_data()[0], cols_count);
-
-        matrix_device_t zx(1, cols_count);
-        utils::vector_element_wise_multiplication(Pz, Yx, zx.get_data()[0], cols_count);
-        double Szx = utils::vector_sum(zx.get_data()[0], cols_count);
-        matrix_device_t zy(1, cols_count);
-        utils::vector_element_wise_multiplication(Pz, Yy, zy.get_data()[0], cols_count);
-        double Szy = utils::vector_sum(zy.get_data()[0], cols_count);
-        matrix_device_t zz(1, cols_count);
-        utils::vector_element_wise_multiplication(Pz, Yz, zz.get_data()[0], cols_count);
-        double Szz = utils::vector_sum(zz.get_data()[0], cols_count);
+        matrix_device_t zx(1, Pprime_T.get_cols());
+        utils::vector_element_wise_multiplication(Pprime_T, 2, Yprime_T, 0, zx);
+        double Szx = utils::vector_sum(zx);
+        matrix_device_t zy(1, Pprime_T.get_cols());
+        utils::vector_element_wise_multiplication(Pprime_T, 2, Yprime_T, 1, zy);
+        double Szy = utils::vector_sum(zy);
+        matrix_device_t zz(1, Pprime_T.get_cols());
+        utils::vector_element_wise_multiplication(Pprime_T, 2, Yprime_T, 2, zz);
+        double Szz = utils::vector_sum(zz);
 
         matrix_device_t Nmatrix(4, 4);
         /*Nmatrix.emplace_back(std::initializer_list<double>{ Sxx + Syy + Szz,    Syz - Szy,          -Sxz + Szx, Sxy -
@@ -257,7 +245,7 @@ namespace icp
         {
             // D = D + Yprime(:,i)' * Yprime(:,i)
             matrix_device_t Yprime_i(1, Yprime.get_cols());
-            Yprime_i.copy_line(Yprime.get_data()[i], 0);
+            Yprime_i.copy_line(Yprime, i, 0);
 
             matrix_device_t Yprime_i_T(Yprime_i.get_cols(), Yprime_i.get_rows());
             Yprime_i.matrix_transpose(Yprime_i_T);
@@ -268,7 +256,7 @@ namespace icp
 
             // Sp = Sp + Pprime(:,i)' * Pprime(:,i)
             matrix_device_t Pprime_i(1, Pprime.get_cols());
-            Pprime_i.copy_line(Pprime.get_data()[i], 0);
+            Pprime_i.copy_line(Pprime, i, 0);
 
             matrix_device_t Pprime_i_T(Pprime_i.get_cols(), Pprime_i.get_rows());
             Pprime_i.matrix_transpose(Pprime_i_T);

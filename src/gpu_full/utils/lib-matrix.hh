@@ -7,11 +7,12 @@
 namespace utils
 {
     void matrix_dot_product(const matrix_device_t& lhs, const matrix_device_t& rhs, matrix_device_t& result);
-    void vector_element_wise_multiplication(const vector_device_t& lhs,
-                                            const vector_device_t& rhs,
-                                            vector_device_t& result,
-                                            std::size_t vector_size);
+    void vector_element_wise_multiplication(const matrix_device_t& lhs,
+                                            std::size_t lhs_row,
+                                            const matrix_device_t& rhs,
+                                            std::size_t rhs_row,
+                                            matrix_device_t& result);
     void matrix_subtract(const matrix_device_t& lhs, const matrix_device_t& rhs, matrix_device_t& result);
 
-    double vector_sum(const vector_device_t& vector, std::size_t vector_size);
+    double vector_sum(const matrix_device_t& vector);
 } // namespace utils

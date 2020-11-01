@@ -11,16 +11,18 @@ namespace utils
     Matrix::Matrix(std::size_t rows, std::size_t cols, value_t value)
         : rows_(rows)
         , cols_(cols)
+        , pitch_(0)
         , data_(nullptr)
     {
         cudaError_t rc = cudaSuccess;
-        std::size_t pitch;
 
-        rc = cudaMallocPitch(&this->data_, &pitch, cols, rows);
+        rc = cudaMallocPitch(&this->data_, &this->pitch, cols, rows);
         if (rc)
         {
             abortError("Fail buffer allocation");
         }
+
+
     }
 
     Matrix::~Matrix()
@@ -65,7 +67,7 @@ namespace utils
         {
             for (std::size_t col = 0; col < this->cols_; col++)
             {
-                sum += pow(this->data_[row][col], 2);
+                sum += pow(this->get_val(row, col), 2);
             }
         }
 
@@ -101,13 +103,20 @@ namespace utils
         {
             for (std::size_t col = 0; col < col_count; col++)
             {
-                result.data_[0][col] += this->data_[row][col];
+                if (row == 0)
+                {
+                    *result.get_val_ptr(0, col) = this->get_val(row, col);
+                }
+                else
+                {
+                    *result.get_val_ptr(0, col) += this->get_val(row, col);
+                }
             }
         }
 
-        result.data_[0][0] /= row_count;
-        result.data_[0][1] /= row_count;
-        result.data_[0][2] /= row_count;
+        *result.get_val_ptr(0, 0) /= row_count;
+        *result.get_val_ptr(0, 1) /= row_count;
+        *result.get_val_ptr(0, 2) /= row_count;
     }
 
     void Matrix::multiply_by_scalar(double val, matrix_device_t& result) const
@@ -120,28 +129,38 @@ namespace utils
         }
     }
 
-    void Matrix::copy_line(const vector_device_t& line, std::size_t row)
+    void Matrix::copy_line(const matrix_device_t& line, std::size_t line_row, std::size_t row)
     {
-        cudaMemcpy(this->data_[row], line, this->cols_, cudaMemcpyDeviceToDevice);
+        cudaMemcpy2D(this->data_, this->pitch_, line.get_val_ptr(line_row, 0), line.pitch_, this->cols_ * sizeof(value_t), 1, cudaMemcpyDeviceToDevice);
     }
 
     void Matrix::copy_line(const parser::vector_host_t& line, std::size_t row)
     {
         // FIXME PAS OUF
-        value_t *line_ptr = static_cast<vector_device_t>(malloc(sizeof(value_t) * this->cols_));
+        value_t *line_ptr = static_cast<value_t*>(malloc(sizeof(value_t) * this->cols_));
 
         for (std::size_t col = 0; col < this->cols_; col++)
         {
             line_ptr[col] = line[col];
         }
 
-        cudaMemcpy(&this->data_[row], line_ptr, this->cols_, cudaMemcpyHostToDevice);
+        cuudaMemcpy2D(this->data_, this->pitch_, line_ptr, 0, this->cols_ * sizeof(value_t), 1, cudaMemcpyHostToDevice);
 
         free(line_ptr);
     }
 
-    void Matrix::copy_data(const value_t& data, std::size_t row, std::size_t col)
+    __device__ void Matrix::get_val_ptr(std::size_t row, std::size_t col, value_t** val)
     {
-        cudaMemcpy(&this->data_[row][col], &data, sizeof(value_t), cudaMemcpyHostToDevice);
+        *val = (value_t*)((char*)this->data_ + row * this->pitch_) + col;
+    }
+
+    value_t* Matrix::get_val_ptr(std::size_t row, std::size_t col)
+    {
+        return (value_t*)((char*)this->data_ + row * this->pitch_) + col;
+    }
+
+    value_t Matrix::get_val(std::size_t row, std::size_t col)
+    {
+        return *get_val_ptr(row, col);
     }
 } // namespace utils

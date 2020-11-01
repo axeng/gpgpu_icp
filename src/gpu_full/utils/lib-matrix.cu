@@ -22,7 +22,12 @@ namespace utils
         {
             for (std::size_t col = 0; col < col_count; col++)
             {
-                result.data_[row][col] = matrix.data_[row + starting_row][col + starting_col];
+                value_t *result_ptr;
+                value_t *matrix_ptr;
+                result.get_val(row, col, &result_ptr);
+                matrix.get_val(row + starting_row, col + starting_col, &matrix_ptr);
+
+                *result_ptr = *matrix_ptr;
             }
         }
     }
@@ -33,7 +38,12 @@ namespace utils
         {
             for (std::size_t col = 0; col < matrix.rows_; col++)
             {
-                result.data_[row][col] = matrix.data_[col][row];
+                value_t *result_ptr;
+                value_t *matrix_ptr;
+                result.get_val(row, col, &result_ptr);
+                matrix.get_val(col, row, &matrix_ptr);
+
+                *result_ptr = *matrix_ptr;
             }
         }
     }
@@ -45,8 +55,14 @@ namespace utils
         {
             for (std::size_t col = 0; col < matrix.cols_; col++)
             {
-                // considering the vector as a line vector (as returned by the centroid)
-                result.data_[row][col] = matrix.data_[row][col] - vector.data_[0][col];
+                value_t *result_ptr;
+                value_t *matrix_ptr;
+                value_t *vector_ptr;
+                result.get_val(row, col, &result_ptr);
+                matrix.get_val(row, col, &matrix_ptr);
+                vector.get_val(0, col, &vector_ptr);
+
+                *result_ptr = *matrix_ptr - *vector_ptr;
             }
         }
     }
@@ -58,7 +74,14 @@ namespace utils
         {
             for (std::size_t col = 0; col < matrix.cols_; col++)
             {
-                result.data_[row][col] = matrix.data_[row][col] + vector.data_[0][col];
+                value_t *result_ptr;
+                value_t *matrix_ptr;
+                value_t *vector_ptr;
+                result.get_val(row, col, &result_ptr);
+                matrix.get_val(row, col, &matrix_ptr);
+                vector.get_val(0, col, &vector_ptr);
+
+                *result_ptr = *matrix_ptr + *vector_ptr;
             }
         }
     }
@@ -69,7 +92,12 @@ namespace utils
         {
             for (std::size_t col = 0; col < matrix.cols_; col++)
             {
-                result.data_[row][col] = matrix.data_[row][col] * val;
+                value_t *result_ptr;
+                value_t *matrix_ptr;
+                result.get_val(row, col, &result_ptr);
+                matrix.get_val(row, col, &matrix_ptr);
+
+                *result_ptr = *matrix_ptr + val;
             }
         }
     }
@@ -85,24 +113,40 @@ namespace utils
         {
             for (std::size_t col = 0; col < col_count; col++)
             {
-                result.data_[row][col] = 0;
+                value_t *result_ptr;
+                result.get_val(row, col, &result_ptr);
+
+                *result_ptr = 0;
 
                 for (std::size_t k = 0; k < common_dim; k++)
                 {
-                    result.data_[row][col] += lhs.data_[row][k] * rhs.data_[k][col];
+                    value_t *lhs_ptr;
+                    value_t *rhs_ptr;
+                    lhs.get_val(row, k, &lhs_ptr);
+                    rhs.get_val(k, col, &rhs_ptr);
+
+                    *result_ptr += *lhs * *rhs;
                 }
             }
         }
     }
 
-    __global__ void vector_element_wise_multiplication_cuda(const vector_device_t& lhs,
-                                                            const vector_device_t& rhs,
-                                                            vector_device_t& result,
-                                                            std::size_t vector_size)
+    __global__ void vector_element_wise_multiplication_cuda(const matrix_device_t& lhs,
+                                                            std::size_t lhs_row,
+                                                            const matrix_device_t& rhs,
+                                                            std::size_t rhs_row,
+                                                            matrix_device_t& result)
     {
-        for (std::size_t i = 0; i < vector_size; i++)
+        for (std::size_t i = 0; i < lhs.cols_; i++)
         {
-            result[i] = lhs[i] * rhs[i];
+            value_t *result_ptr;
+            value_t *lhs_ptr;
+            value_t *rhs_ptr;
+            result.get_val(0, i, &result_ptr);
+            lhs.get_val(0, i, &lhs_ptr);
+            rhs.get_val(0, i, &rhs_ptr);
+
+            *result_ptr = *lhs_ptr * *rhs_ptr[i];
         }
     }
 
@@ -112,7 +156,14 @@ namespace utils
         {
             for (std::size_t col = 0; col < lhs.cols_; col++)
             {
-                result.data_[row][col] = lhs.data_[row][col] - rhs.data_[row][col];
+                value_t *result_ptr;
+                value_t *lhs_ptr;
+                value_t *rhs_ptr;
+                result.get_val(row, col, &result_ptr);
+                lhs.get_val(row, col, &lhs_ptr);
+                rhs.get_val(row, col, &rhs_ptr);
+
+                *result_ptr = *lhs - *rhs;
             }
         }
     }
@@ -127,12 +178,13 @@ namespace utils
         }
     }
 
-    void vector_element_wise_multiplication(const vector_device_t& lhs,
-                                            const vector_device_t& rhs,
-                                            vector_device_t& result,
-                                            std::size_t vector_size)
+    void vector_element_wise_multiplication(const matrix_device_t& lhs,
+                                            std::size_t lhs_row,
+                                            const matrix_device_t& rhs,
+                                            std::size_t rhs_row,
+                                            matrix_device_t& result)
     {
-        vector_element_wise_multiplication_cuda<<<1, 1>>>(lhs, rhs, result, vector_size);
+        vector_element_wise_multiplication_cuda<<<1, 1>>>(lhs, lhs_row, rhs, rhs_row, result);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
         {
@@ -140,13 +192,16 @@ namespace utils
         }
     }
 
-    double vector_sum(const vector_device_t& vector, std::size_t vector_size)
+    double vector_sum(const matrix_device_t& vector)
     {
         double sum = 0.0;
 
-        for (std::size_t col = 0; col < vector_size; col++)
+        for (std::size_t col = 0; col < vector.rows_; col++)
         {
-            sum += vector[col];
+            value_t *vector_ptr;
+            vector.get_val(0, col, &vector_ptr);
+
+            sum += *vector_ptr;
         }
 
         return sum;

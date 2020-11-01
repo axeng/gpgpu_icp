@@ -10,7 +10,6 @@ namespace icp
     using vector_host_t = parser::vector_host_t;
     using matrix_host_t = parser::matrix_host_t;
 
-    using vector_device_t = utils::Matrix::vector_device_t;
     using matrix_device_t = utils::Matrix::matrix_device_t;
 
     std::size_t icp_gpu(const matrix_host_t& M,

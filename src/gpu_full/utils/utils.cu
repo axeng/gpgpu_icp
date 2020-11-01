@@ -13,14 +13,14 @@ namespace utils
         std::exit(1);
     }
 
-    double compute_distance(const vector_device_t& p, const vector_device_t& q)
+    double compute_distance(const matrix_device_t& p, std::size_t p_row, const matrix_device_t& q, std::size_t q_row)
     {
-        double X1 = p[0];
-        double Y1 = p[1];
-        double Z1 = p[2];
-        double X2 = q[0];
-        double Y2 = q[1];
-        double Z2 = q[2];
+        double X1 = p.get_val(p_row, 0);
+        double Y1 = p.get_val(p_row, 1);
+        double Z1 = p.get_val(p_row, 2);
+        double X2 = q.get_val(q_row, 0);
+        double Y2 = q.get_val(q_row, 1);
+        double Z2 = q.get_val(q_row, 2);
 
         return sqrt(pow(X2 - X1, 2) + pow(Y2 - Y1, 2) + pow(Z2 - Z1, 2) * 1.0);
     }
@@ -35,19 +35,19 @@ namespace utils
         for (std::size_t p_row = 0; p_row < P.get_rows(); p_row++)
         {
             float min_dist = MAXFLOAT;
+            std::size_t choosen_row = 0;
 
-            vector_device_t chosen = NULL;
             for (std::size_t q_row = 0; q_row < Q.get_rows(); q_row++)
             {
-                auto dist = compute_distance(P.get_data()[p_row], Q.get_data()[q_row]);
+                auto dist = compute_distance(P, p_row, Q, q_row);
                 if (dist < min_dist)
                 {
                     min_dist = dist;
-                    chosen = Q.get_data()[q_row];
+                    choosen_row = q_row;
                 }
             }
             distances.emplace_back(min_dist);
-            res.copy_line(chosen, p_row);
+            res.copy_line(Q, choosen_row, p_row);
         }
     }
 

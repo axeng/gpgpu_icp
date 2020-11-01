@@ -61,7 +61,8 @@ namespace icp
                           << "Iteration: " << iteration << std::endl;
             }
             
-            matrix_t *d_newP, *d_M, *d_Y;
+            const matrix_t *d_newP, *d_M;
+            matrix_t *d_Y;
             cudaMalloc(&d_newP, sizeof(double) * newP.get_cols() * newP.get_rows());
             cudaMalloc(&d_M, sizeof(double) * M.get_cols() * M.get_rows());
             cudaMalloc(&d_Y, sizeof(double) * Y.get_cols() * Y.get_rows());
@@ -70,7 +71,7 @@ namespace icp
             cudaMemcpy(d_M, M, sizeof(double) * M.get_cols() * M.get_rows(), cudaMemcpyHostToDevice);
 
 
-            utils::get_nearest_neighbors<<<1, d_newP->get_rows()>>>(d_newP, d_M, d_Y);
+            utils::get_nearest_neighbors<<<1, d_newP->get_rows()>>>(&d_newP, &d_M, &d_Y, d_newP->get_rows(), d_M->get_rows());
             cudaDeviceSynchronize();
             cudaCheckError();
 

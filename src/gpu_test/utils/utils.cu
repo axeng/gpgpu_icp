@@ -27,7 +27,7 @@ namespace utils
         vector_t chosen;
         for (int ind = 0; ind < Q_rows; ind++)
         {
-            vector_t q_point = Q->data_[ind];
+            vector_t *q_point = Q->data_[ind];
             double dist = compute_distance(P->data_[i], q_point);
             if (dist < min_dist)
             {

@@ -67,7 +67,7 @@ set(GPU_TEST_ICP_SOURCES
         src/gpu_test/icp/icp.cu)
 
 set(GPU_TEST_PARSER_SOURCES
-        src/gpu_test/parser/parser.cc)
+        src/gpu_test/parser/parser.cu)
 
 set(GPU_TEST_UTILS_SOURCES
         src/gpu_test/utils/utils.cu

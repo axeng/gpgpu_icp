@@ -46,12 +46,12 @@ namespace utils
 
         inline value_t at(size_t row, size_t col)
         {
-            return *this->get_val(row, col);
+            return *this->get_val_ptr(row, col);
         }
 
         inline value_t at(size_t row, size_t col) const
         {
-            return *this->get_val(row, col);
+            return *this->get_val_ptr(row, col);
         }
 
         // Kernels

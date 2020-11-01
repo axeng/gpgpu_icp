@@ -24,8 +24,8 @@ namespace utils
             {
                 value_t *result_ptr;
                 value_t *matrix_ptr;
-                result.get_val(row, col, &result_ptr);
-                matrix.get_val(row + starting_row, col + starting_col, &matrix_ptr);
+                result.get_val_ptr(row, col, &result_ptr);
+                matrix.get_val_ptr(row + starting_row, col + starting_col, &matrix_ptr);
 
                 *result_ptr = *matrix_ptr;
             }
@@ -40,8 +40,8 @@ namespace utils
             {
                 value_t *result_ptr;
                 value_t *matrix_ptr;
-                result.get_val(row, col, &result_ptr);
-                matrix.get_val(col, row, &matrix_ptr);
+                result.get_val_ptr(row, col, &result_ptr);
+                matrix.get_val_ptr(col, row, &matrix_ptr);
 
                 *result_ptr = *matrix_ptr;
             }
@@ -58,9 +58,9 @@ namespace utils
                 value_t *result_ptr;
                 value_t *matrix_ptr;
                 value_t *vector_ptr;
-                result.get_val(row, col, &result_ptr);
-                matrix.get_val(row, col, &matrix_ptr);
-                vector.get_val(0, col, &vector_ptr);
+                result.get_val_ptr(row, col, &result_ptr);
+                matrix.get_val_ptr(row, col, &matrix_ptr);
+                vector.get_val_ptr(0, col, &vector_ptr);
 
                 *result_ptr = *matrix_ptr - *vector_ptr;
             }
@@ -77,9 +77,9 @@ namespace utils
                 value_t *result_ptr;
                 value_t *matrix_ptr;
                 value_t *vector_ptr;
-                result.get_val(row, col, &result_ptr);
-                matrix.get_val(row, col, &matrix_ptr);
-                vector.get_val(0, col, &vector_ptr);
+                result.get_val_ptr(row, col, &result_ptr);
+                matrix.get_val_ptr(row, col, &matrix_ptr);
+                vector.get_val_ptr(0, col, &vector_ptr);
 
                 *result_ptr = *matrix_ptr + *vector_ptr;
             }
@@ -94,8 +94,8 @@ namespace utils
             {
                 value_t *result_ptr;
                 value_t *matrix_ptr;
-                result.get_val(row, col, &result_ptr);
-                matrix.get_val(row, col, &matrix_ptr);
+                result.get_val_ptr(row, col, &result_ptr);
+                matrix.get_val_ptr(row, col, &matrix_ptr);
 
                 *result_ptr = *matrix_ptr + val;
             }
@@ -114,7 +114,7 @@ namespace utils
             for (std::size_t col = 0; col < col_count; col++)
             {
                 value_t *result_ptr;
-                result.get_val(row, col, &result_ptr);
+                result.get_val_ptr(row, col, &result_ptr);
 
                 *result_ptr = 0;
 
@@ -122,8 +122,8 @@ namespace utils
                 {
                     value_t *lhs_ptr;
                     value_t *rhs_ptr;
-                    lhs.get_val(row, k, &lhs_ptr);
-                    rhs.get_val(k, col, &rhs_ptr);
+                    lhs.get_val_ptr(row, k, &lhs_ptr);
+                    rhs.get_val_ptr(k, col, &rhs_ptr);
 
                     *result_ptr += *lhs * *rhs;
                 }
@@ -142,9 +142,9 @@ namespace utils
             value_t *result_ptr;
             value_t *lhs_ptr;
             value_t *rhs_ptr;
-            result.get_val(0, i, &result_ptr);
-            lhs.get_val(0, i, &lhs_ptr);
-            rhs.get_val(0, i, &rhs_ptr);
+            result.get_val_ptr(0, i, &result_ptr);
+            lhs.get_val_ptr(0, i, &lhs_ptr);
+            rhs.get_val_ptr(0, i, &rhs_ptr);
 
             *result_ptr = *lhs_ptr * *rhs_ptr[i];
         }
@@ -159,9 +159,9 @@ namespace utils
                 value_t *result_ptr;
                 value_t *lhs_ptr;
                 value_t *rhs_ptr;
-                result.get_val(row, col, &result_ptr);
-                lhs.get_val(row, col, &lhs_ptr);
-                rhs.get_val(row, col, &rhs_ptr);
+                result.get_val_ptr(row, col, &result_ptr);
+                lhs.get_val_ptr(row, col, &lhs_ptr);
+                rhs.get_val_ptr(row, col, &rhs_ptr);
 
                 *result_ptr = *lhs - *rhs;
             }
@@ -199,7 +199,7 @@ namespace utils
         for (std::size_t col = 0; col < vector.rows_; col++)
         {
             value_t *vector_ptr;
-            vector.get_val(0, col, &vector_ptr);
+            vector.get_val_ptr(0, col, &vector_ptr);
 
             sum += *vector_ptr;
         }

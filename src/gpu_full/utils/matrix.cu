@@ -16,7 +16,7 @@ namespace utils
     {
         cudaError_t rc = cudaSuccess;
 
-        rc = cudaMallocPitch(&this->data_, &this->pitch, cols, rows);
+        rc = cudaMallocPitch(&this->data_, &this->pitch_, cols, rows);
         if (rc)
         {
             abortError("Fail buffer allocation");

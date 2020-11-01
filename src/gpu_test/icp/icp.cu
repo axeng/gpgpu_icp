@@ -71,7 +71,7 @@ namespace icp
             cudaMemcpy(d_M, M, sizeof(double) * M.get_cols() * M.get_rows(), cudaMemcpyHostToDevice);
 
 
-            utils::get_nearest_neighbors<<<1, d_newP->get_rows()>>>(&d_newP, &d_M, &d_Y, d_newP->get_rows(), d_M->get_rows());
+            utils::get_nearest_neighbors<<<1, d_newP->get_rows()>>>(d_newP, d_M, d_Y, d_newP->get_rows(), d_M->get_rows());
             cudaDeviceSynchronize();
             cudaCheckError();
 

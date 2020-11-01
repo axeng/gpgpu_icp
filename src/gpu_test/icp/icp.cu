@@ -115,7 +115,7 @@ namespace icp
 
             cudaFree(d_newP);
             cudaFree(d_M);
-            cuda_Free(d_Y);
+            cudaFree(d_Y);
 
             if (err < threshold)
             {

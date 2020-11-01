@@ -15,12 +15,12 @@ namespace utils
 
     double compute_distance(const matrix_device_t& p, std::size_t p_row, const matrix_device_t& q, std::size_t q_row)
     {
-        double X1 = p.get_val(p_row, 0);
-        double Y1 = p.get_val(p_row, 1);
-        double Z1 = p.get_val(p_row, 2);
-        double X2 = q.get_val(q_row, 0);
-        double Y2 = q.get_val(q_row, 1);
-        double Z2 = q.get_val(q_row, 2);
+        double X1 = p.at(p_row, 0);
+        double Y1 = p.at(p_row, 1);
+        double Z1 = p.at(p_row, 2);
+        double X2 = q.at(q_row, 0);
+        double Y2 = q.at(q_row, 1);
+        double Z2 = q.at(q_row, 2);
 
         return sqrt(pow(X2 - X1, 2) + pow(Y2 - Y1, 2) + pow(Z2 - Z1, 2) * 1.0);
     }

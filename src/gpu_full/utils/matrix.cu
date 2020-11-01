@@ -67,7 +67,7 @@ namespace utils
         {
             for (std::size_t col = 0; col < this->cols_; col++)
             {
-                sum += pow(this->get_val(row, col), 2);
+                sum += pow(this->at(row, col), 2);
             }
         }
 
@@ -105,11 +105,11 @@ namespace utils
             {
                 if (row == 0)
                 {
-                    *result.get_val_ptr(0, col) = this->get_val(row, col);
+                    *result.get_val_ptr(0, col) = this->at(row, col);
                 }
                 else
                 {
-                    *result.get_val_ptr(0, col) += this->get_val(row, col);
+                    *result.get_val_ptr(0, col) += this->at(row, col);
                 }
             }
         }
@@ -159,8 +159,8 @@ namespace utils
         return (value_t*)((char*)this->data_ + row * this->pitch_) + col;
     }
 
-    value_t Matrix::get_val(std::size_t row, std::size_t col)
+    value_t* Matrix::get_val_ptr(std::size_t row, std::size_t col) const
     {
-        return *get_val_ptr(row, col);
+        return (value_t*)((char*)this->data_ + row * this->pitch_) + col;
     }
 } // namespace utils

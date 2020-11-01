@@ -46,12 +46,12 @@ namespace utils
 
         inline value_t at(size_t row, size_t col)
         {
-            return this->get_val(row, col);
+            return *this->get_val(row, col);
         }
 
         inline value_t at(size_t row, size_t col) const
         {
-            return this->get_val(row, col);
+            return *this->get_val(row, col);
         }
 
         // Kernels
@@ -95,7 +95,7 @@ namespace utils
 
         __device__ void get_val_ptr(std::size_t row, std::size_t col, value_t** val);
         value_t* get_val_ptr(std::size_t row, std::size_t col);
-        value_t get_val(std::size_t row, std::size_t col);
+        value_t* get_val_ptr(std::size_t row, std::size_t col) const;
     };
 
 } // namespace utils

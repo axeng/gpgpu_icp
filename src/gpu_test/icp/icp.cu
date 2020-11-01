@@ -62,7 +62,7 @@ namespace icp
             }
             
             matrix_t *d_newP, *d_M, *d_Y;
-            cudaMalloc((&d_newP, sizeof(double) * newP.get_cols() * newP.get_rows());
+            cudaMalloc(&d_newP, sizeof(double) * newP.get_cols() * newP.get_rows());
             cudaMalloc(&d_M, sizeof(double) * M.get_cols() * M.get_rows());
             cudaMalloc(&d_Y, sizeof(double) * Y.get_cols() * Y.get_rows());
 

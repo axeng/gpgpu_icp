@@ -1,7 +1,7 @@
 #pragma once
 
-#include "gpu_full/parser/parser.hh"
 #include "gpu_full/utils/utils.hh"
+#include "gpu_full/parser/parser.hh"
 
 namespace icp
 {

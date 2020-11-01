@@ -3,12 +3,22 @@
 #include <algorithm>
 #include <sstream>
 
+#include "gpu_full/utils/matrix.hh"
 #include "gpu_full/utils/lib-matrix.hh"
 #include "gpu_full/utils/uniform-random.hh"
 #include "gpu_full/utils/utils.hh"
 
 namespace icp
 {
+    __global__ void print_val(const matrix_device_t& m)
+    {
+        const value_t *val;
+        m.get_val_ptr_cuda(0, 0, &val);
+
+        printf("m 0, 0 ptr: %p\n", (void*)val);
+        printf("m 0, 0 val: %f\n", *val);
+    }
+
     std::size_t icp_gpu(const matrix_host_t& M_host /*dst*/,
                         const matrix_host_t& P_host /*src*/,
                         matrix_host_t&,
@@ -23,6 +33,11 @@ namespace icp
         matrix_device_t P(P_host.size(), P_host[0].size());
         matrix_device_t newP(P_host.size(), P_host[0].size());
 
+        std::cout << "M 0, 0 ptr: " << M.get_val_ptr(0, 0) << std::endl;
+        print_val<<<1, 1>>>(M);
+
+        return 0;
+        /*
         for (std::size_t i = 0; i < M_host.size(); i++)
         {
             M.copy_line(M_host[i], i);
@@ -31,7 +46,7 @@ namespace icp
         for (std::size_t i = 0; i < P_host.size(); i++)
         {
             P.copy_line(P_host[i], i);
-        }
+        }*/
 
         if (M.get_cols() == 0 || M.get_cols() != P.get_cols())
         {

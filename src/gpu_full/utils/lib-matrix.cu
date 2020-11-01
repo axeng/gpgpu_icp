@@ -125,7 +125,7 @@ namespace utils
                     lhs.get_val_ptr(row, k, &lhs_ptr);
                     rhs.get_val_ptr(k, col, &rhs_ptr);
 
-                    *result_ptr += *lhs * *rhs;
+                    *result_ptr += *lhs_ptr * *rhs_ptr;
                 }
             }
         }
@@ -146,7 +146,7 @@ namespace utils
             lhs.get_val_ptr(0, i, &lhs_ptr);
             rhs.get_val_ptr(0, i, &rhs_ptr);
 
-            *result_ptr = *lhs_ptr * *rhs_ptr[i];
+            *result_ptr = *lhs_ptr * *rhs_ptr;
         }
     }
 
@@ -163,7 +163,7 @@ namespace utils
                 lhs.get_val_ptr(row, col, &lhs_ptr);
                 rhs.get_val_ptr(row, col, &rhs_ptr);
 
-                *result_ptr = *lhs - *rhs;
+                *result_ptr = *lhs_ptr - *rhs_ptr;
             }
         }
     }
@@ -196,12 +196,9 @@ namespace utils
     {
         double sum = 0.0;
 
-        for (std::size_t col = 0; col < vector.rows_; col++)
+        for (std::size_t col = 0; col < vector.get_rows(); col++)
         {
-            value_t *vector_ptr;
-            vector.get_val_ptr(0, col, &vector_ptr);
-
-            sum += *vector_ptr;
+            sum += vector.at(0, col);
         }
 
         return sum;
@@ -215,5 +212,20 @@ namespace utils
         {
             abortError("Computation Error");
         }
+    }
+
+    __device__ void Matrix::get_val_ptr(std::size_t row, std::size_t col, value_t** val) const
+    {
+        *val = (value_t*)((char*)this->data_ + row * this->pitch_) + col;
+    }
+
+    value_t* Matrix::get_val_ptr(std::size_t row, std::size_t col)
+    {
+        return (value_t*)((char*)this->data_ + row * this->pitch_) + col;
+    }
+
+    value_t* Matrix::get_val_ptr(std::size_t row, std::size_t col) const
+    {
+        return (value_t*)((char*)this->data_ + row * this->pitch_) + col;
     }
 } // namespace utils

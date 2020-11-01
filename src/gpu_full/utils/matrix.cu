@@ -16,7 +16,7 @@ namespace utils
     {
         cudaError_t rc = cudaSuccess;
 
-        rc = cudaMallocPitch(&this->data_, &this->pitch_, cols, rows);
+        rc = cudaMallocPitch(&this->data_, &this->pitch_, rows, cols);
         if (rc)
         {
             abortError("Fail buffer allocation");
@@ -144,23 +144,8 @@ namespace utils
             line_ptr[col] = line[col];
         }
 
-        cuudaMemcpy2D(this->data_, this->pitch_, line_ptr, 0, this->cols_ * sizeof(value_t), 1, cudaMemcpyHostToDevice);
+        cudaMemcpy2D(this->data_, this->pitch_, line_ptr, 0, this->cols_ * sizeof(value_t), 1, cudaMemcpyHostToDevice);
 
         free(line_ptr);
-    }
-
-    __device__ void Matrix::get_val_ptr(std::size_t row, std::size_t col, value_t** val)
-    {
-        *val = (value_t*)((char*)this->data_ + row * this->pitch_) + col;
-    }
-
-    value_t* Matrix::get_val_ptr(std::size_t row, std::size_t col)
-    {
-        return (value_t*)((char*)this->data_ + row * this->pitch_) + col;
-    }
-
-    value_t* Matrix::get_val_ptr(std::size_t row, std::size_t col) const
-    {
-        return (value_t*)((char*)this->data_ + row * this->pitch_) + col;
     }
 } // namespace utils

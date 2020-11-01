@@ -90,7 +90,7 @@ namespace icp
 
             for (std::size_t i = 0; i < d_dot_d_T.get_rows(); i++)
             {
-                err += d_dot_d_T.get_val(i, i);
+                err += d_dot_d_T.at(i, i);
             }
 
             err /= Np;
@@ -307,7 +307,7 @@ namespace icp
 
             for (std::size_t i = 0; i < eigen_vector.get_rows(); i++)
             {
-                eigen_vector.copy_data(b_k1.at(i, 0) / b_k1_norm, i, 0);
+                *eigen_vector.get_val_ptr(i, 0) = b_k1.at(i, 0) / b_k1_norm;
             }
         }
     }

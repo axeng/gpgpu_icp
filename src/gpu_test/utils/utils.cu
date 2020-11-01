@@ -20,15 +20,15 @@ namespace utils
         GPU
         */
         int i = threadIdx.x;
-        if (i >= P_rows
+        if (i >= P_rows)
             return;
 
         float min_dist = MAXFLOAT;
         vector_t chosen;
         for (int ind = 0; ind < Q_rows; ind++)
         {
-            auto q_point = Q->data_[ind];
-            auto dist = compute_distance(P->data_[i], q_point);
+            auto* q_point = Q->data_[ind];
+            auto* dist = compute_distance(P->data_[i], q_point);
             if (dist < min_dist)
             {
                 min_dist = dist;

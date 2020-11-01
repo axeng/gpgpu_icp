@@ -23,7 +23,7 @@ namespace utils
             for (std::size_t col = 0; col < col_count; col++)
             {
                 value_t *result_ptr;
-                value_t *matrix_ptr;
+                const value_t *matrix_ptr;
                 result.get_val_ptr_cuda(row, col, &result_ptr);
                 matrix.get_val_ptr_cuda(row + starting_row, col + starting_col, &matrix_ptr);
 
@@ -39,7 +39,7 @@ namespace utils
             for (std::size_t col = 0; col < matrix.rows_; col++)
             {
                 value_t *result_ptr;
-                value_t *matrix_ptr;
+                const value_t *matrix_ptr;
                 result.get_val_ptr_cuda(row, col, &result_ptr);
                 matrix.get_val_ptr_cuda(col, row, &matrix_ptr);
 
@@ -56,8 +56,8 @@ namespace utils
             for (std::size_t col = 0; col < matrix.cols_; col++)
             {
                 value_t *result_ptr;
-                value_t *matrix_ptr;
-                value_t *vector_ptr;
+                const value_t *matrix_ptr;
+                const value_t *vector_ptr;
                 result.get_val_ptr_cuda(row, col, &result_ptr);
                 matrix.get_val_ptr_cuda(row, col, &matrix_ptr);
                 vector.get_val_ptr_cuda(0, col, &vector_ptr);
@@ -75,8 +75,8 @@ namespace utils
             for (std::size_t col = 0; col < matrix.cols_; col++)
             {
                 value_t *result_ptr;
-                value_t *matrix_ptr;
-                value_t *vector_ptr;
+                const value_t *matrix_ptr;
+                const value_t *vector_ptr;
                 result.get_val_ptr_cuda(row, col, &result_ptr);
                 matrix.get_val_ptr_cuda(row, col, &matrix_ptr);
                 vector.get_val_ptr_cuda(0, col, &vector_ptr);
@@ -93,7 +93,7 @@ namespace utils
             for (std::size_t col = 0; col < matrix.cols_; col++)
             {
                 value_t *result_ptr;
-                value_t *matrix_ptr;
+                const value_t *matrix_ptr;
                 result.get_val_ptr_cuda(row, col, &result_ptr);
                 matrix.get_val_ptr_cuda(row, col, &matrix_ptr);
 
@@ -120,8 +120,8 @@ namespace utils
 
                 for (std::size_t k = 0; k < common_dim; k++)
                 {
-                    value_t *lhs_ptr;
-                    value_t *rhs_ptr;
+                    const value_t *lhs_ptr;
+                    const value_t *rhs_ptr;
                     lhs.get_val_ptr_cuda(row, k, &lhs_ptr);
                     rhs.get_val_ptr_cuda(k, col, &rhs_ptr);
 
@@ -140,8 +140,8 @@ namespace utils
         for (std::size_t i = 0; i < lhs.cols_; i++)
         {
             value_t *result_ptr;
-            value_t *lhs_ptr;
-            value_t *rhs_ptr;
+            const value_t *lhs_ptr;
+            const value_t *rhs_ptr;
             result.get_val_ptr_cuda(0, i, &result_ptr);
             lhs.get_val_ptr_cuda(0, i, &lhs_ptr);
             rhs.get_val_ptr_cuda(0, i, &rhs_ptr);
@@ -157,8 +157,8 @@ namespace utils
             for (std::size_t col = 0; col < lhs.cols_; col++)
             {
                 value_t *result_ptr;
-                value_t *lhs_ptr;
-                value_t *rhs_ptr;
+                const value_t *lhs_ptr;
+                const value_t *rhs_ptr;
                 result.get_val_ptr_cuda(row, col, &result_ptr);
                 lhs.get_val_ptr_cuda(row, col, &lhs_ptr);
                 rhs.get_val_ptr_cuda(row, col, &rhs_ptr);
@@ -214,22 +214,22 @@ namespace utils
         }
     }
 
-    __device__ void Matrix::get_val_ptr_cuda(std::size_t row, std::size_t col, const value_t** val) const
+    __device__ void Matrix::get_val_ptr_cuda(std::size_t row, std::size_t col, const value_t **val) const
     {
         *val = (value_t*)((this->data_ + row * this->pitch_) + col * sizeof(value_t));
     }
 
-    __device__ void Matrix::get_val_ptr_cuda(std::size_t row, std::size_t col, value_t** val)
+    __device__ void Matrix::get_val_ptr_cuda(std::size_t row, std::size_t col, value_t **val)
     {
         *val = (value_t*)((this->data_ + row * this->pitch_) + col * sizeof(value_t));
     }
 
-    value_t* Matrix::get_val_ptr(std::size_t row, std::size_t col)
+    value_t *Matrix::get_val_ptr(std::size_t row, std::size_t col)
     {
         return (value_t*)((this->data_ + row * this->pitch_) + col * sizeof(value_t));
     }
 
-    const value_t* Matrix::get_val_ptr(std::size_t row, std::size_t col) const
+    const value_t *Matrix::get_val_ptr(std::size_t row, std::size_t col) const
     {
         return (value_t*)((this->data_ + row * this->pitch_) + col * sizeof(value_t));
     }

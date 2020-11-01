@@ -60,10 +60,22 @@ namespace icp
                 std::cout << "----------------------------------------" << std::endl
                           << "Iteration: " << iteration << std::endl;
             }
+            
+            matrix_t *d_newP, *d_M, *d_Y;
+            cudaMalloc((void **) &d_newP, sizeof(double) * newP.get_cols() * newP.get_rows());
+            cudaMalloc((void **) &d_M, sizeof(double) * M.get_cols() * M.get_rows());
+            cudaMalloc((void **) &d_Y, sizeof(double) * Y.get_cols() * Y.get_rows());
 
-            utils::get_nearest_neighbors<<<1, newP.get_rows()>>>(newP, M, Y);
+            cudaMemcpy(d_newP, newP, sizeof(double) * newP.get_cols() * newP.get_rows(), cudaMemcpyHostToDevice);
+            cudaMemcpy(d_M, M, sizeof(double) * M.get_cols() * M.get_rows(), cudaMemcpyHostToDevice);
+
+
+            utils::get_nearest_neighbors<<<1, d_newP.get_rows()>>>(d_newP, d_M, d_Y);
             cudaDeviceSynchronize();
             cudaCheckError();
+
+            cudaMemcpy(Y, d_Y, sizeof(double) * Y.get_cols() * Y.get_rows(), cudaMemcpyDeviceToHost);
+            cudaThreadSynchronize();
 
             // ----------------------------------------
             // Find Alignment
@@ -99,6 +111,10 @@ namespace icp
                 filename << "../res.csv/res.csv." << (iteration + 1);
                 newP.matrix_to_csv(filename.str());
             }
+
+            cudaFree(d_newP);
+            cudaFree(d_M);
+            cuda_Free(d_Y);
 
             if (err < threshold)
             {

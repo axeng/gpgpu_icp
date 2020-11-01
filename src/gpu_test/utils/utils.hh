@@ -21,8 +21,8 @@ namespace utils
         }                                                                                        \
     }
 
-    double compute_distance(const vector_t& p, const vector_t& q);
-    __device__ void get_nearest_neighbors(const matrix_t& P, const matrix_t& Q, matrix_t& res);
+    __device__ double compute_distance(const vector_t& p, const vector_t& q);
+    __global__ void get_nearest_neighbors(matrix_t& P, matrix_t& Q, matrix_t& res, int P_rows, int Q_rows);
     unsigned int get_line_count(const std::string& path);
 
     void string_split(std::string str, const std::string& delimiter, std::vector<std::string>& words);

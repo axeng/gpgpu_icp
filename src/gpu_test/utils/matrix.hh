@@ -111,12 +111,12 @@ namespace utils
             this->cols_ = 0;
             this->data_.clear();
         }
+        std::vector<vector_t> data_;
 
     private:
         std::size_t rows_ = 0;
         std::size_t cols_ = 0;
 
-        std::vector<vector_t> data_;
     };
 
 } // namespace utils

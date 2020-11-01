@@ -2,7 +2,7 @@
 
 namespace utils
 {
-    double compute_distance(const vector_t& p, const vector_t& q)
+    __device__ double compute_distance(const vector_t& p, const vector_t& q)
     {
         double X1 = p[0];
         double Y1 = p[1];
@@ -14,26 +14,26 @@ namespace utils
         return sqrt(pow(X2 - X1, 2) + pow(Y2 - Y1, 2) + pow(Z2 - Z1, 2) * 1.0);
     }
 
-    __device__ void get_nearest_neighbors(const matrix_t& P, const matrix_t& Q, matrix_t& res)
+    __global__ void get_nearest_neighbors(matrix_t& P, matrix_t& Q, matrix_t& res, int P_rows, int Q_rows)
     {
         /**
         GPU
         */
         int i = threadIdx.x;
-        if (i >= P.get_rows())
+        if (i >= P_rows
             return;
 
         float min_dist = MAXFLOAT;
         vector_t chosen;
-        for (size_t ind = 0; ind < Q.get_rows(); ind++)
+        for (int ind = 0; ind < Q_rows; ind++)
         {
-            auto q_point = Q.get_row(ind);
-            auto dist = compute_distance(P.get_row(i), q_point);
-                if (dist < min_dist)
-                {
-                    min_dist = dist;
-                    chosen = q_point;
-                }
+            auto q_point = Q->data_[ind];
+            auto dist = compute_distance(P->data_[i], q_point);
+            if (dist < min_dist)
+            {
+                min_dist = dist;
+                chosen = q_point;
+            }
         }
         res.set_data(i, chosen);
 

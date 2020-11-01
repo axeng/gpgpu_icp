@@ -72,7 +72,7 @@ set(GPU_TEST_PARSER_SOURCES
 set(GPU_TEST_UTILS_SOURCES
         src/gpu_test/utils/utils.cu
         src/gpu_test/utils/lib-matrix.cu
-        src/gpu_test/utils/matrix.cc)
+        src/gpu_test/utils/matrix.cu)
 
 set(GPU_TEST_SOURCES
         ${GPU_TEST_ICP_SOURCES}

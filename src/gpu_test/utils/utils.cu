@@ -20,7 +20,7 @@ namespace utils
         GPU
         */
         int i = threadIdx.x;
-        if (i >= P_rows
+        if (i >= P_rows)
             return;
 
         float min_dist = MAXFLOAT;

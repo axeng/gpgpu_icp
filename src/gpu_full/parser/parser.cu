@@ -2,7 +2,7 @@
 
 #include "gpu_full/utils/utils.hh"
 
-namespace parser
+namespace gpu_full::parser
 {
     bool parse_file(const std::string& path, matrix_host_t& point_list)
     {

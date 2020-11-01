@@ -106,8 +106,9 @@ set(GPU_FULL_EXEC_SOURCES
 
 # Benchmarking Sources
 set(BENCH_SOURCES
-        bench/main.cc
-        ${CPU_SOURCES})
+        bench/main.cu
+        ${CPU_SOURCES}
+        ${CPU_FULL_SOURCES})
 
 # Unit Tests
 set(UNIT_TESTS_SOURCES

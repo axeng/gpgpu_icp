@@ -8,7 +8,7 @@
 #include "cpu/parser/parser.hh"
 #include "cpu/utils/matrix.hh"
 
-namespace utils
+namespace cpu::utils
 {
     using value_t = Matrix::value_t;
     using vector_t = Matrix::vector_t;

@@ -6,7 +6,7 @@
 #include <tuple>
 #include <vector>
 
-namespace parser
+namespace gpu_full::parser
 {
     using value_t = double;
     using vector_host_t = std::vector<value_t>;

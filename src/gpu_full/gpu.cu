@@ -12,25 +12,25 @@ int main(int argc, char* argv[])
     }
 
 
-    parser::matrix_host_t A;
-    bool ret = parser::parse_file(argv[1], A);
+    gpu_full::parser::matrix_host_t A;
+    bool ret = gpu_full::parser::parse_file(argv[1], A);
     if (!ret)
     {
         std::cerr << "[ERROR] Parse A" << std::endl;
         return 1;
     }
 
-    parser::matrix_host_t B;
-    ret = parser::parse_file(argv[2], B);
+    gpu_full::parser::matrix_host_t B;
+    ret = gpu_full::parser::parse_file(argv[2], B);
     if (!ret)
     {
         std::cerr << "[ERROR] Parse A" << std::endl;
         return 1;
     }
 
-    parser::matrix_host_t newP;
+    gpu_full::parser::matrix_host_t newP;
     double error = 0;
-    icp::icp_gpu(A, B, newP, error, true);
+    gpu_full::icp::icp_gpu(A, B, newP, error, true);
 
     return 0;
 }

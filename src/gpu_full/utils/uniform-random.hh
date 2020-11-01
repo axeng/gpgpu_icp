@@ -7,7 +7,7 @@
 
 #include <random>
 
-namespace utils
+namespace gpu_full::utils
 {
     /// Uniform Distribution Random real number generator
     template <typename T>

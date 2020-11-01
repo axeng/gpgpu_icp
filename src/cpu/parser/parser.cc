@@ -2,7 +2,7 @@
 
 #include "cpu/utils/utils.hh"
 
-namespace parser
+namespace cpu::parser
 {
     bool parse_file(const std::string& path, matrix_t& point_list)
     {

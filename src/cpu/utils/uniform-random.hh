@@ -7,7 +7,7 @@
 
 #include <random>
 
-namespace utils
+namespace cpu::utils
 {
     /// Uniform Distribution Random real number generator
     template <typename T>

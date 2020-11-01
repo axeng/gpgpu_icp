@@ -4,7 +4,7 @@
 #include "gpu_full/icp/icp.hh"
 #include "gpu_full/utils/uniform-random.hh"
 
-namespace icp
+namespace gpu_full::icp
 {
     std::size_t icp_gpu(const matrix_host_t& M_host /*dst*/,
                         const matrix_host_t& P_host /*src*/,

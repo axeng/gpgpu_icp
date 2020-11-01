@@ -5,10 +5,14 @@
 #include <tuple>
 #include <vector>
 
-#include "gpu_full/parser/parser.hh"
 #include "gpu_full/utils/matrix.hh"
+#include "gpu_full/parser/parser.hh"
 
-namespace utils
+#define MAX_CUDA_THREADS 1024
+#define MAX_CUDA_THREADS_X 32
+#define MAX_CUDA_THREADS_Y 32
+
+namespace gpu_full::utils
 {
 #define abortError(msg) utils::_abortError(msg, __FUNCTION__, __LINE__)
     void _abortError(const char* msg, const char* fname, int line);
@@ -28,6 +32,4 @@ namespace utils
     void string_split(std::string str, const std::string& delimiter, std::vector<std::string>& words);
 
     value_t* host_matrix_to_ptr(const matrix_host_t& host_matrix);
-
-    cudaDeviceProp get_cuda_properties(int dev_id = 0);
 } // namespace utils

@@ -3,7 +3,7 @@
 #include "matrix.hh"
 #include "utils.hh"
 
-namespace utils
+namespace gpu_full::utils
 {
     [[gnu::noinline]] void _abortError(const char* msg, const char* fname, int line)
     {
@@ -15,12 +15,10 @@ namespace utils
 
     void get_nearest_neighbors(const matrix_device_t& P, const matrix_device_t& Q, matrix_device_t& res)
     {
-        auto deviceProp = utils::get_cuda_properties();
-
-        int xThreads = deviceProp.maxThreadsDim[0];
+        int xThreads = MAX_CUDA_THREADS;
         dim3 dim_block(xThreads);
 
-        int xBlocks = (int) ceil((double)P.rows_ / xThreads);
+        int xBlocks = (int)ceil((double)P.rows_ / xThreads);
         dim3 dim_grid(xBlocks);
 
         get_nearest_neighbors_cuda<<<dim_grid, dim_block>>>(
@@ -73,11 +71,4 @@ namespace utils
 
         return ptr;
     }
-
-    cudaDeviceProp get_cuda_properties(int dev_id)
-    {
-        cudaDeviceProp device_prop;
-        cudaGetDeviceProperties(&device_prop, dev_id);
-        return device_prop;
-    }
-} // namespace utils
+} // namespace gpu_full::utils

@@ -5,7 +5,7 @@
 
 #include "gpu_full/parser/parser.hh"
 
-namespace utils
+namespace gpu_full::utils
 {
     class Matrix
     {

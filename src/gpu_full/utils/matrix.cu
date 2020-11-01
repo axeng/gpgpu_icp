@@ -5,7 +5,7 @@
 #include "matrix.hh"
 #include "utils.hh"
 
-namespace utils
+namespace gpu_full::utils
 {
     Matrix::Matrix(std::size_t rows, std::size_t cols, value_t value)
         : rows_(rows)
@@ -38,7 +38,15 @@ namespace utils
                             std::size_t col_count,
                             matrix_device_t& result) const
     {
-        sub_matrix_cuda<<<1, 1>>>(
+        int xThreads = MAX_CUDA_THREADS_X;
+        int yThreads = MAX_CUDA_THREADS_Y;
+        dim3 dim_block(xThreads, yThreads);
+
+        int xBlocks = (int)ceil((double)row_count / xThreads);
+        int yBlocks = (int)ceil((double)col_count / yThreads);
+        dim3 dim_grid(xBlocks, yBlocks);
+
+        sub_matrix_cuda<<<dim_grid, dim_block>>>(
             this->data_, this->pitch_, starting_row, starting_col, row_count, col_count, result.data_, result.pitch_);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
@@ -49,7 +57,15 @@ namespace utils
 
     void Matrix::matrix_transpose(matrix_device_t& result) const
     {
-        matrix_transpose_cuda<<<1, 1>>>(
+        int xThreads = MAX_CUDA_THREADS_X;
+        int yThreads = MAX_CUDA_THREADS_Y;
+        dim3 dim_block(xThreads, yThreads);
+
+        int xBlocks = (int)ceil((double)this->cols_ / xThreads);
+        int yBlocks = (int)ceil((double)this->rows_ / yThreads);
+        dim3 dim_grid(xBlocks, yBlocks);
+
+        matrix_transpose_cuda<<<dim_grid, dim_block>>>(
             this->data_, this->pitch_, this->rows_, this->cols_, result.data_, result.pitch_);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
@@ -93,7 +109,15 @@ namespace utils
 
     void Matrix::matrix_subtract_vector(const matrix_device_t& vector, matrix_device_t& result) const
     {
-        matrix_subtract_vector_cuda<<<1, 1>>>(this->data_,
+        int xThreads = MAX_CUDA_THREADS_X;
+        int yThreads = MAX_CUDA_THREADS_Y;
+        dim3 dim_block(xThreads, yThreads);
+
+        int xBlocks = (int)ceil((double)this->rows_ / xThreads);
+        int yBlocks = (int)ceil((double)this->cols_ / yThreads);
+        dim3 dim_grid(xBlocks, yBlocks);
+
+        matrix_subtract_vector_cuda<<<dim_grid, dim_block>>>(this->data_,
                                               this->pitch_,
                                               this->rows_,
                                               this->cols_,
@@ -110,7 +134,15 @@ namespace utils
 
     void Matrix::matrix_add_vector(const matrix_device_t& vector, matrix_device_t& result) const
     {
-        matrix_add_vector_cuda<<<1, 1>>>(this->data_,
+        int xThreads = MAX_CUDA_THREADS_X;
+        int yThreads = MAX_CUDA_THREADS_Y;
+        dim3 dim_block(xThreads, yThreads);
+
+        int xBlocks = (int)ceil((double)this->rows_ / xThreads);
+        int yBlocks = (int)ceil((double)this->cols_ / yThreads);
+        dim3 dim_grid(xBlocks, yBlocks);
+
+        matrix_add_vector_cuda<<<dim_grid, dim_block>>>(this->data_,
                                          this->pitch_,
                                          this->rows_,
                                          this->cols_,
@@ -138,7 +170,15 @@ namespace utils
 
     void Matrix::multiply_by_scalar(double val, matrix_device_t& result) const
     {
-        multiply_by_scalar_cuda<<<1, 1>>>(
+        int xThreads = MAX_CUDA_THREADS_X;
+        int yThreads = MAX_CUDA_THREADS_Y;
+        dim3 dim_block(xThreads, yThreads);
+
+        int xBlocks = (int)ceil((double)this->rows_ / xThreads);
+        int yBlocks = (int)ceil((double)this->cols_ / yThreads);
+        dim3 dim_grid(xBlocks, yBlocks);
+
+        multiply_by_scalar_cuda<<<dim_grid, dim_block>>>(
             this->data_, this->pitch_, this->rows_, this->cols_, val, result.data_, result.pitch_);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())

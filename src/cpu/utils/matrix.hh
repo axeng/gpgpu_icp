@@ -4,7 +4,7 @@
 
 #include "uniform-random.hh"
 
-namespace utils
+namespace cpu::utils
 {
     class Matrix
     {

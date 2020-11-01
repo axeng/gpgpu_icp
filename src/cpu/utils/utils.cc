@@ -1,6 +1,6 @@
 #include "utils.hh"
 
-namespace utils
+namespace cpu::utils
 {
     double compute_distance(const vector_t& p, const vector_t& q)
     {

@@ -12,25 +12,25 @@ int main(int argc, char* argv[])
     }
 
 
-    parser::matrix_t A;
-    bool ret = parser::parse_file(argv[1], A);
+    cpu::parser::matrix_t A;
+    bool ret = cpu::parser::parse_file(argv[1], A);
     if (!ret)
     {
         std::cerr << "[ERROR] Parse A" << std::endl;
         return 1;
     }
 
-    parser::matrix_t B;
-    ret = parser::parse_file(argv[2], B);
+    cpu::parser::matrix_t B;
+    ret = cpu::parser::parse_file(argv[2], B);
     if (!ret)
     {
         std::cerr << "[ERROR] Parse A" << std::endl;
         return 1;
     }
 
-    parser::matrix_t newP;
+    cpu::parser::matrix_t newP;
     double error = 0;
-    icp::icp_cpu(A, B, newP, error, true);
+    cpu::icp::icp_cpu(A, B, newP, error, true);
 
     return 0;
 }

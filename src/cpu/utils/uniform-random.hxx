@@ -7,7 +7,7 @@
 
 #include "cpu/utils/uniform-random.hh"
 
-namespace utils
+namespace cpu::utils
 {
     template <typename T>
     UniformRandom<T>::UniformRandom(T minimum, T maximum)

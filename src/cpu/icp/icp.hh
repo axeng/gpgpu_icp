@@ -3,7 +3,7 @@
 #include "cpu/parser/parser.hh"
 #include "cpu/utils/utils.hh"
 
-namespace icp
+namespace cpu::icp
 {
     using value_t = utils::Matrix::value_t;
     using vector_t = utils::Matrix::vector_t;

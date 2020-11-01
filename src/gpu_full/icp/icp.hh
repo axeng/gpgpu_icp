@@ -1,9 +1,9 @@
 #pragma once
 
-#include "gpu_full/utils/utils.hh"
 #include "gpu_full/parser/parser.hh"
+#include "gpu_full/utils/utils.hh"
 
-namespace icp
+namespace gpu_full::icp
 {
     using value_t = utils::Matrix::value_t;
 

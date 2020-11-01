@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <iostream>
 
-namespace utils
+namespace cpu::utils
 {
     Matrix::Matrix(std::size_t rows, std::size_t cols, value_t value)
     {

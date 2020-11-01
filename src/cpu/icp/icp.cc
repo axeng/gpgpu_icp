@@ -7,7 +7,7 @@
 #include "cpu/utils/uniform-random.hh"
 #include "cpu/utils/utils.hh"
 
-namespace icp
+namespace cpu::icp
 {
     std::size_t icp_cpu(const matrix_t& M /*dst*/,
                         const matrix_t& P /*src*/,

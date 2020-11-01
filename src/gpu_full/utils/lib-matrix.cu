@@ -4,7 +4,7 @@
 #include "matrix.hh"
 #include "utils.hh"
 
-namespace utils
+namespace gpu_full::utils
 {
     __global__ void sub_matrix_cuda(const char* matrix_data,
                                     std::size_t matrix_pitch,
@@ -15,18 +15,18 @@ namespace utils
                                     char* result_data,
                                     std::size_t result_pitch)
     {
-        for (std::size_t row = 0; row < row_count; row++)
-        {
-            for (std::size_t col = 0; col < col_count; col++)
-            {
-                value_t* result_ptr;
-                const value_t* matrix_ptr;
-                get_val_ptr_cuda(result_data, result_pitch, row, col, &result_ptr);
-                get_val_ptr_const_cuda(matrix_data, matrix_pitch, row + starting_row, col + starting_col, &matrix_ptr);
+        std::size_t row = blockDim.x * blockIdx.x + threadIdx.x;
+        std::size_t col = blockDim.y * blockIdx.y + threadIdx.y;
 
-                *result_ptr = *matrix_ptr;
-            }
-        }
+        if (row >= row_count || col >= col_count)
+            return;
+
+        value_t* result_ptr;
+        const value_t* matrix_ptr;
+        get_val_ptr_cuda(result_data, result_pitch, row, col, &result_ptr);
+        get_val_ptr_const_cuda(matrix_data, matrix_pitch, row + starting_row, col + starting_col, &matrix_ptr);
+
+        *result_ptr = *matrix_ptr;
     }
 
     __global__ void matrix_transpose_cuda(const char* matrix_data,
@@ -36,18 +36,18 @@ namespace utils
                                           char* result_data,
                                           std::size_t result_pitch)
     {
-        for (std::size_t row = 0; row < matrix_cols; row++)
-        {
-            for (std::size_t col = 0; col < matrix_rows; col++)
-            {
-                value_t* result_ptr;
-                const value_t* matrix_ptr;
-                get_val_ptr_cuda(result_data, result_pitch, row, col, &result_ptr);
-                get_val_ptr_const_cuda(matrix_data, matrix_pitch, col, row, &matrix_ptr);
+        std::size_t row = blockDim.x * blockIdx.x + threadIdx.x;
+        std::size_t col = blockDim.y * blockIdx.y + threadIdx.y;
 
-                *result_ptr = *matrix_ptr;
-            }
-        }
+        if (row >= matrix_cols || col >= matrix_rows)
+            return;
+
+        value_t* result_ptr;
+        const value_t* matrix_ptr;
+        get_val_ptr_cuda(result_data, result_pitch, row, col, &result_ptr);
+        get_val_ptr_const_cuda(matrix_data, matrix_pitch, col, row, &matrix_ptr);
+
+        *result_ptr = *matrix_ptr;
     }
 
     __global__ void matrix_subtract_vector_cuda(const char* matrix_data,
@@ -59,20 +59,20 @@ namespace utils
                                                 char* result_data,
                                                 std::size_t result_pitch)
     {
-        for (std::size_t row = 0; row < matrix_rows; row++)
-        {
-            for (std::size_t col = 0; col < matrix_cols; col++)
-            {
-                value_t* result_ptr;
-                const value_t* matrix_ptr;
-                const value_t* vector_ptr;
-                get_val_ptr_cuda(result_data, result_pitch, row, col, &result_ptr);
-                get_val_ptr_const_cuda(matrix_data, matrix_pitch, row, col, &matrix_ptr);
-                get_val_ptr_const_cuda(vector_data, vector_pitch, 0, col, &vector_ptr);
+        std::size_t row = blockDim.x * blockIdx.x + threadIdx.x;
+        std::size_t col = blockDim.y * blockIdx.y + threadIdx.y;
 
-                *result_ptr = *matrix_ptr - *vector_ptr;
-            }
-        }
+        if (row >= matrix_rows || col >= matrix_cols)
+            return;
+
+        value_t* result_ptr;
+        const value_t* matrix_ptr;
+        const value_t* vector_ptr;
+        get_val_ptr_cuda(result_data, result_pitch, row, col, &result_ptr);
+        get_val_ptr_const_cuda(matrix_data, matrix_pitch, row, col, &matrix_ptr);
+        get_val_ptr_const_cuda(vector_data, vector_pitch, 0, col, &vector_ptr);
+
+        *result_ptr = *matrix_ptr - *vector_ptr;
     }
 
     __global__ void matrix_add_vector_cuda(const char* matrix_data,
@@ -84,20 +84,20 @@ namespace utils
                                            char* result_data,
                                            std::size_t result_pitch)
     {
-        for (std::size_t row = 0; row < matrix_rows; row++)
-        {
-            for (std::size_t col = 0; col < matrix_cols; col++)
-            {
-                value_t* result_ptr;
-                const value_t* matrix_ptr;
-                const value_t* vector_ptr;
-                get_val_ptr_cuda(result_data, result_pitch, row, col, &result_ptr);
-                get_val_ptr_const_cuda(matrix_data, matrix_pitch, row, col, &matrix_ptr);
-                get_val_ptr_const_cuda(vector_data, vector_pitch, 0, col, &vector_ptr);
+        std::size_t row = blockDim.x * blockIdx.x + threadIdx.x;
+        std::size_t col = blockDim.y * blockIdx.y + threadIdx.y;
 
-                *result_ptr = *matrix_ptr + *vector_ptr;
-            }
-        }
+        if (row >= matrix_rows || col >= matrix_cols)
+            return;
+
+        value_t* result_ptr;
+        const value_t* matrix_ptr;
+        const value_t* vector_ptr;
+        get_val_ptr_cuda(result_data, result_pitch, row, col, &result_ptr);
+        get_val_ptr_const_cuda(matrix_data, matrix_pitch, row, col, &matrix_ptr);
+        get_val_ptr_const_cuda(vector_data, vector_pitch, 0, col, &vector_ptr);
+
+        *result_ptr = *matrix_ptr + *vector_ptr;
     }
 
     __global__ void multiply_by_scalar_cuda(const char* matrix_data,
@@ -108,18 +108,18 @@ namespace utils
                                             char* result_data,
                                             std::size_t result_pitch)
     {
-        for (std::size_t row = 0; row < matrix_rows; row++)
-        {
-            for (std::size_t col = 0; col < matrix_cols; col++)
-            {
-                value_t* result_ptr;
-                const value_t* matrix_ptr;
-                get_val_ptr_cuda(result_data, result_pitch, row, col, &result_ptr);
-                get_val_ptr_const_cuda(matrix_data, matrix_pitch, row, col, &matrix_ptr);
+        std::size_t row = blockDim.x * blockIdx.x + threadIdx.x;
+        std::size_t col = blockDim.y * blockIdx.y + threadIdx.y;
 
-                *result_ptr = *matrix_ptr * val;
-            }
-        }
+        if (row >= matrix_rows || col >= matrix_cols)
+            return;
+
+        value_t* result_ptr;
+        const value_t* matrix_ptr;
+        get_val_ptr_cuda(result_data, result_pitch, row, col, &result_ptr);
+        get_val_ptr_const_cuda(matrix_data, matrix_pitch, row, col, &matrix_ptr);
+
+        *result_ptr = *matrix_ptr * val;
     }
 
     __global__ void matrix_dot_product_cuda(const char* lhs_data,
@@ -133,30 +133,25 @@ namespace utils
                                             char* result_data,
                                             std::size_t result_pitch)
     {
-        std::size_t row_count = lhs_rows;
-        std::size_t col_count = rhs_cols;
+        std::size_t row = blockDim.x * blockIdx.x + threadIdx.x;
+        std::size_t col = blockDim.y * blockIdx.y + threadIdx.y;
 
-        std::size_t common_dim = lhs_cols;
+        if (row >= lhs_rows || col >= rhs_cols)
+            return;
 
-        for (std::size_t row = 0; row < row_count; row++)
+        value_t* result_ptr;
+        get_val_ptr_cuda(result_data, result_pitch, row, col, &result_ptr);
+
+        *result_ptr = 0;
+
+        for (std::size_t k = 0; k < lhs_cols; k++)
         {
-            for (std::size_t col = 0; col < col_count; col++)
-            {
-                value_t* result_ptr;
-                get_val_ptr_cuda(result_data, result_pitch, row, col, &result_ptr);
+            const value_t* lhs_ptr;
+            const value_t* rhs_ptr;
+            get_val_ptr_const_cuda(lhs_data, lhs_pitch, row, k, &lhs_ptr);
+            get_val_ptr_const_cuda(rhs_data, rhs_pitch, k, col, &rhs_ptr);
 
-                *result_ptr = 0;
-
-                for (std::size_t k = 0; k < common_dim; k++)
-                {
-                    const value_t* lhs_ptr;
-                    const value_t* rhs_ptr;
-                    get_val_ptr_const_cuda(lhs_data, lhs_pitch, row, k, &lhs_ptr);
-                    get_val_ptr_const_cuda(rhs_data, rhs_pitch, k, col, &rhs_ptr);
-
-                    *result_ptr += *lhs_ptr * *rhs_ptr;
-                }
-            }
+            *result_ptr += *lhs_ptr * *rhs_ptr;
         }
     }
 
@@ -171,17 +166,19 @@ namespace utils
                                                             char* result_data,
                                                             std::size_t result_pitch)
     {
-        for (std::size_t i = 0; i < lhs_cols; i++)
-        {
-            value_t* result_ptr;
-            const value_t* lhs_ptr;
-            const value_t* rhs_ptr;
-            get_val_ptr_cuda(result_data, result_pitch, 0, i, &result_ptr);
-            get_val_ptr_const_cuda(lhs_data, lhs_pitch, lhs_row, i, &lhs_ptr);
-            get_val_ptr_const_cuda(rhs_data, rhs_pitch, rhs_row, i, &rhs_ptr);
+        std::size_t i = blockDim.x * blockIdx.x + threadIdx.x;
 
-            *result_ptr = *lhs_ptr * *rhs_ptr;
-        }
+        if (i >= lhs_cols)
+            return;
+
+        value_t* result_ptr;
+        const value_t* lhs_ptr;
+        const value_t* rhs_ptr;
+        get_val_ptr_cuda(result_data, result_pitch, 0, i, &result_ptr);
+        get_val_ptr_const_cuda(lhs_data, lhs_pitch, lhs_row, i, &lhs_ptr);
+        get_val_ptr_const_cuda(rhs_data, rhs_pitch, rhs_row, i, &rhs_ptr);
+
+        *result_ptr = *lhs_ptr * *rhs_ptr;
     }
 
     __global__ void matrix_subtract_cuda(const char* lhs_data,
@@ -195,20 +192,20 @@ namespace utils
                                          char* result_data,
                                          std::size_t result_pitch)
     {
-        for (std::size_t row = 0; row < lhs_rows; row++)
-        {
-            for (std::size_t col = 0; col < lhs_cols; col++)
-            {
-                value_t* result_ptr;
-                const value_t* lhs_ptr;
-                const value_t* rhs_ptr;
-                get_val_ptr_cuda(result_data, result_pitch, row, col, &result_ptr);
-                get_val_ptr_const_cuda(lhs_data, lhs_pitch, row, col, &lhs_ptr);
-                get_val_ptr_const_cuda(rhs_data, rhs_pitch, row, col, &rhs_ptr);
+        std::size_t row = blockDim.x * blockIdx.x + threadIdx.x;
+        std::size_t col = blockDim.y * blockIdx.y + threadIdx.y;
 
-                *result_ptr = *lhs_ptr - *rhs_ptr;
-            }
-        }
+        if (row >= lhs_rows || col >= rhs_cols)
+            return;
+
+        value_t* result_ptr;
+        const value_t* lhs_ptr;
+        const value_t* rhs_ptr;
+        get_val_ptr_cuda(result_data, result_pitch, row, col, &result_ptr);
+        get_val_ptr_const_cuda(lhs_data, lhs_pitch, row, col, &lhs_ptr);
+        get_val_ptr_const_cuda(rhs_data, rhs_pitch, row, col, &rhs_ptr);
+
+        *result_ptr = *lhs_ptr - *rhs_ptr;
     }
 
     __global__ void
@@ -485,16 +482,24 @@ namespace utils
 
     void matrix_dot_product(const matrix_device_t& lhs, const matrix_device_t& rhs, matrix_device_t& result)
     {
-        matrix_dot_product_cuda<<<1, 1>>>(lhs.data_,
-                                          lhs.pitch_,
-                                          lhs.rows_,
-                                          lhs.cols_,
-                                          rhs.data_,
-                                          rhs.pitch_,
-                                          rhs.rows_,
-                                          rhs.cols_,
-                                          result.data_,
-                                          result.pitch_);
+        int xThreads = sqrt(MAX_CUDA_THREADS);
+        int yThreads = sqrt(MAX_CUDA_THREADS);
+        dim3 dim_block(xThreads, yThreads);
+
+        int xBlocks = (int)ceil((double)lhs.rows_ / xThreads);
+        int yBlocks = (int)ceil((double)rhs.cols_ / yThreads);
+        dim3 dim_grid(xBlocks, yBlocks);
+
+        matrix_dot_product_cuda<<<dim_grid, dim_block>>>(lhs.data_,
+                                                         lhs.pitch_,
+                                                         lhs.rows_,
+                                                         lhs.cols_,
+                                                         rhs.data_,
+                                                         rhs.pitch_,
+                                                         rhs.rows_,
+                                                         rhs.cols_,
+                                                         result.data_,
+                                                         result.pitch_);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
         {
@@ -508,16 +513,22 @@ namespace utils
                                             std::size_t rhs_row,
                                             matrix_device_t& result)
     {
-        vector_element_wise_multiplication_cuda<<<1, 1>>>(lhs.data_,
-                                                          lhs.pitch_,
-                                                          lhs.cols_,
-                                                          lhs_row,
-                                                          rhs.data_,
-                                                          rhs.pitch_,
-                                                          rhs.cols_,
-                                                          rhs_row,
-                                                          result.data_,
-                                                          result.pitch_);
+        int xThreads = MAX_CUDA_THREADS;
+        dim3 dim_block(xThreads);
+
+        int xBlocks = (int)ceil((double)lhs.cols_ / xThreads);
+        dim3 dim_grid(xBlocks);
+
+        vector_element_wise_multiplication_cuda<<<dim_grid, dim_block>>>(lhs.data_,
+                                                                         lhs.pitch_,
+                                                                         lhs.cols_,
+                                                                         lhs_row,
+                                                                         rhs.data_,
+                                                                         rhs.pitch_,
+                                                                         rhs.cols_,
+                                                                         rhs_row,
+                                                                         result.data_,
+                                                                         result.pitch_);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
         {
@@ -560,16 +571,24 @@ namespace utils
 
     void matrix_subtract(const matrix_device_t& lhs, const matrix_device_t& rhs, matrix_device_t& result)
     {
-        matrix_subtract_cuda<<<1, 1>>>(lhs.data_,
-                                       lhs.pitch_,
-                                       lhs.rows_,
-                                       lhs.cols_,
-                                       rhs.data_,
-                                       rhs.pitch_,
-                                       rhs.rows_,
-                                       rhs.cols_,
-                                       result.data_,
-                                       result.pitch_);
+        int xThreads = sqrt(MAX_CUDA_THREADS);
+        int yThreads = sqrt(MAX_CUDA_THREADS);
+        dim3 dim_block(xThreads, yThreads);
+
+        int xBlocks = (int)ceil((double)lhs.rows_ / xThreads);
+        int yBlocks = (int)ceil((double)lhs.cols_ / yThreads);
+        dim3 dim_grid(xBlocks, yBlocks);
+
+        matrix_subtract_cuda<<<dim_grid, dim_block>>>(lhs.data_,
+                                                      lhs.pitch_,
+                                                      lhs.rows_,
+                                                      lhs.cols_,
+                                                      rhs.data_,
+                                                      rhs.pitch_,
+                                                      rhs.rows_,
+                                                      rhs.cols_,
+                                                      result.data_,
+                                                      result.pitch_);
         cudaDeviceSynchronize();
         if (cudaPeekAtLastError())
         {
@@ -592,4 +611,4 @@ namespace utils
         return (value_t*)((data + row * pitch) + col * sizeof(value_t));
     }
 
-} // namespace utils
+} // namespace gpu_full::utils

@@ -42,8 +42,8 @@ namespace gpu_full::utils
         int yThreads = MAX_CUDA_THREADS_Y;
         dim3 dim_block(xThreads, yThreads);
 
-        int xBlocks = (int)ceil((double)row_count / xThreads);
-        int yBlocks = (int)ceil((double)col_count / yThreads);
+        int xBlocks = (int)ceil((float)row_count / xThreads);
+        int yBlocks = (int)ceil((float)col_count / yThreads);
         dim3 dim_grid(xBlocks, yBlocks);
 
         sub_matrix_cuda<<<dim_grid, dim_block>>>(
@@ -61,8 +61,8 @@ namespace gpu_full::utils
         int yThreads = MAX_CUDA_THREADS_Y;
         dim3 dim_block(xThreads, yThreads);
 
-        int xBlocks = (int)ceil((double)this->cols_ / xThreads);
-        int yBlocks = (int)ceil((double)this->rows_ / yThreads);
+        int xBlocks = (int)ceil((float)this->cols_ / xThreads);
+        int yBlocks = (int)ceil((float)this->rows_ / yThreads);
         dim3 dim_grid(xBlocks, yBlocks);
 
         matrix_transpose_cuda<<<dim_grid, dim_block>>>(
@@ -74,11 +74,11 @@ namespace gpu_full::utils
         }
     }
 
-    double Matrix::matrix_norm_2() const
+    float Matrix::matrix_norm_2() const
     {
-        double *norm_device;
+        float *norm_device;
         cudaError_t rc = cudaSuccess;
-        rc = cudaMalloc(&norm_device, sizeof(double));
+        rc = cudaMalloc(&norm_device, sizeof(float));
         if (rc)
         {
             abortError("Fail buffer allocation");
@@ -91,8 +91,8 @@ namespace gpu_full::utils
             abortError("Computation Error");
         }
 
-        double norm_host;
-        rc = cudaMemcpy(&norm_host, norm_device, sizeof(double), cudaMemcpyDeviceToHost);
+        float norm_host;
+        rc = cudaMemcpy(&norm_host, norm_device, sizeof(float), cudaMemcpyDeviceToHost);
         if (rc)
         {
             abortError("Fail buffer copy");
@@ -113,8 +113,8 @@ namespace gpu_full::utils
         int yThreads = MAX_CUDA_THREADS_Y;
         dim3 dim_block(xThreads, yThreads);
 
-        int xBlocks = (int)ceil((double)this->rows_ / xThreads);
-        int yBlocks = (int)ceil((double)this->cols_ / yThreads);
+        int xBlocks = (int)ceil((float)this->rows_ / xThreads);
+        int yBlocks = (int)ceil((float)this->cols_ / yThreads);
         dim3 dim_grid(xBlocks, yBlocks);
 
         matrix_subtract_vector_cuda<<<dim_grid, dim_block>>>(this->data_,
@@ -138,8 +138,8 @@ namespace gpu_full::utils
         int yThreads = MAX_CUDA_THREADS_Y;
         dim3 dim_block(xThreads, yThreads);
 
-        int xBlocks = (int)ceil((double)this->rows_ / xThreads);
-        int yBlocks = (int)ceil((double)this->cols_ / yThreads);
+        int xBlocks = (int)ceil((float)this->rows_ / xThreads);
+        int yBlocks = (int)ceil((float)this->cols_ / yThreads);
         dim3 dim_grid(xBlocks, yBlocks);
 
         matrix_add_vector_cuda<<<dim_grid, dim_block>>>(this->data_,
@@ -168,14 +168,14 @@ namespace gpu_full::utils
         }
     }
 
-    void Matrix::multiply_by_scalar(double val, matrix_device_t& result) const
+    void Matrix::multiply_by_scalar(float val, matrix_device_t& result) const
     {
         int xThreads = MAX_CUDA_THREADS_X;
         int yThreads = MAX_CUDA_THREADS_Y;
         dim3 dim_block(xThreads, yThreads);
 
-        int xBlocks = (int)ceil((double)this->rows_ / xThreads);
-        int yBlocks = (int)ceil((double)this->cols_ / yThreads);
+        int xBlocks = (int)ceil((float)this->rows_ / xThreads);
+        int yBlocks = (int)ceil((float)this->cols_ / yThreads);
         dim3 dim_grid(xBlocks, yBlocks);
 
         multiply_by_scalar_cuda<<<dim_grid, dim_block>>>(
@@ -187,11 +187,11 @@ namespace gpu_full::utils
         }
     }
 
-    double Matrix::matrix_diag_sum() const
+    float Matrix::matrix_diag_sum() const
     {
-        double *sum_device;
+        float *sum_device;
         cudaError_t rc = cudaSuccess;
-        rc = cudaMalloc(&sum_device, sizeof(double));
+        rc = cudaMalloc(&sum_device, sizeof(float));
         if (rc)
         {
             abortError("Fail buffer allocation");
@@ -204,8 +204,8 @@ namespace gpu_full::utils
             abortError("Computation Error");
         }
 
-        double sum_host;
-        rc = cudaMemcpy(&sum_host, sum_device, sizeof(double), cudaMemcpyDeviceToHost);
+        float sum_host;
+        rc = cudaMemcpy(&sum_host, sum_device, sizeof(float), cudaMemcpyDeviceToHost);
         if (rc)
         {
             abortError("Fail buffer copy");
@@ -257,7 +257,7 @@ namespace gpu_full::utils
             abortError("Computation Error");
         }
 
-        double val_host;
+        float val_host;
         rc = cudaMemcpy(&val_host, val_device, sizeof(value_t), cudaMemcpyDeviceToHost);
         if (rc)
         {

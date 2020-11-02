@@ -13,12 +13,12 @@ namespace gpu_full::utils
         std::exit(1);
     }
 
-    void get_nearest_neighbors(const matrix_device_t& P, const matrix_device_t& Q, matrix_device_t& res)
+    void get_nearest_neighbors_cuda(const matrix_device_t& P, const matrix_device_t& Q, matrix_device_t& res)
     {
         int xThreads = MAX_CUDA_THREADS;
         dim3 dim_block(xThreads);
 
-        int xBlocks = (int)ceil((double)P.rows_ / xThreads);
+        int xBlocks = (int)ceil((float)P.rows_ / xThreads);
         dim3 dim_grid(xBlocks);
 
         get_nearest_neighbors_cuda<<<dim_grid, dim_block>>>(
@@ -30,7 +30,7 @@ namespace gpu_full::utils
         }
     }
 
-    void save_result(std::size_t iteration, double error)
+    void save_result(std::size_t iteration, float error)
     {
         std::ofstream file;
         // FIXME append mode

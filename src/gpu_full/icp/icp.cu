@@ -9,10 +9,10 @@ namespace gpu_full::icp
     std::size_t icp_gpu(const matrix_host_t& M_host /*dst*/,
                         const matrix_host_t& P_host /*src*/,
                         matrix_host_t&,
-                        double& err,
+                        float& err,
                         bool verbose,
                         std::size_t max_iterations,
-                        double threshold,
+                        float threshold,
                         std::size_t power_iteration_simulations)
     {
         matrix_device_t M(M_host.size(), M_host[0].size());
@@ -66,7 +66,7 @@ namespace gpu_full::icp
         // Find Correspondences
         matrix_device_t Y(newP.rows_, newP.cols_);
 
-        double scaling_factor = 0.0; // s
+        float scaling_factor = 0.0; // s
         matrix_device_t rotation_matrix(3, 3); // R
         matrix_device_t translation_matrix(1, 3); // t
 
@@ -84,7 +84,7 @@ namespace gpu_full::icp
                           << "Iteration: " << iteration << std::endl;
             }
 
-            utils::get_nearest_neighbors(newP, M, Y);
+            utils::get_nearest_neighbors_cuda(newP, M, Y);
 
             // ----------------------------------------
             // Find Alignment
@@ -119,7 +119,7 @@ namespace gpu_full::icp
 
     bool find_alignment(const matrix_device_t& P,
                         const matrix_device_t& Y,
-                        double& s,
+                        float& s,
                         matrix_device_t& R,
                         matrix_device_t& t,
                         std::size_t power_iteration_simulations)
@@ -172,33 +172,33 @@ namespace gpu_full::icp
 
         matrix_device_t xx(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 0, Yprime_T, 0, xx);
-        double Sxx = utils::vector_sum(xx);
+        float Sxx = utils::vector_sum(xx);
         matrix_device_t xy(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 0, Yprime_T, 1, xy);
-        double Sxy = utils::vector_sum(xy);
+        float Sxy = utils::vector_sum(xy);
         matrix_device_t xz(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 0, Yprime_T, 2, xz);
-        double Sxz = utils::vector_sum(xz);
+        float Sxz = utils::vector_sum(xz);
 
         matrix_device_t yx(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 1, Yprime_T, 0, yx);
-        double Syx = utils::vector_sum(yx);
+        float Syx = utils::vector_sum(yx);
         matrix_device_t yy(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 1, Yprime_T, 1, yy);
-        double Syy = utils::vector_sum(yy);
+        float Syy = utils::vector_sum(yy);
         matrix_device_t yz(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 1, Yprime_T, 2, yz);
-        double Syz = utils::vector_sum(yz);
+        float Syz = utils::vector_sum(yz);
 
         matrix_device_t zx(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 2, Yprime_T, 0, zx);
-        double Szx = utils::vector_sum(zx);
+        float Szx = utils::vector_sum(zx);
         matrix_device_t zy(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 2, Yprime_T, 1, zy);
-        double Szy = utils::vector_sum(zy);
+        float Szy = utils::vector_sum(zy);
         matrix_device_t zz(1, Pprime_T.cols_);
         utils::vector_element_wise_multiplication(Pprime_T, 2, Yprime_T, 2, zz);
-        double Szz = utils::vector_sum(zz);
+        float Szz = utils::vector_sum(zz);
 
         matrix_device_t Nmatrix(4, 4);
         Nmatrix.set_val(0, 0, Sxx + Syy + Szz);
@@ -219,10 +219,10 @@ namespace gpu_full::icp
         Nmatrix.set_val(3, 3, Szz - Syy - Sxx);
 
         /*
-        Nmatrix.copy_line(std::initializer_list<double>{Sxx + Syy + Szz, -Szy + Syz, Szx - Sxz, -Syx + Sxy}, 0);
-        Nmatrix.copy_line(std::initializer_list<double>{Syz - Szy, Sxx - Szz - Syy, Syx + Sxy, Szx + Sxz}, 1);
-        Nmatrix.copy_line(std::initializer_list<double>{-Sxz + Szx, Sxy + Syx, Syy - Szz - Sxx, Szy + Syz}, 2);
-        Nmatrix.copy_line(std::initializer_list<double>{Sxy - Syx, Sxz + Szx, Syz + Szy, Szz - Syy - Sxx}, 3);
+        Nmatrix.copy_line(std::initializer_list<float>{Sxx + Syy + Szz, -Szy + Syz, Szx - Sxz, -Syx + Sxy}, 0);
+        Nmatrix.copy_line(std::initializer_list<float>{Syz - Szy, Sxx - Szz - Syy, Syx + Sxy, Szx + Sxz}, 1);
+        Nmatrix.copy_line(std::initializer_list<float>{-Sxz + Szx, Sxy + Syx, Syy - Szz - Sxx, Szy + Syz}, 2);
+        Nmatrix.copy_line(std::initializer_list<float>{Sxy - Syx, Sxz + Szx, Syz + Szy, Szz - Syy - Sxx}, 3);
          */
 
         matrix_device_t q(Nmatrix.cols_, 1);
@@ -235,22 +235,22 @@ namespace gpu_full::icp
         utils::compute_rotation_matrix(q, Qbar_T, Q);
 
         /*
-        double q0 = q.at(0, 0);
-        double q1 = q.at(1, 0);
-        double q2 = q.at(2, 0);
-        double q3 = q.at(3, 0);
+        float q0 = q.at(0, 0);
+        float q1 = q.at(1, 0);
+        float q2 = q.at(2, 0);
+        float q3 = q.at(3, 0);
 
         matrix_device_t Qbar_T(4, 4);
-        Qbar_T.copy_line(std::initializer_list<double>{q0, q1, q2, q3}, 0);
-        Qbar_T.copy_line(std::initializer_list<double>{-q1, q0, q3, -q2}, 1);
-        Qbar_T.copy_line(std::initializer_list<double>{-q2, -q3, q0, q1}, 2);
-        Qbar_T.copy_line(std::initializer_list<double>{-q3, q2, -q1, q0}, 3);
+        Qbar_T.copy_line(std::initializer_list<float>{q0, q1, q2, q3}, 0);
+        Qbar_T.copy_line(std::initializer_list<float>{-q1, q0, q3, -q2}, 1);
+        Qbar_T.copy_line(std::initializer_list<float>{-q2, -q3, q0, q1}, 2);
+        Qbar_T.copy_line(std::initializer_list<float>{-q3, q2, -q1, q0}, 3);
 
         matrix_device_t Q(4, 4);
-        Q.copy_line(std::initializer_list<double>{q0, -q1, -q2, -q3}, 0);
-        Q.copy_line(std::initializer_list<double>{q1, q0, q3, -q2}, 1);
-        Q.copy_line(std::initializer_list<double>{q2, -q3, q0, q1}, 2);
-        Q.copy_line(std::initializer_list<double>{q3, q2, -q1, q0}, 3);
+        Q.copy_line(std::initializer_list<float>{q0, -q1, -q2, -q3}, 0);
+        Q.copy_line(std::initializer_list<float>{q1, q0, q3, -q2}, 1);
+        Q.copy_line(std::initializer_list<float>{q2, -q3, q0, q1}, 2);
+        Q.copy_line(std::initializer_list<float>{q3, q2, -q1, q0}, 3);
          */
 
         matrix_device_t R_full(Qbar_T.rows_, Q.cols_);
@@ -263,8 +263,8 @@ namespace gpu_full::icp
 
         // ----------------------------------------
         // Scaling factor computation
-        double Sp = 0.0;
-        double D = 0.0;
+        float Sp = 0.0;
+        float D = 0.0;
 
         matrix_device_t dot_product(1, 1);
 
@@ -323,7 +323,7 @@ namespace gpu_full::icp
     void power_iteration(const matrix_device_t& A, matrix_device_t& eigen_vector, std::size_t num_simulations)
     {
         vector_host_t vector(A.cols_);
-        std::generate_n(vector.begin(), A.cols_, utils::UniformRandom<double>(0.0, 1.1));
+        std::generate_n(vector.begin(), A.cols_, utils::UniformRandom<float>(0.0, 1.1));
         for (std::size_t i = 0; i < A.cols_; i++)
         {
             eigen_vector.set_val(i, 0, vector[i]);
@@ -335,7 +335,7 @@ namespace gpu_full::icp
         {
             utils::matrix_dot_product(A, eigen_vector, b_k1);
 
-            double b_k1_norm = b_k1.matrix_norm_2();
+            float b_k1_norm = b_k1.matrix_norm_2();
 
             for (std::size_t i = 0; i < eigen_vector.rows_; i++)
             {
@@ -345,7 +345,7 @@ namespace gpu_full::icp
     }
 
     void apply_alignment(const matrix_device_t& P,
-                         double s,
+                         float s,
                          const matrix_device_t& R,
                          const matrix_device_t& t,
                          matrix_device_t& newP)

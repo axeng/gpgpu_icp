@@ -15,15 +15,26 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-############### COMPILATION FLAGS ###############
+############# CXX COMPILATION FLAGS #############
 # General compilation flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic -std=c++17")
 
 # Debug compilation flags
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3 -lineinfo")
 
 # Release compilation flags
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -march=native -flto")
+#################################################
+
+############# CUDA COMPILATION FLAGS ############
+# General compilation flags
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -std=c++17")
+
+# Debug compilation flags
+set(CMAKE_CUDA_FLAGS_DEBUG "${CMAKE_CUDA_FLAGS_DEBUG} -O0 -g3 -lineinfo")
+
+# Release compilation flags
+set(CMAKE_CUDA_FLAGS_RELEASE "${CMAKE_CUDA_FLAGS_RELEASE} -O3")
 #################################################
 
 ############### EXTERNAL LIBRARIES ##############
@@ -131,6 +142,8 @@ add_executable(${BENCH_TARGET} EXCLUDE_FROM_ALL ${BENCH_SOURCES})
 target_include_directories(bench PRIVATE bench)
 target_link_libraries(bench PRIVATE benchmark::benchmark)
 
+set_property(TARGET ${BENCH_TARGET} PROPERTY CUDA_ARCHITECTURES 70-real 72-virtual)
+set_property(TARGET ${GPU_FULL_TARGET} PROPERTY CUDA_ARCHITECTURES 70-real 72-virtual)
 set_property(TARGET ${GPU_TEST_TARGET} PROPERTY CUDA_ARCHITECTURES 70-real 72-virtual)
 
 ###############################################################################

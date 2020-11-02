@@ -8,7 +8,7 @@
 
 namespace gpu_full::parser
 {
-    using value_t = double;
+    using value_t = float;
     using vector_host_t = std::vector<value_t>;
     using matrix_host_t = std::vector<vector_host_t>;
 

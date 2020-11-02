@@ -10,7 +10,7 @@ namespace gpu_full::utils
     class Matrix
     {
     public:
-        using value_t = double;
+        using value_t = float;
         using matrix_device_t = Matrix;
 
         Matrix(std::size_t rows, std::size_t cols, value_t value = 0);
@@ -23,15 +23,15 @@ namespace gpu_full::utils
                         matrix_device_t& result) const;
         void matrix_transpose(matrix_device_t& result) const;
 
-        double matrix_norm_2() const;
+        float matrix_norm_2() const;
         void matrix_subtract_vector(const matrix_device_t& vector, matrix_device_t& result) const;
         void matrix_add_vector(const matrix_device_t& vector, matrix_device_t& result) const;
 
         void matrix_centroid(matrix_device_t& result) const;
 
-        void multiply_by_scalar(double val, matrix_device_t& result) const;
+        void multiply_by_scalar(float val, matrix_device_t& result) const;
 
-        double matrix_diag_sum() const;
+        float matrix_diag_sum() const;
 
         void set_val(std::size_t row, std::size_t col, value_t val);
         void set_val_ptr(std::size_t row, std::size_t col, value_t* val);
@@ -47,7 +47,7 @@ namespace gpu_full::utils
         char* data_;
     };
 
-    double vector_sum(const Matrix::matrix_device_t& vector);
+    float vector_sum(const Matrix::matrix_device_t& vector);
 
     void matrix_dot_product(const Matrix::matrix_device_t& lhs,
                             const Matrix::matrix_device_t& rhs,
@@ -104,7 +104,7 @@ namespace gpu_full::utils
                                             std::size_t matrix_pitch,
                                             std::size_t matrix_rows,
                                             std::size_t matrix_cols,
-                                            double val,
+                                            float val,
                                             char* result_data,
                                             std::size_t result_pitch);
 
@@ -150,13 +150,13 @@ namespace gpu_full::utils
     get_val_ptr_cuda(char* data, std::size_t pitch, std::size_t row, std::size_t col, Matrix::value_t** val);
 
     __global__ void
-    vector_sum_cuda(const char* vector_data, std::size_t vector_pitch, std::size_t vector_cols, double* sum);
+    vector_sum_cuda(const char* vector_data, std::size_t vector_pitch, std::size_t vector_cols, float* sum);
 
     __global__ void matrix_norm_2_cuda(const char* matrix_data,
                                        std::size_t matrix_pitch,
                                        std::size_t matrix_rows,
                                        std::size_t matrix_cols,
-                                       double* norm);
+                                       float* norm);
 
     __global__ void matrix_centroid_cuda(const char* matrix_data,
                                          std::size_t matrix_pitch,
@@ -181,7 +181,7 @@ namespace gpu_full::utils
                                                std::size_t res_pitch);
 
     __global__ void
-    matrix_diag_sum_cuda(const char* matrix_data, std::size_t matrix_pitch, std::size_t matrix_rows, double* sum);
+    matrix_diag_sum_cuda(const char* matrix_data, std::size_t matrix_pitch, std::size_t matrix_rows, float* sum);
 
     __global__ void
     set_val_cuda(char* matrix_data, std::size_t matrix_pitch, std::size_t row, std::size_t col, Matrix::value_t val);

@@ -104,7 +104,7 @@ namespace gpu_full::utils
                                             std::size_t matrix_pitch,
                                             std::size_t matrix_rows,
                                             std::size_t matrix_cols,
-                                            double val,
+                                            float val,
                                             char* result_data,
                                             std::size_t result_pitch)
     {
@@ -209,7 +209,7 @@ namespace gpu_full::utils
     }
 
     __global__ void
-    vector_sum_cuda(const char* vector_data, std::size_t vector_pitch, std::size_t vector_cols, double* sum)
+    vector_sum_cuda(const char* vector_data, std::size_t vector_pitch, std::size_t vector_cols, float* sum)
     {
         *sum = 0.0;
 
@@ -226,9 +226,9 @@ namespace gpu_full::utils
                                        std::size_t matrix_pitch,
                                        std::size_t matrix_rows,
                                        std::size_t matrix_cols,
-                                       double* norm)
+                                       float* norm)
     {
-        double sum = 0.0;
+        float sum = 0.0;
 
         for (std::size_t row = 0; row < matrix_rows; row++)
         {
@@ -288,14 +288,14 @@ namespace gpu_full::utils
                                           const char* q_data,
                                           std::size_t q_pitch,
                                           std::size_t q_row,
-                                          double* distance)
+                                          float* distance)
     {
-        const double* X1;
-        const double* Y1;
-        const double* Z1;
-        const double* X2;
-        const double* Y2;
-        const double* Z2;
+        const float* X1;
+        const float* Y1;
+        const float* Z1;
+        const float* X2;
+        const float* Y2;
+        const float* Z2;
 
         get_val_ptr_const_cuda(p_data, p_pitch, p_row, 0, &X1);
         get_val_ptr_const_cuda(p_data, p_pitch, p_row, 1, &Y1);
@@ -326,7 +326,7 @@ namespace gpu_full::utils
 
         for (std::size_t q_row = 0; q_row < Q_rows; q_row++)
         {
-            double dist;
+            float dist;
             compute_distance_cuda(P_data, P_pitch, p_row, Q_data, Q_pitch, q_row, &dist);
             if (dist < min_dist)
             {
@@ -335,8 +335,8 @@ namespace gpu_full::utils
             }
         }
 
-        const double* Q_line;
-        double* res_line;
+        const float* Q_line;
+        float* res_line;
         get_val_ptr_const_cuda(Q_data, Q_pitch, choosen_row, 0, &Q_line);
         get_val_ptr_cuda(res_data, res_pitch, p_row, 0, &res_line);
 
@@ -347,7 +347,7 @@ namespace gpu_full::utils
     }
 
     __global__ void
-    matrix_diag_sum_cuda(const char* matrix_data, std::size_t matrix_pitch, std::size_t matrix_rows, double* sum)
+    matrix_diag_sum_cuda(const char* matrix_data, std::size_t matrix_pitch, std::size_t matrix_rows, float* sum)
     {
         *sum = 0.0;
 
@@ -486,8 +486,8 @@ namespace gpu_full::utils
         int yThreads = sqrt(MAX_CUDA_THREADS);
         dim3 dim_block(xThreads, yThreads);
 
-        int xBlocks = (int)ceil((double)lhs.rows_ / xThreads);
-        int yBlocks = (int)ceil((double)rhs.cols_ / yThreads);
+        int xBlocks = (int)ceil((float)lhs.rows_ / xThreads);
+        int yBlocks = (int)ceil((float)rhs.cols_ / yThreads);
         dim3 dim_grid(xBlocks, yBlocks);
 
         matrix_dot_product_cuda<<<dim_grid, dim_block>>>(lhs.data_,
@@ -516,7 +516,7 @@ namespace gpu_full::utils
         int xThreads = MAX_CUDA_THREADS;
         dim3 dim_block(xThreads);
 
-        int xBlocks = (int)ceil((double)lhs.cols_ / xThreads);
+        int xBlocks = (int)ceil((float)lhs.cols_ / xThreads);
         dim3 dim_grid(xBlocks);
 
         vector_element_wise_multiplication_cuda<<<dim_grid, dim_block>>>(lhs.data_,
@@ -536,11 +536,11 @@ namespace gpu_full::utils
         }
     }
 
-    double vector_sum(const matrix_device_t& vector)
+    float vector_sum(const matrix_device_t& vector)
     {
-        double* sum_device;
+        float* sum_device;
         cudaError_t rc = cudaSuccess;
-        rc = cudaMalloc(&sum_device, sizeof(double));
+        rc = cudaMalloc(&sum_device, sizeof(float));
         if (rc)
         {
             abortError("Fail buffer allocation");
@@ -553,8 +553,8 @@ namespace gpu_full::utils
             abortError("Computation Error");
         }
 
-        double sum_host;
-        rc = cudaMemcpy(&sum_host, sum_device, sizeof(double), cudaMemcpyDeviceToHost);
+        float sum_host;
+        rc = cudaMemcpy(&sum_host, sum_device, sizeof(float), cudaMemcpyDeviceToHost);
         if (rc)
         {
             abortError("Fail buffer copy");
@@ -575,8 +575,8 @@ namespace gpu_full::utils
         int yThreads = sqrt(MAX_CUDA_THREADS);
         dim3 dim_block(xThreads, yThreads);
 
-        int xBlocks = (int)ceil((double)lhs.rows_ / xThreads);
-        int yBlocks = (int)ceil((double)lhs.cols_ / yThreads);
+        int xBlocks = (int)ceil((float)lhs.rows_ / xThreads);
+        int yBlocks = (int)ceil((float)lhs.cols_ / yThreads);
         dim3 dim_grid(xBlocks, yBlocks);
 
         matrix_subtract_cuda<<<dim_grid, dim_block>>>(lhs.data_,

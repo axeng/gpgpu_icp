@@ -48,11 +48,6 @@ namespace gpu_full::utils
 
         sub_matrix_cuda<<<dim_grid, dim_block>>>(
             this->data_, this->pitch_, starting_row, starting_col, row_count, col_count, result.data_, result.pitch_);
-        cudaDeviceSynchronize();
-        if (cudaPeekAtLastError())
-        {
-            abortError("Computation Error");
-        }
     }
 
     void Matrix::matrix_transpose(matrix_device_t& result) const
@@ -67,11 +62,6 @@ namespace gpu_full::utils
 
         matrix_transpose_cuda<<<dim_grid, dim_block>>>(
             this->data_, this->pitch_, this->rows_, this->cols_, result.data_, result.pitch_);
-        cudaDeviceSynchronize();
-        if (cudaPeekAtLastError())
-        {
-            abortError("Computation Error");
-        }
     }
 
     float Matrix::matrix_norm_2() const
@@ -85,11 +75,7 @@ namespace gpu_full::utils
         }
 
         matrix_norm_2_cuda<<<1, 1>>>(this->data_, this->pitch_, this->rows_, this->cols_, norm_device);
-        cudaDeviceSynchronize();
-        if (cudaPeekAtLastError())
-        {
-            abortError("Computation Error");
-        }
+        sync_and_check();
 
         float norm_host;
         rc = cudaMemcpy(&norm_host, norm_device, sizeof(float), cudaMemcpyDeviceToHost);
@@ -125,11 +111,6 @@ namespace gpu_full::utils
                                               vector.pitch_,
                                               result.data_,
                                               result.pitch_);
-        cudaDeviceSynchronize();
-        if (cudaPeekAtLastError())
-        {
-            abortError("Computation Error");
-        }
     }
 
     void Matrix::matrix_add_vector(const matrix_device_t& vector, matrix_device_t& result) const
@@ -150,22 +131,12 @@ namespace gpu_full::utils
                                          vector.pitch_,
                                          result.data_,
                                          result.pitch_);
-        cudaDeviceSynchronize();
-        if (cudaPeekAtLastError())
-        {
-            abortError("Computation Error");
-        }
     }
 
     void Matrix::matrix_centroid(matrix_device_t& result) const
     {
         matrix_centroid_cuda<<<1, 1>>>(
             this->data_, this->pitch_, this->rows_, this->cols_, result.data_, result.pitch_);
-        cudaDeviceSynchronize();
-        if (cudaPeekAtLastError())
-        {
-            abortError("Computation Error");
-        }
     }
 
     void Matrix::multiply_by_scalar(float val, matrix_device_t& result) const
@@ -180,11 +151,6 @@ namespace gpu_full::utils
 
         multiply_by_scalar_cuda<<<dim_grid, dim_block>>>(
             this->data_, this->pitch_, this->rows_, this->cols_, val, result.data_, result.pitch_);
-        cudaDeviceSynchronize();
-        if (cudaPeekAtLastError())
-        {
-            abortError("Computation Error");
-        }
     }
 
     float Matrix::matrix_diag_sum() const
@@ -198,11 +164,7 @@ namespace gpu_full::utils
         }
 
         matrix_diag_sum_cuda<<<1, 1>>>(this->data_, this->pitch_, this->rows_, sum_device);
-        cudaDeviceSynchronize();
-        if (cudaPeekAtLastError())
-        {
-            abortError("Computation Error");
-        }
+        sync_and_check();
 
         float sum_host;
         rc = cudaMemcpy(&sum_host, sum_device, sizeof(float), cudaMemcpyDeviceToHost);
@@ -223,21 +185,11 @@ namespace gpu_full::utils
     void Matrix::set_val(std::size_t row, std::size_t col, value_t val)
     {
         set_val_cuda<<<1, 1>>>(this->data_, this->pitch_, row, col, val);
-        cudaDeviceSynchronize();
-        if (cudaPeekAtLastError())
-        {
-            abortError("Computation Error");
-        }
     }
 
     void Matrix::set_val_ptr(std::size_t row, std::size_t col, value_t* val)
     {
         set_val_ptr_cuda<<<1, 1>>>(this->data_, this->pitch_, row, col, val);
-        cudaDeviceSynchronize();
-        if (cudaPeekAtLastError())
-        {
-            abortError("Computation Error");
-        }
     }
 
     value_t Matrix::get_val(std::size_t row, std::size_t col) const
@@ -251,11 +203,7 @@ namespace gpu_full::utils
         }
 
         get_val_cuda<<<1, 1>>>(this->data_, this->pitch_, row, col, val_device);
-        cudaDeviceSynchronize();
-        if (cudaPeekAtLastError())
-        {
-            abortError("Computation Error");
-        }
+        sync_and_check();
 
         float val_host;
         rc = cudaMemcpy(&val_host, val_device, sizeof(value_t), cudaMemcpyDeviceToHost);
@@ -276,11 +224,6 @@ namespace gpu_full::utils
     void Matrix::print_matrix() const
     {
         std::cout << "rows: " << this->rows_ << " cols: " << this->cols_ << std::endl;
-        print_matrix_cuda<<<1, 1>>>(this->data_, this->pitch_, this->rows_, this->cols_);
-        cudaDeviceSynchronize();
-        if (cudaPeekAtLastError())
-        {
-            abortError("Computation Error");
-        }
+        print_matrix_cuda<<<1, 1>>>(this->data_, this->pitch_, (this->rows_ < 10 ? this->rows_ : 10), this->cols_);
     }
 } // namespace utils

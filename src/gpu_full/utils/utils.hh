@@ -25,6 +25,8 @@ namespace gpu_full::utils
     using matrix_device_t = Matrix::matrix_device_t;
 
     void get_nearest_neighbors_cuda(const matrix_device_t& P, const matrix_device_t& Q, matrix_device_t& res);
+    float compute_distance(const value_t* p, const value_t* q);
+    void get_nearest_neighbors(const matrix_device_t& P, const matrix_device_t& Q, matrix_device_t& res);
     unsigned int get_line_count(const std::string& path);
 
     void save_result(std::size_t iteration, float error);
@@ -32,4 +34,6 @@ namespace gpu_full::utils
     void string_split(std::string str, const std::string& delimiter, std::vector<std::string>& words);
 
     value_t* host_matrix_to_ptr(const matrix_host_t& host_matrix);
+
+    void sync_and_check();
 } // namespace utils

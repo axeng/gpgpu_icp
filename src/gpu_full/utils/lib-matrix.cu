@@ -500,11 +500,6 @@ namespace gpu_full::utils
                                                          rhs.cols_,
                                                          result.data_,
                                                          result.pitch_);
-        cudaDeviceSynchronize();
-        if (cudaPeekAtLastError())
-        {
-            abortError("Computation Error");
-        }
     }
 
     void vector_element_wise_multiplication(const matrix_device_t& lhs,
@@ -529,11 +524,6 @@ namespace gpu_full::utils
                                                                          rhs_row,
                                                                          result.data_,
                                                                          result.pitch_);
-        cudaDeviceSynchronize();
-        if (cudaPeekAtLastError())
-        {
-            abortError("Computation Error");
-        }
     }
 
     float vector_sum(const matrix_device_t& vector)
@@ -547,11 +537,7 @@ namespace gpu_full::utils
         }
 
         vector_sum_cuda<<<1, 1>>>(vector.data_, vector.pitch_, vector.cols_, sum_device);
-        cudaDeviceSynchronize();
-        if (cudaPeekAtLastError())
-        {
-            abortError("Computation Error");
-        }
+        sync_and_check();
 
         float sum_host;
         rc = cudaMemcpy(&sum_host, sum_device, sizeof(float), cudaMemcpyDeviceToHost);
@@ -589,21 +575,11 @@ namespace gpu_full::utils
                                                       rhs.cols_,
                                                       result.data_,
                                                       result.pitch_);
-        cudaDeviceSynchronize();
-        if (cudaPeekAtLastError())
-        {
-            abortError("Computation Error");
-        }
     }
 
     void compute_rotation_matrix(const matrix_device_t& q, matrix_device_t& QBar_T, matrix_device_t& Q)
     {
         compute_rotation_matrix_cuda<<<1, 1>>>(q.data_, q.pitch_, QBar_T.data_, QBar_T.pitch_, Q.data_, Q.pitch_);
-        cudaDeviceSynchronize();
-        if (cudaPeekAtLastError())
-        {
-            abortError("Computation Error");
-        }
     }
 
     value_t* get_val_ptr(char* data, std::size_t pitch, std::size_t row, std::size_t col)

@@ -142,10 +142,6 @@ add_executable(${BENCH_TARGET} EXCLUDE_FROM_ALL ${BENCH_SOURCES})
 target_include_directories(bench PRIVATE bench)
 target_link_libraries(bench PRIVATE benchmark::benchmark)
 
-set_property(TARGET ${BENCH_TARGET} PROPERTY CUDA_ARCHITECTURES 70-real 72-virtual)
-set_property(TARGET ${GPU_FULL_TARGET} PROPERTY CUDA_ARCHITECTURES 70-real 72-virtual)
-set_property(TARGET ${GPU_TEST_TARGET} PROPERTY CUDA_ARCHITECTURES 70-real 72-virtual)
-
 ###############################################################################
 #                                 GOOGLE TEST                                 #
 ###############################################################################

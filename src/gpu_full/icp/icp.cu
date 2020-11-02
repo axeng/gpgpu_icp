@@ -57,6 +57,7 @@ namespace gpu_full::icp
         // Initialization
         // newP = P
         P.sub_matrix(0, 0, P.rows_, P.cols_, newP);
+        utils::sync_and_check();
 
         auto Np = P.rows_;
         // auto Nm = M.size();     // FIXME : Unused ?
@@ -84,7 +85,7 @@ namespace gpu_full::icp
                           << "Iteration: " << iteration << std::endl;
             }
 
-            utils::get_nearest_neighbors_cuda(newP, M, Y);
+            utils::get_nearest_neighbors(newP, M, Y);
 
             // ----------------------------------------
             // Find Alignment
@@ -97,8 +98,13 @@ namespace gpu_full::icp
             // ----------------------------------------
             // Compute Residual Error
             utils::matrix_subtract(Y, newP, d);
+            utils::sync_and_check();
+
             d.matrix_transpose(d_T);
+            utils::sync_and_check();
+
             utils::matrix_dot_product(d_T, d, d_dot_d_T);
+            utils::sync_and_check();
 
             err = d_dot_d_T.matrix_diag_sum() / Np;
 
@@ -163,41 +169,44 @@ namespace gpu_full::icp
         matrix_device_t Yprime(Y.rows_, Y.cols_);
         Y.matrix_subtract_vector(Mu_y, Yprime);
 
+        utils::sync_and_check();
+
         // ----------------------------------------
         // Quaternion computation
         matrix_device_t Pprime_T(Pprime.cols_, Pprime.rows_);
         matrix_device_t Yprime_T(Yprime.cols_, Yprime.rows_);
         Pprime.matrix_transpose(Pprime_T);
         Yprime.matrix_transpose(Yprime_T);
+        utils::sync_and_check();
 
         matrix_device_t xx(1, Pprime_T.cols_);
-        utils::vector_element_wise_multiplication(Pprime_T, 0, Yprime_T, 0, xx);
-        float Sxx = utils::vector_sum(xx);
         matrix_device_t xy(1, Pprime_T.cols_);
-        utils::vector_element_wise_multiplication(Pprime_T, 0, Yprime_T, 1, xy);
-        float Sxy = utils::vector_sum(xy);
         matrix_device_t xz(1, Pprime_T.cols_);
-        utils::vector_element_wise_multiplication(Pprime_T, 0, Yprime_T, 2, xz);
-        float Sxz = utils::vector_sum(xz);
-
         matrix_device_t yx(1, Pprime_T.cols_);
-        utils::vector_element_wise_multiplication(Pprime_T, 1, Yprime_T, 0, yx);
-        float Syx = utils::vector_sum(yx);
         matrix_device_t yy(1, Pprime_T.cols_);
-        utils::vector_element_wise_multiplication(Pprime_T, 1, Yprime_T, 1, yy);
-        float Syy = utils::vector_sum(yy);
         matrix_device_t yz(1, Pprime_T.cols_);
-        utils::vector_element_wise_multiplication(Pprime_T, 1, Yprime_T, 2, yz);
-        float Syz = utils::vector_sum(yz);
-
         matrix_device_t zx(1, Pprime_T.cols_);
-        utils::vector_element_wise_multiplication(Pprime_T, 2, Yprime_T, 0, zx);
-        float Szx = utils::vector_sum(zx);
         matrix_device_t zy(1, Pprime_T.cols_);
-        utils::vector_element_wise_multiplication(Pprime_T, 2, Yprime_T, 1, zy);
-        float Szy = utils::vector_sum(zy);
         matrix_device_t zz(1, Pprime_T.cols_);
+
+        utils::vector_element_wise_multiplication(Pprime_T, 0, Yprime_T, 0, xx);
+        utils::vector_element_wise_multiplication(Pprime_T, 0, Yprime_T, 1, xy);
+        utils::vector_element_wise_multiplication(Pprime_T, 0, Yprime_T, 2, xz);
+        utils::vector_element_wise_multiplication(Pprime_T, 1, Yprime_T, 0, yx);
+        utils::vector_element_wise_multiplication(Pprime_T, 1, Yprime_T, 1, yy);
+        utils::vector_element_wise_multiplication(Pprime_T, 1, Yprime_T, 2, yz);
+        utils::vector_element_wise_multiplication(Pprime_T, 2, Yprime_T, 0, zx);
+        utils::vector_element_wise_multiplication(Pprime_T, 2, Yprime_T, 1, zy);
         utils::vector_element_wise_multiplication(Pprime_T, 2, Yprime_T, 2, zz);
+
+        float Sxx = utils::vector_sum(xx);
+        float Sxy = utils::vector_sum(xy);
+        float Sxz = utils::vector_sum(xz);
+        float Syx = utils::vector_sum(yx);
+        float Syy = utils::vector_sum(yy);
+        float Syz = utils::vector_sum(yz);
+        float Szx = utils::vector_sum(zx);
+        float Szy = utils::vector_sum(zy);
         float Szz = utils::vector_sum(zz);
 
         matrix_device_t Nmatrix(4, 4);
@@ -218,6 +227,8 @@ namespace gpu_full::icp
         Nmatrix.set_val(3, 2, Syz + Szy);
         Nmatrix.set_val(3, 3, Szz - Syy - Sxx);
 
+        utils::sync_and_check();
+
         /*
         Nmatrix.copy_line(std::initializer_list<float>{Sxx + Syy + Szz, -Szy + Syz, Szx - Sxz, -Syx + Sxy}, 0);
         Nmatrix.copy_line(std::initializer_list<float>{Syz - Szy, Sxx - Szz - Syy, Syx + Sxy, Szx + Sxz}, 1);
@@ -233,6 +244,7 @@ namespace gpu_full::icp
         matrix_device_t Qbar_T(4, 4);
         matrix_device_t Q(4, 4);
         utils::compute_rotation_matrix(q, Qbar_T, Q);
+        utils::sync_and_check();
 
         /*
         float q0 = q.at(0, 0);
@@ -255,11 +267,14 @@ namespace gpu_full::icp
 
         matrix_device_t R_full(Qbar_T.rows_, Q.cols_);
         utils::matrix_dot_product(Qbar_T, Q, R_full);
+        utils::sync_and_check();
 
         matrix_device_t R_full_T(R_full.cols_, R_full.rows_);
         R_full.matrix_transpose(R_full_T);
+        utils::sync_and_check();
 
         R_full_T.sub_matrix(1, 1, 3, 3, R);
+        utils::sync_and_check();
 
         // ----------------------------------------
         // Scaling factor computation
@@ -270,32 +285,39 @@ namespace gpu_full::icp
 
         for (std::size_t i = 0; i < N; i++)
         {
-            // D = D + Yprime(:,i)' * Yprime(:,i)
             matrix_device_t Yprime_i(1, Yprime.cols_);
-            for (std::size_t col = 0; col < Yprime.cols_; col++)
-            {
-                Yprime_i.set_val_ptr(0, col, utils::get_val_ptr(Yprime.data_, Yprime.pitch_, i, col));
-            }
+            matrix_device_t Pprime_i(1, Pprime.cols_);
+
+            cudaMemcpy2D(Yprime_i.data_,
+                         Yprime_i.pitch_,
+                         Yprime.data_ + i * Yprime.pitch_,
+                         Yprime.pitch_,
+                         sizeof(value_t) * Yprime.cols_,
+                         1,
+                         cudaMemcpyDeviceToDevice);
+            cudaMemcpy2D(Pprime_i.data_,
+                         Pprime_i.pitch_,
+                         Pprime.data_ + i * Pprime.pitch_,
+                         Pprime.pitch_,
+                         sizeof(value_t) * Pprime.cols_,
+                         1,
+                         cudaMemcpyDeviceToDevice);
+
 
             matrix_device_t Yprime_i_T(Yprime_i.cols_, Yprime_i.rows_);
-            Yprime_i.matrix_transpose(Yprime_i_T);
-
-            utils::matrix_dot_product(Yprime_i, Yprime_i_T, dot_product);
-
-            D += dot_product.get_val(0, 0);
-
-            // Sp = Sp + Pprime(:,i)' * Pprime(:,i)
-            matrix_device_t Pprime_i(1, Pprime.cols_);
-            for (std::size_t col = 0; col < Yprime.cols_; col++)
-            {
-                Pprime_i.set_val_ptr(0, col, utils::get_val_ptr(Pprime.data_, Pprime.pitch_, i, col));
-            }
-
             matrix_device_t Pprime_i_T(Pprime_i.cols_, Pprime_i.rows_);
+
+            Yprime_i.matrix_transpose(Yprime_i_T);
             Pprime_i.matrix_transpose(Pprime_i_T);
 
+            utils::sync_and_check();
+
+            utils::matrix_dot_product(Yprime_i, Yprime_i_T, dot_product);
             utils::matrix_dot_product(Pprime_i, Pprime_i_T, dot_product);
 
+            utils::sync_and_check();
+
+            D += dot_product.get_val(0, 0);
             Sp += dot_product.get_val(0, 0);
         }
 
@@ -306,16 +328,26 @@ namespace gpu_full::icp
         matrix_device_t s_time_R(R.rows_, R.cols_);
         R.multiply_by_scalar(s, s_time_R);
 
+        utils::sync_and_check();
+
         matrix_device_t Mu_p_T(Mu_p.cols_, Mu_p.rows_);
         Mu_p.matrix_transpose(Mu_p_T);
+
+        utils::sync_and_check();
 
         matrix_device_t R_dot_Mu_p(s_time_R.rows_, Mu_p_T.cols_);
         utils::matrix_dot_product(s_time_R, Mu_p_T, R_dot_Mu_p);
 
+        utils::sync_and_check();
+
         matrix_device_t R_dot_Mu_p_T(R_dot_Mu_p.cols_, R_dot_Mu_p.rows_);
         R_dot_Mu_p.matrix_transpose(R_dot_Mu_p_T);
 
+        utils::sync_and_check();
+
         utils::matrix_subtract(Mu_y, R_dot_Mu_p_T, t);
+
+        utils::sync_and_check();
 
         return true;
     }
@@ -328,12 +360,14 @@ namespace gpu_full::icp
         {
             eigen_vector.set_val(i, 0, vector[i]);
         }
+        utils::sync_and_check();
 
         matrix_device_t b_k1(A.rows_, eigen_vector.cols_, 0.0);
 
         for (std::size_t simulation = 0; simulation < num_simulations; simulation++)
         {
             utils::matrix_dot_product(A, eigen_vector, b_k1);
+            utils::sync_and_check();
 
             float b_k1_norm = b_k1.matrix_norm_2();
 
@@ -341,6 +375,7 @@ namespace gpu_full::icp
             {
                 eigen_vector.set_val(i, 0, b_k1.get_val(i, 0) / b_k1_norm);
             }
+            utils::sync_and_check();
         }
     }
 
@@ -353,12 +388,20 @@ namespace gpu_full::icp
         matrix_device_t s_time_R(R.rows_, R.cols_);
         R.multiply_by_scalar(s, s_time_R);
 
+        utils::sync_and_check();
+
         matrix_device_t s_time_R_T(s_time_R.cols_, s_time_R.rows_);
         s_time_R.matrix_transpose(s_time_R_T);
+
+        utils::sync_and_check();
 
         matrix_device_t P_time_R(P.rows_, s_time_R_T.cols_);
         utils::matrix_dot_product(P, s_time_R_T, P_time_R);
 
+        utils::sync_and_check();
+
         P_time_R.matrix_add_vector(t, newP);
+
+        utils::sync_and_check();
     }
-} // namespace icp
+} // namespace gpu_full::icp

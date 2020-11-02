@@ -35,4 +35,4 @@ namespace gpu_full::icp
                          const matrix_device_t& R,
                          const matrix_device_t& t,
                          matrix_device_t& newP);
-} // namespace icp
+} // namespace gpu_full::icp

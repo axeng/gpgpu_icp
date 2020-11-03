@@ -4,7 +4,6 @@ project(gpgpu_icp LANGUAGES CXX CUDA)
 set(CMAKE_CXX_STANDARD 17)
 
 set(CPU_TARGET cpu)
-set(GPU_TEST_TARGET gpu_test)
 set(GPU_FULL_TARGET gpu_full)
 set(BENCH_TARGET bench)
 set(UNIT_TESTS_TARGET unit_tests)
@@ -72,27 +71,6 @@ set(CPU_SOURCES
 set(CPU_EXEC_SOURCES
         ${CPU_SOURCES}
         src/cpu/cpu.cc)
-
-# GPU sources
-set(GPU_TEST_ICP_SOURCES
-        src/gpu_test/icp/icp.cu)
-
-set(GPU_TEST_PARSER_SOURCES
-        src/gpu_test/parser/parser.cu)
-
-set(GPU_TEST_UTILS_SOURCES
-        src/gpu_test/utils/utils.cu
-        src/gpu_test/utils/lib-matrix.cu
-        src/gpu_test/utils/matrix.cu)
-
-set(GPU_TEST_SOURCES
-        ${GPU_TEST_ICP_SOURCES}
-        ${GPU_TEST_PARSER_SOURCES}
-        ${GPU_TEST_UTILS_SOURCES})
-
-set(GPU_TEST_EXEC_SOURCES
-        ${GPU_TEST_SOURCES}
-        src/gpu_test/gpu.cu)
 
 # GPU full sources
 set(GPU_FULL_ICP_SOURCES

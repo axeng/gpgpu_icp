@@ -109,9 +109,6 @@ set(UNIT_TESTS_SOURCES
 add_executable(${CPU_TARGET}
         ${CPU_EXEC_SOURCES})
 
-add_executable(${GPU_TEST_TARGET}
-        ${GPU_TEST_EXEC_SOURCES})
-
 add_executable(${GPU_FULL_TARGET}
         ${GPU_FULL_EXEC_SOURCES})
 

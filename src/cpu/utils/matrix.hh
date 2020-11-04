@@ -9,7 +9,7 @@ namespace cpu::utils
     class Matrix
     {
     public:
-        using value_t = double;
+        using value_t = float;
         using vector_t = std::vector<value_t>;
         using matrix_t = Matrix;
 
@@ -26,14 +26,14 @@ namespace cpu::utils
                         bool init_matrix = true) const;
         void matrix_transpose(matrix_t& result, bool init_matrix = true) const;
 
-        double matrix_norm_2() const;
+        float matrix_norm_2() const;
         void
         matrix_subtract_vector(const matrix_t& vector, matrix_t& result, bool init_matrix = true) const;
         void matrix_add_vector(const matrix_t& vector, matrix_t& result, bool init_matrix = true) const;
 
         void matrix_centroid(matrix_t& result, bool init_matrix = true) const;
 
-        void multiply_by_scalar(double val, matrix_t& result, bool init_matrix = true) const;
+        void multiply_by_scalar(float val, matrix_t& result, bool init_matrix = true) const;
 
         void print_matrix() const;
         void matrix_to_csv(const std::string& path) const;

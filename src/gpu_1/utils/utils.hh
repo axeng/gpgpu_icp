@@ -23,7 +23,7 @@ namespace gpu_1::utils
     void get_nearest_neighbors(const matrix_device_t& P, const matrix_device_t& Q, matrix_device_t& res);
     unsigned int get_line_count(const std::string& path);
 
-    void save_result(std::size_t iteration, double error);
+    void save_result(std::size_t iteration, float error);
 
     void string_split(std::string str, const std::string& delimiter, std::vector<std::string>& words);
 

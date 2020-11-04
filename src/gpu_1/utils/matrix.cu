@@ -57,11 +57,11 @@ namespace gpu_1::utils
         }
     }
 
-    double Matrix::matrix_norm_2() const
+    float Matrix::matrix_norm_2() const
     {
-        double *norm_device;
+        float *norm_device;
         cudaError_t rc = cudaSuccess;
-        rc = cudaMalloc(&norm_device, sizeof(double));
+        rc = cudaMalloc(&norm_device, sizeof(float));
         if (rc)
         {
             abortError("Fail buffer allocation");
@@ -74,8 +74,8 @@ namespace gpu_1::utils
             abortError("Computation Error");
         }
 
-        double norm_host;
-        rc = cudaMemcpy(&norm_host, norm_device, sizeof(double), cudaMemcpyDeviceToHost);
+        float norm_host;
+        rc = cudaMemcpy(&norm_host, norm_device, sizeof(float), cudaMemcpyDeviceToHost);
         if (rc)
         {
             abortError("Fail buffer copy");
@@ -135,7 +135,7 @@ namespace gpu_1::utils
         }
     }
 
-    void Matrix::multiply_by_scalar(double val, matrix_device_t& result) const
+    void Matrix::multiply_by_scalar(float val, matrix_device_t& result) const
     {
         multiply_by_scalar_cuda<<<1, 1>>>(
             this->data_, this->pitch_, this->rows_, this->cols_, val, result.data_, result.pitch_);
@@ -146,11 +146,11 @@ namespace gpu_1::utils
         }
     }
 
-    double Matrix::matrix_diag_sum() const
+    float Matrix::matrix_diag_sum() const
     {
-        double *sum_device;
+        float *sum_device;
         cudaError_t rc = cudaSuccess;
-        rc = cudaMalloc(&sum_device, sizeof(double));
+        rc = cudaMalloc(&sum_device, sizeof(float));
         if (rc)
         {
             abortError("Fail buffer allocation");
@@ -163,8 +163,8 @@ namespace gpu_1::utils
             abortError("Computation Error");
         }
 
-        double sum_host;
-        rc = cudaMemcpy(&sum_host, sum_device, sizeof(double), cudaMemcpyDeviceToHost);
+        float sum_host;
+        rc = cudaMemcpy(&sum_host, sum_device, sizeof(float), cudaMemcpyDeviceToHost);
         if (rc)
         {
             abortError("Fail buffer copy");
@@ -216,7 +216,7 @@ namespace gpu_1::utils
             abortError("Computation Error");
         }
 
-        double val_host;
+        float val_host;
         rc = cudaMemcpy(&val_host, val_device, sizeof(value_t), cudaMemcpyDeviceToHost);
         if (rc)
         {

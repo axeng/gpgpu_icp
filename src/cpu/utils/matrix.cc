@@ -68,9 +68,9 @@ namespace cpu::utils
         }
     }
 
-    double Matrix::matrix_norm_2() const
+    float Matrix::matrix_norm_2() const
     {
-        double sum = 0.0;
+        float sum = 0.0;
 
         for (const auto& row : this->data_)
         {
@@ -146,7 +146,7 @@ namespace cpu::utils
         result.data_[0][2] /= row_count;
     }
 
-    void Matrix::multiply_by_scalar(double val, matrix_t& result, bool init_matrix) const
+    void Matrix::multiply_by_scalar(float val, matrix_t& result, bool init_matrix) const
     {
         std::size_t row_count = this->rows_;
         std::size_t col_count = this->cols_;

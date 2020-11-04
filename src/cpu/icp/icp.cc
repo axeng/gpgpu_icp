@@ -12,11 +12,11 @@ namespace cpu::icp
     std::size_t icp_cpu(const matrix_t& M /*dst*/,
                         const matrix_t& P /*src*/,
                         matrix_t& newP,
-                        double& err,
+                        float& err,
                         bool verbose,
                         bool save_results,
                         std::size_t max_iterations,
-                        double threshold,
+                        float threshold,
                         std::size_t power_iteration_simulations)
     {
         if (M.empty() || P.empty() || (M.get_cols() != P.get_cols()))
@@ -30,8 +30,6 @@ namespace cpu::icp
         P.sub_matrix(0, 0, P.get_rows(), P.get_cols(), newP);
 
         auto Np = P.get_rows();
-        // auto Nm = M.size();     // FIXME : Unused ?
-        // auto dim = P[0].size();  // FIXME : Unused ?
 
         if (save_results)
         {
@@ -41,9 +39,9 @@ namespace cpu::icp
         // ----------------------------------------
         // Find Correspondences
         matrix_t Y;
-        std::vector<double> distances;
+        std::vector<float> distances;
 
-        double scaling_factor = 0.0; // s
+        float scaling_factor = 0.0; // s
         matrix_t rotation_matrix; // R
         matrix_t translation_matrix; // t
 
@@ -110,7 +108,7 @@ namespace cpu::icp
 
     bool find_alignment(const matrix_t& P,
                         const matrix_t& Y,
-                        double& s,
+                        float& s,
                         matrix_t& R,
                         matrix_t& t,
                         std::size_t power_iteration_simulations)
@@ -173,67 +171,61 @@ namespace cpu::icp
 
         vector_t xx;
         utils::vector_element_wise_multiplication(Px, Yx, xx);
-        double Sxx = utils::vector_sum(xx);
+        float Sxx = utils::vector_sum(xx);
         vector_t xy;
         utils::vector_element_wise_multiplication(Px, Yy, xy);
-        double Sxy = utils::vector_sum(xy);
+        float Sxy = utils::vector_sum(xy);
         vector_t xz;
         utils::vector_element_wise_multiplication(Px, Yz, xz);
-        double Sxz = utils::vector_sum(xz);
+        float Sxz = utils::vector_sum(xz);
 
         vector_t yx;
         utils::vector_element_wise_multiplication(Py, Yx, yx);
-        double Syx = utils::vector_sum(yx);
+        float Syx = utils::vector_sum(yx);
         vector_t yy;
         utils::vector_element_wise_multiplication(Py, Yy, yy);
-        double Syy = utils::vector_sum(yy);
+        float Syy = utils::vector_sum(yy);
         vector_t yz;
         utils::vector_element_wise_multiplication(Py, Yz, yz);
-        double Syz = utils::vector_sum(yz);
+        float Syz = utils::vector_sum(yz);
 
         vector_t zx;
         utils::vector_element_wise_multiplication(Pz, Yx, zx);
-        double Szx = utils::vector_sum(zx);
+        float Szx = utils::vector_sum(zx);
         vector_t zy;
         utils::vector_element_wise_multiplication(Pz, Yy, zy);
-        double Szy = utils::vector_sum(zy);
+        float Szy = utils::vector_sum(zy);
         vector_t zz;
         utils::vector_element_wise_multiplication(Pz, Yz, zz);
-        double Szz = utils::vector_sum(zz);
+        float Szz = utils::vector_sum(zz);
 
         matrix_t Nmatrix;
-        /*Nmatrix.emplace_back(std::initializer_list<double>{ Sxx + Syy + Szz,    Syz - Szy,          -Sxz + Szx, Sxy -
-        Syx}); Nmatrix.emplace_back(std::initializer_list<double>{ -Szy + Syz,         Sxx - Szz - Syy,    Sxy + Syx,
-        Sxz + Szx}); Nmatrix.emplace_back(std::initializer_list<double>{ Szx - Sxz,          Syx + Sxy,          Syy -
-        Szz - Sxx,    Syz + Szy}); Nmatrix.emplace_back(std::initializer_list<double>{ -Syx + Sxy,         Szx + Sxz,
-        Szy + Syz,          Szz - Syy - Sxx});*/
-
-        Nmatrix.emplace_line(std::initializer_list<double>{Sxx + Syy + Szz, -Szy + Syz, Szx - Sxz, -Syx + Sxy});
-        Nmatrix.emplace_line(std::initializer_list<double>{Syz - Szy, Sxx - Szz - Syy, Syx + Sxy, Szx + Sxz});
-        Nmatrix.emplace_line(std::initializer_list<double>{-Sxz + Szx, Sxy + Syx, Syy - Szz - Sxx, Szy + Syz});
-        Nmatrix.emplace_line(std::initializer_list<double>{Sxy - Syx, Sxz + Szx, Syz + Szy, Szz - Syy - Sxx});
+        Nmatrix.emplace_line(std::initializer_list<float>{Sxx + Syy + Szz, -Szy + Syz, Szx - Sxz, -Syx + Sxy});
+        Nmatrix.emplace_line(std::initializer_list<float>{Syz - Szy, Sxx - Szz - Syy, Syx + Sxy, Szx + Sxz});
+        Nmatrix.emplace_line(std::initializer_list<float>{-Sxz + Szx, Sxy + Syx, Syy - Szz - Sxx, Szy + Syz});
+        Nmatrix.emplace_line(std::initializer_list<float>{Sxy - Syx, Sxz + Szx, Syz + Szy, Szz - Syy - Sxx});
 
         matrix_t q;
         power_iteration(Nmatrix, q, power_iteration_simulations);
 
         // ----------------------------------------
         // Rotation matrix computation
-        double q0 = q.at(0, 0);
-        double q1 = q.at(1, 0);
-        double q2 = q.at(2, 0);
-        double q3 = q.at(3, 0);
+        float q0 = q.at(0, 0);
+        float q1 = q.at(1, 0);
+        float q2 = q.at(2, 0);
+        float q3 = q.at(3, 0);
 
         matrix_t Qbar;
-        Qbar.emplace_line(std::initializer_list<double>{q0, q1, q2, q3});
-        Qbar.emplace_line(std::initializer_list<double>{-q1, q0, q3, -q2});
-        Qbar.emplace_line(std::initializer_list<double>{-q2, -q3, q0, q1});
-        Qbar.emplace_line(std::initializer_list<double>{-q3, q2, -q1, q0});
+        Qbar.emplace_line(std::initializer_list<float>{q0, q1, q2, q3});
+        Qbar.emplace_line(std::initializer_list<float>{-q1, q0, q3, -q2});
+        Qbar.emplace_line(std::initializer_list<float>{-q2, -q3, q0, q1});
+        Qbar.emplace_line(std::initializer_list<float>{-q3, q2, -q1, q0});
 
         matrix_t Q;
-        Q.emplace_line(std::initializer_list<double>{q0, -q1, -q2, -q3});
-        Q.emplace_line(std::initializer_list<double>{q1, q0, q3, -q2});
-        Q.emplace_line(std::initializer_list<double>{q2, -q3, q0, q1});
-        Q.emplace_line(std::initializer_list<double>{q3, q2, -q1, q0});
+        Q.emplace_line(std::initializer_list<float>{q0, -q1, -q2, -q3});
+        Q.emplace_line(std::initializer_list<float>{q1, q0, q3, -q2});
+        Q.emplace_line(std::initializer_list<float>{q2, -q3, q0, q1});
+        Q.emplace_line(std::initializer_list<float>{q3, q2, -q1, q0});
 
         matrix_t R_full;
         utils::matrix_dot_product(Qbar, Q, R_full);
@@ -245,8 +237,8 @@ namespace cpu::icp
 
         // ----------------------------------------
         // Scaling factor computation
-        double Sp = 0.0;
-        double D = 0.0;
+        float Sp = 0.0;
+        float D = 0.0;
 
         matrix_t dot_product = matrix_t(1, 1);
 
@@ -299,10 +291,10 @@ namespace cpu::icp
     void power_iteration(const matrix_t& A, matrix_t& eigen_vector, std::size_t num_simulations)
     {
         vector_t vector(A.get_cols());
-        std::generate_n(vector.begin(), A.get_cols(), utils::UniformRandom<double>(0.0, 1.1));
+        std::generate_n(vector.begin(), A.get_cols(), utils::UniformRandom<float>(0.0, 1.1));
         for (std::size_t i = 0; i < A.get_cols(); i++)
         {
-            eigen_vector.emplace_line(std::initializer_list<double>{vector[i]});
+            eigen_vector.emplace_line(std::initializer_list<float>{vector[i]});
         }
 
         matrix_t b_k1(A.get_rows(), eigen_vector.get_cols(), 0.0);
@@ -311,7 +303,7 @@ namespace cpu::icp
         {
             utils::matrix_dot_product(A, eigen_vector, b_k1, false);
 
-            double b_k1_norm = b_k1.matrix_norm_2();
+            float b_k1_norm = b_k1.matrix_norm_2();
 
             for (std::size_t i = 0; i < eigen_vector.get_rows(); i++)
             {
@@ -320,7 +312,7 @@ namespace cpu::icp
         }
     }
 
-    void apply_alignment(const matrix_t& P, double s, const matrix_t& R, const matrix_t& t, matrix_t& newP)
+    void apply_alignment(const matrix_t& P, float s, const matrix_t& R, const matrix_t& t, matrix_t& newP)
     {
         matrix_t s_time_R;
         R.multiply_by_scalar(s, s_time_R);

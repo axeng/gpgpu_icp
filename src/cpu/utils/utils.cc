@@ -2,19 +2,19 @@
 
 namespace cpu::utils
 {
-    double compute_distance(const vector_t& p, const vector_t& q)
+    float compute_distance(const vector_t& p, const vector_t& q)
     {
-        double X1 = p[0];
-        double Y1 = p[1];
-        double Z1 = p[2];
-        double X2 = q[0];
-        double Y2 = q[1];
-        double Z2 = q[2];
+        float X1 = p[0];
+        float Y1 = p[1];
+        float Z1 = p[2];
+        float X2 = q[0];
+        float Y2 = q[1];
+        float Z2 = q[2];
 
         return sqrt(pow(X2 - X1, 2) + pow(Y2 - Y1, 2) + pow(Z2 - Z1, 2) * 1.0);
     }
 
-    void get_nearest_neighbors(const matrix_t& P, const matrix_t& Q, matrix_t& res, std::vector<double>& distances)
+    void get_nearest_neighbors(const matrix_t& P, const matrix_t& Q, matrix_t& res, std::vector<float>& distances)
     {
         res.clear();
         distances.clear();
@@ -38,7 +38,7 @@ namespace cpu::utils
         }
     }
 
-    void save_result(std::size_t iteration, double error)
+    void save_result(std::size_t iteration, float error)
     {
         std::ofstream file;
         // FIXME append mode

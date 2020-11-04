@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
     }
 
     cpu::parser::matrix_t newP;
-    double error = 0;
+    float error = 0;
     cpu::icp::icp_cpu(A, B, newP, error, true);
 
     return 0;

@@ -20,7 +20,7 @@ namespace cpu::parser
                 utils::string_split(line, ",", words);
 
                 point_list.emplace_line(
-                    std::initializer_list<double>{std::stod(words[0]), std::stod(words[1]), std::stod(words[2])});
+                    std::initializer_list<float>{std::stof(words[0]), std::stof(words[1]), std::stof(words[2])});
             }
             return true;
         }

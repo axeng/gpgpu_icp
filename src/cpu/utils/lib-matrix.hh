@@ -14,5 +14,5 @@ namespace cpu::utils
                                             bool init_vector = true);
     void matrix_subtract(const matrix_t& lhs, const matrix_t& rhs, matrix_t& result, bool init_matrix = true);
 
-    double vector_sum(const vector_t& vector);
+    float vector_sum(const vector_t& vector);
 } // namespace utils

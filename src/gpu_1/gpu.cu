@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
     }
 
     gpu_1::parser::matrix_host_t newP;
-    double error = 0;
+    float error = 0;
     gpu_1::icp::icp_gpu(A, B, newP, error, true);
 
     return 0;

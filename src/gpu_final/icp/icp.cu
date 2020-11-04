@@ -276,7 +276,8 @@ namespace gpu_final::icp
         float Sp = 0.0;
         float D = 0.0;
 
-        matrix_device_t dot_product(1, 1);
+        matrix_device_t dot_product_1(1, 1);
+        matrix_device_t dot_product_2(1, 1);
 
         for (std::size_t i = 0; i < N; i++)
         {
@@ -298,7 +299,6 @@ namespace gpu_final::icp
                          1,
                          cudaMemcpyDeviceToDevice);
 
-
             matrix_device_t Yprime_i_T(Yprime_i.cols_, Yprime_i.rows_);
             matrix_device_t Pprime_i_T(Pprime_i.cols_, Pprime_i.rows_);
 
@@ -307,13 +307,13 @@ namespace gpu_final::icp
 
             utils::sync_and_check();
 
-            utils::matrix_dot_product(Yprime_i, Yprime_i_T, dot_product);
-            utils::matrix_dot_product(Pprime_i, Pprime_i_T, dot_product);
+            utils::matrix_dot_product(Yprime_i, Yprime_i_T, dot_product_1);
+            utils::matrix_dot_product(Pprime_i, Pprime_i_T, dot_product_2);
 
             utils::sync_and_check();
 
-            D += dot_product.get_val(0, 0);
-            Sp += dot_product.get_val(0, 0);
+            D += dot_product_1.get_val(0, 0);
+            Sp += dot_product_2.get_val(0, 0);
         }
 
         s = sqrt(D / Sp);

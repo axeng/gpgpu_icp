@@ -20,7 +20,7 @@ namespace gpu_1::utils
         int xThreads = deviceProp.maxThreadsDim[0];
         dim3 dim_block(xThreads);
 
-        int xBlocks = (int) ceil((double)P.rows_ / xThreads);
+        int xBlocks = (int) ceil((float)P.rows_ / xThreads);
         dim3 dim_grid(xBlocks);
 
         get_nearest_neighbors_cuda<<<dim_grid, dim_block>>>(
@@ -32,7 +32,7 @@ namespace gpu_1::utils
         }
     }
 
-    void save_result(std::size_t iteration, double error)
+    void save_result(std::size_t iteration, float error)
     {
         std::ofstream file;
         // FIXME append mode

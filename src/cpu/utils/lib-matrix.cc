@@ -47,9 +47,9 @@ namespace cpu::utils
         }
     }
 
-    double vector_sum(const vector_t& vector)
+    float vector_sum(const vector_t& vector)
     {
-        double sum = 0.0;
+        float sum = 0.0;
 
         for (const auto& element : vector)
         {

@@ -22,7 +22,7 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic -std=c++17")
 
 # Debug compilation flags
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3 -lineinfo")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3 -g -pg")
 
 # Release compilation flags
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -march=native -flto")
@@ -163,7 +163,10 @@ set(GPU_FINAL_EXEC_SOURCES
 set(BENCH_SOURCES
         bench/main.cu
         ${CPU_SOURCES}
-        ${GPU_1_SOURCES})
+        ${GPU_1_SOURCES}
+        ${GPU_2_SOURCES}
+        ${GPU_3_SOURCES}
+        ${GPU_FINAL_SOURCES})
 
 # Unit Tests
 set(UNIT_TESTS_SOURCES

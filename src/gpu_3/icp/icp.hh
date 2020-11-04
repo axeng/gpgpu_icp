@@ -17,7 +17,7 @@ namespace gpu_3::icp
                         matrix_host_t& newP,
                         float& err,
                         bool verbose = false,
-                        std::size_t max_iterations = 200,
+                        std::size_t max_iterations = 20,
                         float threshold = 1e-5,
                         std::size_t power_iteration_simulations = 1000);
 

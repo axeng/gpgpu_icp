@@ -3,7 +3,7 @@
 #include "matrix.hh"
 #include "utils.hh"
 
-namespace gpu_full::utils
+namespace gpu_final::utils
 {
     [[gnu::noinline]] void _abortError(const char* msg, const char* fname, int line)
     {

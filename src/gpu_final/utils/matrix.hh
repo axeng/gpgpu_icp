@@ -3,9 +3,9 @@
 #include <memory>
 #include <vector>
 
-#include "gpu_full/parser/parser.hh"
+#include "gpu_final/parser/parser.hh"
 
-namespace gpu_full::utils
+namespace gpu_final::utils
 {
     class Matrix
     {

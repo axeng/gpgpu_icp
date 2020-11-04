@@ -1,8 +1,8 @@
 #include "parser.hh"
 
-#include "gpu_full/utils/utils.hh"
+#include "gpu_final/utils/utils.hh"
 
-namespace gpu_full::parser
+namespace gpu_final::parser
 {
     bool parse_file(const std::string& path, matrix_host_t& point_list)
     {

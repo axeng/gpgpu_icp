@@ -4,7 +4,10 @@ project(gpgpu_icp LANGUAGES CXX CUDA)
 set(CMAKE_CXX_STANDARD 17)
 
 set(CPU_TARGET cpu)
-set(GPU_FULL_TARGET gpu_full)
+set(GPU_1_TARGET gpu_1)
+set(GPU_2_TARGET gpu_2)
+set(GPU_3_TARGET gpu_3)
+set(GPU_FINAL_TARGET gpu_final)
 set(BENCH_TARGET bench)
 set(UNIT_TESTS_TARGET unit_tests)
 
@@ -72,32 +75,95 @@ set(CPU_EXEC_SOURCES
         ${CPU_SOURCES}
         src/cpu/cpu.cc)
 
-# GPU full sources
-set(GPU_FULL_ICP_SOURCES
-        src/gpu_full/icp/icp.cu)
+# GPU 1 sources
+set(GPU_1_ICP_SOURCES
+        src/gpu_1/icp/icp.cu)
 
-set(GPU_FULL_PARSER_SOURCES
-        src/gpu_full/parser/parser.cu)
+set(GPU_1_PARSER_SOURCES
+        src/gpu_1/parser/parser.cu)
 
-set(GPU_FULL_UTILS_SOURCES
-        src/gpu_full/utils/utils.cu
-        src/gpu_full/utils/lib-matrix.cu
-        src/gpu_full/utils/matrix.cu)
+set(GPU_1_UTILS_SOURCES
+        src/gpu_1/utils/utils.cu
+        src/gpu_1/utils/lib-matrix.cu
+        src/gpu_1/utils/matrix.cu)
 
-set(GPU_FULL_SOURCES
-        ${GPU_FULL_ICP_SOURCES}
-        ${GPU_FULL_PARSER_SOURCES}
-        ${GPU_FULL_UTILS_SOURCES})
+set(GPU_1_SOURCES
+        ${GPU_1_ICP_SOURCES}
+        ${GPU_1_PARSER_SOURCES}
+        ${GPU_1_UTILS_SOURCES})
 
-set(GPU_FULL_EXEC_SOURCES
-        ${GPU_FULL_SOURCES}
-        src/gpu_full/gpu.cu)
+set(GPU_1_EXEC_SOURCES
+        ${GPU_1_SOURCES}
+        src/gpu_1/gpu.cu)
+
+# GPU 2 sources
+set(GPU_2_ICP_SOURCES
+        src/gpu_2/icp/icp.cu)
+
+set(GPU_2_PARSER_SOURCES
+        src/gpu_2/parser/parser.cu)
+
+set(GPU_2_UTILS_SOURCES
+        src/gpu_2/utils/utils.cu
+        src/gpu_2/utils/lib-matrix.cu
+        src/gpu_2/utils/matrix.cu)
+
+set(GPU_2_SOURCES
+        ${GPU_2_ICP_SOURCES}
+        ${GPU_2_PARSER_SOURCES}
+        ${GPU_2_UTILS_SOURCES})
+
+set(GPU_2_EXEC_SOURCES
+        ${GPU_2_SOURCES}
+        src/gpu_2/gpu.cu)
+
+# GPU 3 sources
+set(GPU_3_ICP_SOURCES
+        src/gpu_3/icp/icp.cu)
+
+set(GPU_3_PARSER_SOURCES
+        src/gpu_3/parser/parser.cu)
+
+set(GPU_3_UTILS_SOURCES
+        src/gpu_3/utils/utils.cu
+        src/gpu_3/utils/lib-matrix.cu
+        src/gpu_3/utils/matrix.cu)
+
+set(GPU_3_SOURCES
+        ${GPU_3_ICP_SOURCES}
+        ${GPU_3_PARSER_SOURCES}
+        ${GPU_3_UTILS_SOURCES})
+
+set(GPU_3_EXEC_SOURCES
+        ${GPU_3_SOURCES}
+        src/gpu_3/gpu.cu)
+
+# GPU final sources
+set(GPU_FINAL_ICP_SOURCES
+        src/gpu_final/icp/icp.cu)
+
+set(GPU_FINAL_PARSER_SOURCES
+        src/gpu_final/parser/parser.cu)
+
+set(GPU_FINAL_UTILS_SOURCES
+        src/gpu_final/utils/utils.cu
+        src/gpu_final/utils/lib-matrix.cu
+        src/gpu_final/utils/matrix.cu)
+
+set(GPU_FINAL_SOURCES
+        ${GPU_FINAL_ICP_SOURCES}
+        ${GPU_FINAL_PARSER_SOURCES}
+        ${GPU_FINAL_UTILS_SOURCES})
+
+set(GPU_FINAL_EXEC_SOURCES
+        ${GPU_FINAL_SOURCES}
+        src/gpu_final/gpu.cu)
 
 # Benchmarking Sources
 set(BENCH_SOURCES
         bench/main.cu
         ${CPU_SOURCES}
-        ${CPU_FULL_SOURCES})
+        ${GPU_1_SOURCES})
 
 # Unit Tests
 set(UNIT_TESTS_SOURCES
@@ -109,8 +175,17 @@ set(UNIT_TESTS_SOURCES
 add_executable(${CPU_TARGET}
         ${CPU_EXEC_SOURCES})
 
-add_executable(${GPU_FULL_TARGET}
-        ${GPU_FULL_EXEC_SOURCES})
+add_executable(${GPU_1_TARGET}
+        ${GPU_1_EXEC_SOURCES})
+
+add_executable(${GPU_2_TARGET}
+        ${GPU_2_EXEC_SOURCES})
+
+add_executable(${GPU_3_TARGET}
+        ${GPU_3_EXEC_SOURCES})
+
+add_executable(${GPU_FINAL_TARGET}
+        ${GPU_FINAL_EXEC_SOURCES})
 
 # Benchmarking Executable
 add_executable(${BENCH_TARGET} EXCLUDE_FROM_ALL ${BENCH_SOURCES})

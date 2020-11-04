@@ -1,13 +1,8 @@
-/**
- ** @file misc/random/uniform-random.hh
- ** @brief Declaration of misc::random::UniformRandom
- */
-
 #pragma once
 
 #include <random>
 
-namespace gpu_full::utils
+namespace gpu_final::utils
 {
     /// Uniform Distribution Random real number generator
     template <typename T>

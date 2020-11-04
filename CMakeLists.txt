@@ -9,7 +9,6 @@ set(GPU_2_TARGET gpu_2)
 set(GPU_3_TARGET gpu_3)
 set(GPU_FINAL_TARGET gpu_final)
 set(BENCH_TARGET bench)
-set(UNIT_TESTS_TARGET unit_tests)
 
 # Automatic Compilation Flag to Release
 if (NOT CMAKE_BUILD_TYPE)
@@ -167,11 +166,6 @@ set(BENCH_SOURCES
         ${GPU_2_SOURCES}
         ${GPU_3_SOURCES}
         ${GPU_FINAL_SOURCES})
-
-# Unit Tests
-set(UNIT_TESTS_SOURCES
-        tests/unit_tests/main.cc
-        ${CPU_SOURCES})
 #################################################
 
 # CPU Executable
@@ -190,47 +184,9 @@ add_executable(${GPU_3_TARGET}
 add_executable(${GPU_FINAL_TARGET}
         ${GPU_FINAL_EXEC_SOURCES})
 
+
+
 # Benchmarking Executable
 add_executable(${BENCH_TARGET} EXCLUDE_FROM_ALL ${BENCH_SOURCES})
 target_include_directories(bench PRIVATE bench)
 target_link_libraries(bench PRIVATE benchmark::benchmark)
-
-###############################################################################
-#                                 GOOGLE TEST                                 #
-###############################################################################
-
-# Download and unpack googletest at configure time
-configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
-if (result)
-    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-endif ()
-execute_process(COMMAND ${CMAKE_COMMAND} --build .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
-if (result)
-    message(FATAL_ERROR "Build step for googletest failed: ${result}")
-endif ()
-
-# Prevent overriding the parent project's compiler/linker
-# settings on Windows
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-# Add googletest directly to our build. This defines
-# the gtest and gtest_main targets.
-add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
-        ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
-        EXCLUDE_FROM_ALL)
-
-# The gtest/gtest_main targets carry header search path
-# dependencies automatically when using CMake 2.8.11 or
-# later. Otherwise we have to add them here ourselves.
-if (CMAKE_VERSION VERSION_LESS 2.8.11)
-    include_directories("${gtest_SOURCE_DIR}/include")
-endif ()
-
-# Unit Tests Executable
-add_executable(${UNIT_TESTS_TARGET} ${UNIT_TESTS_SOURCES})
-target_link_libraries(${UNIT_TESTS_TARGET} gtest_main)
